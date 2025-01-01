@@ -3,7 +3,7 @@
 
 //#define DEBUG
 
-// JUMPER
+#define JUMPER
 
 #ifdef _M_IX86
 
@@ -227,7 +227,6 @@ BOOL SW3_PopulateSyscallList()
             }
         }
     }
-
     return TRUE;
 }
 

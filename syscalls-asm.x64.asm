@@ -8,7 +8,7 @@ Sw3NtQuerySystemInformation PROC
 	mov [rsp+24], r8
 	mov [rsp+32], r9
 	sub rsp, 28h
-	mov ecx, 00C99C8B3h        ; Load function hash into ECX.
+	mov ecx, 008D30A43h        ; Load function hash into ECX.
 	call SW3_GetSyscallNumber              ; Resolve function hash into syscall number.
 	add rsp, 28h
 	mov rcx, [rsp+8]                      ; Restore registers.
@@ -26,7 +26,7 @@ Sw3NtOpenProcess PROC
 	mov [rsp+24], r8
 	mov [rsp+32], r9
 	sub rsp, 28h
-	mov ecx, 0D2AAC328h        ; Load function hash into ECX.
+	mov ecx, 05994247Ch        ; Load function hash into ECX.
 	call SW3_GetSyscallNumber              ; Resolve function hash into syscall number.
 	add rsp, 28h
 	mov rcx, [rsp+8]                      ; Restore registers.
@@ -44,7 +44,7 @@ Sw3NtTerminateProcess PROC
 	mov [rsp+24], r8
 	mov [rsp+32], r9
 	sub rsp, 28h
-	mov ecx, 0015BFF2Bh        ; Load function hash into ECX.
+	mov ecx, 04DD04C5Ch        ; Load function hash into ECX.
 	call SW3_GetSyscallNumber              ; Resolve function hash into syscall number.
 	add rsp, 28h
 	mov rcx, [rsp+8]                      ; Restore registers.
@@ -62,7 +62,7 @@ Sw3NtClose PROC
 	mov [rsp+24], r8
 	mov [rsp+32], r9
 	sub rsp, 28h
-	mov ecx, 0C493D222h        ; Load function hash into ECX.
+	mov ecx, 0DF9737DBh        ; Load function hash into ECX.
 	call SW3_GetSyscallNumber              ; Resolve function hash into syscall number.
 	add rsp, 28h
 	mov rcx, [rsp+8]                      ; Restore registers.

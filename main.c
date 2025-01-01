@@ -84,16 +84,23 @@ LONG WINAPI ExceptionHandler(PEXCEPTION_POINTERS pExceptInfo) {
         else if (rip == (DWORD_PTR)NtQuerySystemTimeAddr) {
             printf("[DEBUG] NtQuerySystemTime breakpoint hit.\n");
             if (CurrentFunction == 0) {
-                DWORD64 saved_rcx = ctx.Rcx;
-                DWORD64 saved_rdx = ctx.Rdx;
-                DWORD64 saved_r8 = ctx.R8;
-                DWORD64 saved_r9 = ctx.R9;
-                DWORD syscall_address = SW3_GetSyscallAddress(0x00C99C8B3); // 未知原因SysWhisper3获取的Syscall地址值全是0
-                printf("[DEBUG] Get Syscall Address: %lu\n", (DWORD)syscall_address);
-                ctx.Rcx = saved_rcx;
-                ctx.Rdx = saved_rdx;
-                ctx.R8 = saved_r8;
-                ctx.R9 = saved_r9;   
+                /*
+                SysWhisper3的汇编源码 在此处对寄存器进行了备份 然后在Syscall之前进行恢复
+                可能是因为 汇编语言中需要修改ECX的值 向SW3_GetSyscallNumber传递参数
+                为了保持栈平衡 备份了 RCX RDX R8 R9 寄存器
+                因此可能 并不必要
+                */
+                ULONG bufferLength = 0x10000;
+                PVOID buffer = NULL;
+                buffer = realloc(buffer, bufferLength);
+                NTSTATUS status;
+                ctx.Rcx = SystemProcessInformation;
+                ctx.Rdx = buffer;
+                ctx.R8 = bufferLength;
+                ctx.R9 = NULL;
+                DWORD_PTR syscall_addr = SW3_GetSyscallAddress(0x008D30A43);
+                printf("[DEBUG] Get Syscall Address: %p\n", (void*)syscall_addr);
+                ctx.Rip = (DWORD_PTR)syscall_addr;
             }
             pExceptInfo->ContextRecord->Rip = ctx.Rip;
             return EXCEPTION_CONTINUE_EXECUTION;
@@ -144,6 +151,7 @@ int main() {
         return -1;
     }
     printf("[DEBUG] Vectored Exception Handler set.\n");
+
     SYSTEMTIME st;
     GetSystemTime(&st);
     RemoveVectoredExceptionHandler(handler);
