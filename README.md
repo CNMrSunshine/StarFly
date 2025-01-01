@@ -6,9 +6,9 @@
 
 ## 注意事项
 
-该项目目前仍处于开发阶段，部分功能尚未实现，并且可能存在未知错误。
+该项目目前仍处于开发阶段，部分功能尚未实现。
 
-## 项目概述
+## 已实现功能
 
 本项目通过使用硬件断点Hook，底层寄存器修改和底层系统调用技术，实现对杀毒软件（AV）和高级端点检测与响应（EDR）系统的绕过和反杀。具体实现思路如下：
 
@@ -42,7 +42,3 @@ GetSystemTime(Hooked) -> NtQuerySystemTime(Hooked) -> Syscall
   - 间接调用`NtOpenProcess`打开句柄。
   - 间接调用`NtTerminateProcess`结束进程。
   - 间接调用`NtClose`关闭句柄。
-
-## 存在问题
-
-当前使用SysWhisper3解析到的Syscall地址为0，后续将尝试替换为SysWhisper2。
