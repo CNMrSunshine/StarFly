@@ -5,6 +5,7 @@
 
 #ifndef SW3_HEADER_H_
 #define SW3_HEADER_H_
+#endif
 
 #include <windows.h>
 

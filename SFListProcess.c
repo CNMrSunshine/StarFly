@@ -3,8 +3,6 @@
 #include "syscalls.h"
 #include "starfly.h"
 
-extern NTSTATUS SFNtQuerySystemInformation(SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation, ULONG SystemInformationLength, PULONG ReturnLength);
-
 void SFGetProcessInformation() {
     ULONG bufferSize = 1024 * 1024; // 初始缓冲区大小
     PVOID buffer = malloc(bufferSize);

@@ -1,44 +1,35 @@
-# 飞星StarFly-NextGen: 免杀并反杀AV/EDR的C语言实现
+# 飞星StarFly：基于双重硬件断点的间接系统调用实现
 
-## 免责声明
+## 项目简介
+**飞星StarFly** 是一个利用 Windows 高层 API 实现双重硬件断点 Hook 的 C 语言项目。通过修改异常处理器中的寄存器值并重定向函数调用，本项目实现了对 Windows 系统的底层间接系统调用，可用于绕过部分高级威胁检测 (AV/EDR)。
 
-本项目仅供学习和交流使用。若用于非法用途，开发者不承担任何责任。
+### 免责声明
+本项目仅供**学习**与**技术交流**使用，请勿用于任何非法用途。开发者对此引发的任何直接或间接后果概不负责。
 
-## 注意事项
-
-该项目目前仍处于开发阶段，部分功能尚未实现。
+### 注意事项
+- 本项目仍处于开发阶段，部分功能尚未实现。
+- 当前版本主要实现部分核心功能，支持所有 `Nt` 函数的间接调用。
 
 ## 已实现功能
+通过双重硬件断点 (DR0 和 DR1)，结合异常处理机制，StarFly 能够实现对 Windows 系统调用的重定向，具体功能如下：
+1. **获取硬件断点设置点**：通过 `GetProcAddress` 动态获取高层函数（如 `GetSystemTime()`）的入口地址。
+2. **获取系统调用地址**：通过 PEB 寻址，定位目标底层 NT 函数（如 `NtQuerySystemTime()`）的系统调用 (syscall) 地址。
+3. **硬件断点 Hook**：
+    - 在高层函数 `GetSystemTime()` 入口和 `NtQuerySystemTime()` 的系统调用地址处设置硬件断点（DR0 和 DR1）。
+    - 利用异常处理器重定向实现完整调用链，通过寄存器修改与参数覆写，间接调用任意 Windows 系统底层 API。
 
-本项目通过使用硬件断点Hook，底层寄存器修改和底层系统调用技术，实现对杀毒软件（AV）和高级端点检测与响应（EDR）系统的绕过和反杀。具体实现思路如下：
+### 技术调用链流程
+GetSystemTime (已 Hook) -> NtQuerySystemTime (已 Hook) -> Syscall
 
-1. **SysWhisper3的使用**：通过SysWhisper3获取`ntdll.dll`中所需底层API的系统调用地址。
+### 操作流程
+1. 调用 `GetSystemTime`，触发 DR0 硬件断点。
+2. 异常向量处理器 (VEH) 捕获异常：
+   - 修改 RIP，将调用重定向到 `NtQuerySystemTime`。
+3. 调用 `NtQuerySystemTime` 时，触发 DR1 硬件断点。
+4. 异常处理器再次捕获异常：
+   - 修改相关寄存器值和函数参数，并最终重定向到其他底层系统调用地址。
 
-2. **函数地址解析**：解析`GetSystemTime`和`NtQuerySystemTime`的函数地址。
+### 未来计划
+- 控制台中加入更多模组
 
-3. **硬件断点设置**：对上述两个函数的地址设置硬件断点。
-
-4. **间接系统调用链**：
-   - 调用`GetSystemTime`时，硬件断点被触发。
-   - 向量异常处理器（VEH）捕获单步异常，通过修改RIP将调用指向`NtQuerySystemTime`。
-   - `NtQuerySystemTime`触发硬件断点。
-   - 异常处理器再次捕获异常，通过修改RIP将调用指向真实调用的底层API对应的Syscall地址。
-
-### 流程
-
-
-GetSystemTime(Hooked) -> NtQuerySystemTime(Hooked) -> Syscall
-
-
-## 待实现功能
-
-- **间接调用`NtQuerySystemInformation`**：用于枚举系统进程。
-- **本地权限提升**：
-  - 查找无保护的System进程。
-  - 间接调用`NtOpenProcess`打开句柄。
-  - 窃取目标进程的模拟令牌以获得System权限。
-- **AV/EDR进程反杀**：
-  - 从进程表中找到AV/EDR相关进程的PID。
-  - 间接调用`NtOpenProcess`打开句柄。
-  - 间接调用`NtTerminateProcess`结束进程。
-  - 间接调用`NtClose`关闭句柄。
+---

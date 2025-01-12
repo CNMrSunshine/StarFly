@@ -39,8 +39,8 @@ int main(int argc, char *argv[]) {
     printf(" db   8D    88    88   88 88 `88. 88      88booo.    88    \n");
     printf(" `8888Y'    YP    YP   YP 88   YD YP      Y88888P    YP    \n");
     printf(" StarFly, call kernel via multiple Hardware Breakpoint Hook\n");
-    printf(" https://github.com/CNMrSunshine/StarFly/blob/master/main.c\n");
-    printf("\n")
+    printf(" By CN-Mr.Sunshine https://github.com/CNMrSunshine/StarFly/\n");
+    printf("\n");
 
     if (argc > 1 && strcmp(argv[1], "-PoC") == 0) {
         printf("PoC Mode: Executing Module \"ListProcess\"\n");
