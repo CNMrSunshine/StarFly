@@ -63,8 +63,8 @@ void LocalPrivilegeErrorHandler() {
             } else {
                 wprintf(L"   - Cannot Resolve SID: %d\n", i + 1);
             }
-            wprintf(L"  Token Privileges:\n");
             }
+            wprintf(L"  Token Privileges:\n");
             for (DWORD i = 0; i < PriTokenGroupsAndPrivileges->PrivilegeCount; i++) {
             LUID luid = PriTokenGroupsAndPrivileges->Privileges[i].Luid;
             TCHAR PrivilegeName[256];
