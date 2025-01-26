@@ -1,5 +1,7 @@
 # StarFly: A C Implementation for Bypassing and Forcibly Terminating Security Software
 
+[![README - 简体中文](https://img.shields.io/badge/Title-37a779?style=for-the-badge)](https://github.com/CNMrSunshine/StarFly/blob/master/README_zh.md)
+
 ## Disclaimer
 
 ### This project is for educational and research purposes only. Do not use it for illegal activities. The developer assumes no responsibility for any misuse.
