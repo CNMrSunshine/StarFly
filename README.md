@@ -1,7 +1,5 @@
 # StarFly: A C Implementation for Bypassing and Forcibly Terminating Security Software
 
----
-
 ## Disclaimer
 
 ### This project is for educational and research purposes only. Do not use it for illegal activities. The developer assumes no responsibility for any misuse.
