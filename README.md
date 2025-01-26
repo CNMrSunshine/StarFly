@@ -2,7 +2,7 @@
 
 <br>
 
-<kbd> <br> README - 简体中文 <br> </kbd>][https://img.shields.io/badge/Title-37a779?style=for-the-badge)](https://github.com/CNMrSunshine/StarFly/blob/master/README_zh.md
+<kbd> <br> [README - 简体中文][[https://img.shields.io/badge/Title-37a779?style=for-the-badge)](https://github.com/CNMrSunshine/StarFly/blob/master/README_zh.md] <br> </kbd>]
 
 <br>
 
