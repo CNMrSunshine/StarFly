@@ -1,7 +1,7 @@
 # StarFly: A C Implementation for Bypassing and Forcibly Terminating Security Software
 
 <center>
-  [![Button Click]][Link] 
+  [![Button Click][Link]]
 </center>
 
 <br>
