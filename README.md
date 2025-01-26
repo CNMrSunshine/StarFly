@@ -7,15 +7,15 @@
 ## Proof of Concept
 
 *   [StarFly v1.0.2 - VirusTotal 98.7% Undetected](https://www.virustotal.com/gui/file/321eef750933d188ee0a7e9a893fba33514437b3362b14bd591f8cc505e22c5b)
-*   [StarFly v1.1 - VirusTotal 97.2% Undetected](https://www.virustotal.com/gui/file/d0b39e61377ceee6f7f6f2fecf527f4f4db4274a558647a589110586f2070cdb)
-*   [StarFly Latest Version - Undetected by Threatbook Cloud Sandbox (Static and Dynamic Analysis)](https://s.threatbook.com/report/file/d0b39e61377ceee6f7f6f2fecf527f4f4db4274a558647a589110586f2070cdb)
-*   [StarFly Latest Version - Undetected by Qianxin Tianqiong Cloud Sandbox (Behavioral Analysis)](https://sandbox.qianxin.com/tq/report/toViewReport.do?rid=d8a1acff401216f56b662295792668cc&sk=99089590)
+*   [StarFly v1.1 - VirusTotal 97.2% Undetected](https://www.virustotal.com/gui/file/6cfc76530500da6d2314e970c5caa2c11cd9d1359df5341c6ab7da270265b72d)
+*   [StarFly Latest Version - Undetected by Threatbook Cloud Sandbox (Static and Dynamic Analysis)](https://s.threatbook.com/report/file/6cfc76530500da6d2314e970c5caa2c11cd9d1359df5341c6ab7da270265b72d)
+*   [StarFly Latest Version - Undetected by Qianxin Tianqiong Cloud Sandbox (Behavioral Analysis)](https://sandbox.qianxin.com/tq/report/toViewReport.do?rid=92fa29279c9902c24ebda9c1bb0e5973&sk=23697014)
 
 ## Usage
 
 > ### Integrating StarFly Kernel
 
-> Replace all `Nt*` functions with `SFNt*` functions. See the notes for details.
+*   Replace all `Nt*` functions with `SFNt*` functions. See the notes for details.
 
 > ### Using StarFly Console Directly
 
