@@ -1,4 +1,4 @@
-#include "syscalls.h"
+﻿#include "syscalls.h"
 #include "starfly.h"
 #include <stdio.h>
 #include <string.h>
@@ -6,12 +6,14 @@
 
 extern void StarFlyCoreStart();
 extern void StarFlyCoreExit();
-extern void SFGetProcessInformation();
-
+extern void SFGetProcessInformation(char *procname);
+extern void SFLocalPrivilege();
+extern void SFCreateProcess(char *exePath);
+extern void SFRespawn();
+extern void SFGetTrustedInstaller();
+DWORD o_restart = 0;
 void StarFlyLoadEffect(const char *str) {
     int len = 0;
-
-    // 计算字符串长度
     while (str[len] != '\0') {
         len++;
     }
@@ -29,8 +31,12 @@ void StarFlyLoadEffect(const char *str) {
     printf("\n");
 }
 
-int main(int argc, char *argv[]) {
-    StarFlyLoadEffect("StarFly Console is Starting");
+int main() {
+    if (o_restart == 1) {
+        o_restart = 0;
+        goto restart;
+    }
+    StarFlyLoadEffect("StarFly Console is Starting...");
     StarFlyCoreStart();
     printf(" .d8888. d888888b  .d8b.  d8888b. d88888b db      db    db \n");
     printf(" 88'  YP `~~88~~' d8' `8b 88  `8D 88'     88      `8b  d8' \n");
@@ -41,24 +47,64 @@ int main(int argc, char *argv[]) {
     printf(" StarFly, call kernel via multiple Hardware Breakpoint Hook\n");
     printf(" By CN-Mr.Sunshine https://github.com/CNMrSunshine/StarFly/\n");
     printf("\n");
-
-    if (argc > 1 && strcmp(argv[1], "-PoC") == 0) {
-        printf("PoC Mode: Executing Module \"ListProcess\"\n");
-        SFGetProcessInformation();
-    }
-
     char input[100];
+    restart:
     while (1) {
         printf("StarFly> ");
         if (fgets(input, sizeof(input), stdin) != NULL) {
             input[strcspn(input, "\n")] = '\0';
-            if (strcmp(input, "ps") == 0) {
-                printf("Executing Module \"ListProcess\"");
-                SFGetProcessInformation();
+
+            if (strncmp(input, "ps", 2) == 0) {
+                char *argument = strchr(input, ' ');
+                if (argument != NULL) {
+                    argument++;
+                    SFGetProcessInformation(argument);
+                } else {
+                    SFGetProcessInformation(NULL);
+                }
+            } else if (strncmp(input, "kill", 4) == 0) {
+                char *argument = strchr(input, ' ');
+                if (argument != NULL) {
+                    argument++;
+                    DWORD pid = atoi(argument);
+                    if (pid > 0) {
+                        SFKillProcess(pid);
+                    } else {
+                        SFPrintError("Invalid PID", "无效的PID");
+                    }
+                } else {
+                    SFPrintError("Usage: kill <PID>", "正确语法: kill <PID>");
+                }
+            } else if (strcmp(input, "getsystem") == 0) {
+                SFLocalPrivilege();
+            } else if (strcmp(input, "getti") == 0) {
+                SFGetTrustedInstaller();
+            } else if (strcmp(input, "respawn") == 0) {
+                if (hDupPriToken != 0xcccccccccccccccc) {
+                    SFRespawn();
+                } else {
+                    SFPrintError("Enter \"getsystem\" to Obtain a Valid Primary Token", "请先输入\'GetSystem\'获取主令牌");
+                }
+            } else if (strncmp(input, "run", 3) == 0){
+                char *argument = strchr(input, ' ');
+                if (argument != NULL) {
+                    argument++;
+                    SFCreateProcess(argument);
+                } else {
+                    SFPrintError("Missed Argument: Executable Path", "参数缺失: 可执行程序绝对路径");
+                }
+            } else if (strcmp(input, "lang") == 0) {
+                o_lang++;
+            } else if (strcmp(input, "") == 0) {
+                printf("\n"); // 满足某些叶片闲的没事喜欢在控制台瞎按回车的需求
             } else if (strcmp(input, "exit") == 0) {
                 break;
             } else {
-                printf("Unknown Command: %s\n", input);
+                if (o_lang%2 == 0){
+                    printf("Unknown Command: %s\n", input);
+                } else {
+                    printf("未知命令: %s\n", input);
+                }
             }
         }
     }
