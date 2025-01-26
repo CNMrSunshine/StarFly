@@ -36,6 +36,7 @@
 *   `kill <target_process_PID>`: Terminate the specified process.
 *   `getsystem`: Elevate local privileges to `SYSTEM` (requires administrator privileges).
 *   `getti`: Elevate local privileges to `TrustedInstaller` (requires `SYSTEM` privileges and the `TrustedInstaller` service enabled).
+*   `respawn`: Reboot StarFly Console using the duplicated primary token （**Attention**: StarFly MUST be rebooted before operating as SYSTEM.
 *   `run <absolute_path_to_executable>`: Launch the specified executable.
 *   `lang`: Switch language (English/Simplified Chinese).
 
