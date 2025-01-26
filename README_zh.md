@@ -23,6 +23,7 @@
 *   `kill <目标进程PID>`: 终止指定进程。
 *   `getsystem`: 本地权限提升至 `SYSTEM` （需要管理员权限）。
 *   `getti`: 本地权限提升至 `TrustedInstaller` （需要 `SYSTEM` 权限且启用 `TrustedInstaller` 服务）。
+*   `respawn`: 使用复制的主令牌重启飞星控制台 （注意: getsystem后需重启飞星 才可以SYSTEM权限进行操作）
 *   `run <可执行文件绝对路径>`: 启动指定可执行文件。
 *   `lang`: 切换语言（英语/简体中文）。
 
