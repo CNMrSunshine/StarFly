@@ -1,14 +1,15 @@
-﻿#include <Windows.h>
+#include <Windows.h>
 #include "starfly.h"
 #include "nt.h"
 #include <wchar.h>
+HANDLE hProcess;
+HANDLE hThread;
 /*========================================
  以下代码改编于Capt-Meelo对底层函数研究的PoC
  https://github.com/capt-meelo/NtCreateUserProcess
 ========================================*/
-HANDLE hProcess = NULL;
-HANDLE hThread = NULL;
-void SFCreateProcess(char* exePath) {
+void SFOpenCMD() {
+    char exePath = "C:\\Windows\\System32\\cmd.exe";
     hProcess = NULL;
     hThread = NULL;
     size_t len = strlen(exePath) + 1;
@@ -44,7 +45,7 @@ void SFCreateProcess(char* exePath) {
     return;
 }
 
-void OpenProcessErrorHandler() {
+void OpenCMDErrorHandler() {
     o_mode = 0;
     if (hProcess != 0 || hThread != 0) {
         SFPrintSuccess("Successfully Created Process.", "创建进程成功");

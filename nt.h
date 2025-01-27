@@ -1306,7 +1306,7 @@ __pragma(clang diagnostic pop)
 	typedef struct _PS_ATTRIBUTE_LIST
 	{
 		SIZE_T TotalLength;                 // sizeof(PS_ATTRIBUTE_LIST)
-		PS_ATTRIBUTE Attributes[2];         // Depends on how many attribute entries should be supplied to NtCreateUserProcess
+		PS_ATTRIBUTE Attributes[3];         // Depends on how many attribute entries should be supplied to NtCreateUserProcess
 	} PS_ATTRIBUTE_LIST, * PPS_ATTRIBUTE_LIST;
 
 	typedef struct _PS_MEMORY_RESERVE
@@ -1553,6 +1553,15 @@ __pragma(clang diagnostic pop)
 #define PROCESS_CREATE_FLAGS_CREATE_SESSION         0x00000080
 #define PROCESS_CREATE_FLAGS_INHERIT_FROM_PARENT    0x00000100
 
+#define PS_REQUEST_BREAKAWAY                    1
+#define PS_NO_DEBUG_INHERIT                     2
+#define PS_INHERIT_HANDLES                      4
+#define PS_LARGE_PAGES                          8
+#define PS_ALL_FLAGS                            (PS_REQUEST_BREAKAWAY | \
+                                                 PS_NO_DEBUG_INHERIT  | \
+                                                 PS_INHERIT_HANDLES   | \
+                                                 PS_LARGE_PAGES)
+												 
 	typedef enum _MEMORY_RESERVE_TYPE
 	{
 		MemoryReserveUserApc,
