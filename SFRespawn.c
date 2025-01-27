@@ -53,11 +53,11 @@ void SFRespawn()
         AttributeList->Attributes[0].Value = (ULONG_PTR)NtImagePath.Buffer;
         AttributeList->Attributes[1].Attribute = PS_ATTRIBUTE_PARENT_PROCESS;
         AttributeList->Attributes[1].Size = sizeof(HANDLE);
-        AttributeList->Attributes[1].ValuePtr = hSysProcess;
+        AttributeList->Attributes[1].ValuePtr = hTokenProcess;
         AttributeList->Attributes[2].Attribute = PS_ATTRIBUTE_TOKEN;
         AttributeList->Attributes[2].Size = sizeof(HANDLE);
         AttributeList->Attributes[2].Value = (ULONG_PTR)&hDupPriToken;
-        o_mode = 5;
+        o_mode = 6;
         HANDLE hProcess = 0;
         HANDLE hThread = 0;
         SFPrintStatus("Creating Process.", "正在创建进程");

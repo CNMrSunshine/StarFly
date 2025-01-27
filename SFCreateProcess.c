@@ -31,7 +31,7 @@ void SFCreateProcess(char* exePath) {
 	    AttributeList->Attributes[0].Value = (ULONG_PTR)NtImagePath.Buffer;
 	    AttributeList->Attributes[1].Attribute = PS_ATTRIBUTE_PARENT_PROCESS;
 	    AttributeList->Attributes[1].Size = sizeof(HANDLE);
-	    AttributeList->Attributes[1].ValuePtr = hSysProcess;
+	    AttributeList->Attributes[1].ValuePtr = hTokenProcess;
 	    AttributeList->Attributes[2].Attribute = PS_ATTRIBUTE_TOKEN;
         AttributeList->Attributes[2].Size = sizeof(HANDLE);
         AttributeList->Attributes[2].Value = (ULONG_PTR)&hDupPriToken;
