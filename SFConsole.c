@@ -11,8 +11,12 @@ extern void SFLocalPrivilege();
 extern void SFCreateProcess(char *exePath);
 extern void SFRespawn();
 extern void SFGetToken(DWORD pid);
-extern void SFOpenCMD();
 extern void SFOpenCMD2();
+extern void SFCallCMD(char* command);
+extern void SFStatus();
+HANDLE hFakeProcess = 0;
+DWORD TokenPrivilege = 0;
+DWORD FakeProcess = 0;
 DWORD o_restart = 0;
 void StarFlyLoadEffect(const char *str) {
     int len = 0;
@@ -33,11 +37,25 @@ void StarFlyLoadEffect(const char *str) {
     printf("\n");
 }
 
+void SFGetSEDebugPrivilege() {
+    HANDLE hToken;
+    NTSTATUS status;
+    status = SFNtOpenProcessToken(GetCurrentProcess(), MAXIMUM_ALLOWED, &hToken);
+    TOKEN_PRIVILEGES tp;
+    tp.PrivilegeCount = 1;
+    tp.Privileges[0].Luid.LowPart = 0x00000014;
+    tp.Privileges[0].Luid.HighPart = 0x00000000;
+    tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+    o_mode = 5;
+    status = SFNtAdjustPrivilegesToken(hToken, FALSE, &tp, 0, NULL, NULL);
+}
+
 int main() {
     if (o_restart == 1) {
         o_restart = 0;
         goto restart;
     }
+    hFakeProcess = GetCurrentProcess(); // 初始化
     StarFlyLoadEffect("StarFly Console is Starting...");
     StarFlyCoreStart();
     printf(" .d8888. d888888b  .d8b.  d8888b. d88888b db      db    db \n");
@@ -50,6 +68,7 @@ int main() {
     printf(" By CN-Mr.Sunshine https://github.com/CNMrSunshine/StarFly/\n");
     printf("\n");
     char input[100];
+    SFGetSEDebugPrivilege();
     restart:
     while (1) {
         printf("StarFly> ");
@@ -93,9 +112,7 @@ int main() {
                     SFPrintError("Usage: kill <PID>", "正确语法: kill <PID>");
                 }
             } else if (strcmp(input, "respawn") == 0) {
-                if (hDupPriToken != 0xcccccccccccccccc) {
                     SFRespawn();
-                }
             } else if (strncmp(input, "run", 3) == 0){
                 char *argument = strchr(input, ' ');
                 if (argument != NULL) {
@@ -106,8 +123,14 @@ int main() {
                 }
             } else if (strcmp(input, "cmd2") == 0) {
                 SFOpenCMD2();
-            } else if (strcmp(input, "cmd") == 0) {
-                SFOpenCMD();
+            } else if (strncmp(input, "cmd", 3) == 0){
+                char *argument = strchr(input, ' ');
+                if (argument != NULL) {
+                    argument++;
+                    SFCallCMD(argument);
+                } else {
+                    SFPrintError("Missed Argument: CMD Command", "参数缺失: CMD命令");
+                }
             } else if (strcmp(input, "lang") == 0) {
                 o_lang++;
             } else if (strcmp(input, "") == 0) {

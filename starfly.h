@@ -8,9 +8,11 @@ extern DWORD o_funchash; // 函数哈希
 extern DWORD o_lang;
 extern NTSTATUS status;
 extern HANDLE hConsole;
-extern HANDLE hDupPriToken;
-extern HANDLE hDupImpToken;
-extern HANDLE hTokenProcess;
+extern HANDLE hDupPriToken; // 主令牌
+extern HANDLE hDupImpToken; // 模拟令牌
+extern DWORD TokenPrivilege; // 1: SYSTEM ; 0: Other
+extern HANDLE hFakeProcess; // 伪装父进程的进程
+extern DWORD FakeProcess; // 1: SYSTEM ; 0: Other
 extern DWORD o_mode;
 extern DWORD o_restart;
 extern void SFPrintSuccess(const char* en, const char* cn);

@@ -24,20 +24,28 @@ void SFCreateProcess(char* exePath) {
 	CreateInfo.Size = sizeof(CreateInfo);
 	CreateInfo.State = PsCreateInitialState;
     if (hDupPriToken != 0xcccccccccccccccc && hDupPriToken != 0) {
+        if (FakeProcess >= TokenPrivilege) {
         PPS_ATTRIBUTE_LIST AttributeList = (PS_ATTRIBUTE_LIST*)RtlAllocateHeap(RtlProcessHeap(), HEAP_ZERO_MEMORY, sizeof(PS_ATTRIBUTE)*3);
 	    AttributeList->TotalLength = sizeof(PS_ATTRIBUTE_LIST) - sizeof(PS_ATTRIBUTE);
 	    AttributeList->Attributes[0].Attribute = PS_ATTRIBUTE_IMAGE_NAME;
 	    AttributeList->Attributes[0].Size = NtImagePath.Length;
 	    AttributeList->Attributes[0].Value = (ULONG_PTR)NtImagePath.Buffer;
+        SFPrintStatus("Proofing Parent Process", "正在伪造父进程");
 	    AttributeList->Attributes[1].Attribute = PS_ATTRIBUTE_PARENT_PROCESS;
 	    AttributeList->Attributes[1].Size = sizeof(HANDLE);
-	    AttributeList->Attributes[1].ValuePtr = hTokenProcess;
+	    AttributeList->Attributes[1].ValuePtr = hFakeProcess;
 	    AttributeList->Attributes[2].Attribute = PS_ATTRIBUTE_TOKEN;
         AttributeList->Attributes[2].Size = sizeof(HANDLE);
         AttributeList->Attributes[2].Value = (ULONG_PTR)&hDupPriToken;
         o_mode = 3;
-        SFPrintStatus("Creating Process.","正在创建进程");
+        SFPrintStatus("Creating Process with Duplicated Primary Token.","正在用复制的主令牌创建进程");
 	    SFNtCreateUserProcess(&hProcess, &hThread, PROCESS_ALL_ACCESS, THREAD_ALL_ACCESS, NULL, NULL, NULL, NULL, ProcessParameters, &CreateInfo, AttributeList);
+        } else {
+            SFPrintStatus("Lacking a SYSTEM Process Fully Access Handle. Will Create Process using Regular Method instead." ,"缺少SYSTEM进程的完全访问句柄 将直接使用常规方式创建进程");
+            STARTUPINFO startupinfo = { 0 };
+	        PROCESS_INFORMATION procinfo = { 0 };
+            CreateProcessWithTokenW(hDupPriToken, LOGON_WITH_PROFILE, wexePath, NULL, NULL, NULL, NULL, &startupinfo, &procinfo);
+        }
     } else {
         SFPrintError("Please Obtain a Valid Primary Token First.", "请先获取主令牌");
     }
