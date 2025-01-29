@@ -15,6 +15,7 @@ extern void SFOpenCMD2();
 extern void SFCallCMD(char* command);
 extern void SFStatus();
 extern void SFDeleteFile();
+extern void SFSetStartup(char* exePath);
 HANDLE hFakeProcess = 0;
 DWORD TokenPrivilege = 0;
 DWORD FakeProcess = 0;
@@ -122,11 +123,19 @@ int main() {
                 } else {
                     SFPrintError("Missed Argument: Executable Path", "参数缺失: 可执行程序绝对路径");
                 }
+            } else if (strncmp(input, "startup", 7) == 0){
+                char *argument = strchr(input, ' ');
+                if (argument != NULL) {
+                    argument++;
+                    SFSetStartup(argument);
+                } else {
+                    SFPrintError("Missed Argument: Executable Path", "参数缺失: 可执行程序绝对路径");
+                }
             } else if (strncmp(input, "del", 3) == 0){
                 char *argument = strchr(input, ' ');
                 if (argument != NULL) {
                     argument++;
-                    SFNtDeleteFile(argument);
+                    SFDeleteFile(argument);
                 } else {
                     SFPrintError("Missed Argument: File Path", "参数缺失: 文件绝对路径");
                 }

@@ -49,16 +49,19 @@ void OpenCMD2ErrorHandler() {
     IMAGE_NT_HEADERS64 ntHeaders = { 0 };
     status = SFNtReadVirtualMemory(hProcess, (PVOID)(imageBase + dosHeader.e_lfanew), &ntHeaders, sizeof(IMAGE_NT_HEADERS64), NULL);
 
-    // 获取入口点地址
     ULONGLONG entryPoint = imageBase + ntHeaders.OptionalHeader.AddressOfEntryPoint;
+    
+    // 获取 BaseProcessStart 的地址
+    HMODULE hKernel32 = GetModuleHandleA("kernel32.dll");
+    ULONGLONG baseProcessStart = (ULONGLONG)GetProcAddress(hKernel32, "BaseProcessStart");
     o_mode = 9;
     status = SFNtCreateThreadEx(
         &hThread,
         THREAD_ALL_ACCESS,
         NULL,
         hProcess,
-        entryPoint,
-        NULL,
+        baseProcessStart, // 使用 BaseProcessStart 作为线程启动函数
+        (PVOID)entryPoint, // 将映像入口点作为参数传递给 BaseProcessStart
         FALSE,
         0,
         0,
