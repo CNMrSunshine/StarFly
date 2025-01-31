@@ -16,6 +16,7 @@ extern void SFCallCMD(char* command);
 extern void SFStatus();
 extern void SFDeleteFile();
 extern void SFSetStartup(char* exePath);
+extern void SFForceKill(DWORD pid);
 HANDLE hFakeProcess = 0;
 DWORD TokenPrivilege = 0;
 DWORD FakeProcess = 0;
@@ -111,7 +112,20 @@ int main() {
                         SFPrintError("Invalid PID", "无效的PID");
                     }
                 } else {
-                    SFPrintError("Usage: kill <PID>", "正确语法: kill <PID>");
+                    SFPrintError("Usage: steal <PID>", "正确语法: steal <PID>");
+                }
+            } else if (strncmp(input, "fkill", 5) == 0) {
+                char *argument = strchr(input, ' ');
+                if (argument != NULL) {
+                    argument++;
+                    DWORD pid = atoi(argument);
+                    if (pid > 0) {
+                        SFForceKill(pid);
+                    } else {
+                        SFPrintError("Invalid PID", "无效的PID");
+                    }
+                } else {
+                    SFPrintError("Usage: fkill <PID>", "正确语法: fkill <PID>");
                 }
             } else if (strcmp(input, "respawn") == 0) {
                     SFRespawn();

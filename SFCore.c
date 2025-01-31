@@ -37,6 +37,7 @@ extern void OpenProcessErrorHandler();
 extern void OpenCMD2ErrorHandler();
 extern void CallCMDErrorHandler();
 extern void GetDebugErrorHandler();
+extern void ForceKillErrorHandler();
 /*========================================
 以下代码属于GitHub项目 SysWhisper3 的部分引用
 https://github.com/klezVirus/SysWhispers3
@@ -276,6 +277,9 @@ LONG WINAPI ExceptionHandler(PEXCEPTION_POINTERS pExceptInfo) {
         }
         else if (o_mode == 7 || o_mode == 8 || o_mode == 9) {
             OpenCMD2ErrorHandler();
+        }
+        else if (o_mode == 10 || o_mode == 11) {
+            ForceKillErrorHandler();
         }
         else {
             SFPrintError("An Unexpected Fatal Error Occurred.", "发生了未预期的致命错误");

