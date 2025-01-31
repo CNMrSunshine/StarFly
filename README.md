@@ -51,6 +51,10 @@
 
 ## 注意事项 & 已知 BUG
 
+### 自定义DLL注入
+
+#### 将你的DLL重命名为StarFly.dll 并放置在与飞星主程序同目录下 在控制台输入`fkill <目标进程PID>` 即可注入自定义DLL
+
 ### VS2022 编译命令行
 
 #### 建议使用提供的命令行编译飞星，否则将不保证绕过安全软件。
@@ -58,6 +62,8 @@
 **C/C++:** [/permissive- /GS /Qpar /W3 /Gy /Zc:wchar_t /Gm- /O1 /sdl /Zc:inline /fp:precise /D "NDEBUG" /D "CONSOLE" /D "_UNICODE" /D "UNICODE" /errorReport:prompt /WX- /Zc:forScope /std:clatest /Gr /Oi /MD /std:c++latest /FC /EHsc /nologo /diagnostics:column]
 
 **链接器:** [/OUT:"你的输出路径" /MANIFEST /NXCOMPAT /DYNAMICBASE "ntdll.lib" "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /MACHINE:X64 /OPT:REF /SUBSYSTEM:CONSOLE /MANIFESTUAC:"level='requireAdministrator' uiAccess='false'" /OPT:NOICF /ERRORREPORT:PROMPT /NOLOGO /TLBID:1]
+
+### 其他注意事项
 
 *   飞星不会产生联网行为。部分云沙箱检测到的是 Windows 与微软云服务器的正常数据交换。
 *   请不要包含 `winterl.h`。飞星提供的 `nt.h` 来自 `ProcessHacker` 库以及 `SysWhisper3`，已经包含所有底层调用所需定义。
