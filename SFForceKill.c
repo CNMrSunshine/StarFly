@@ -12,6 +12,11 @@ UNICODE_STRING imageName; // 未知原因 UNICODE_STRING不放在全局变量 �
 UNICODE_STRING dosPath;
 extern BOOL CheckProcess(DWORD pid, DWORD mode);
 void SFForceKill(DWORD pid) {
+    hProcess = 0;
+    pDllAddr = 0;
+    dwSize = 0;
+    tpid = 0;
+    DllPath = 0;
     setlocale(LC_ALL, "");
     SFPrintStatus("Querying Image NT Path.", "正在查询映像NT路径");
     ULONG returnLength;
