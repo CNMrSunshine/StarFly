@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "cwchar": "c",
+        "random": "c",
+        "array": "c",
+        "string_view": "c",
+        "format": "c",
+        "initializer_list": "c",
+        "span": "c"
+    }
+}
