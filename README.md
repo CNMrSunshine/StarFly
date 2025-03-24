@@ -1,5 +1,3 @@
----
-
 # 飞星注入器（StarFly Injector）
 
 **飞星注入器（StarFly Injector）** 是一个基于 C 语言开发的 Windows 系统注入工具，利用硬件断点与 VEH（向量异常处理）的组合实现了“动态堆栈欺骗”（Dynamic Stack Spoofing）技术，并结合无线程注入（Threadless Injection）和句柄提权漏洞，成功将自定义 shellcode 注入到 `winlogon.exe` 进程中。注入完成后，通过任意方式触发 UAC（用户账户控制）即可启动计算器（`calc.exe`），作为注入成功的演示。
