@@ -52,20 +52,14 @@
 
 ### 环境要求
 - **操作系统**：Windows 10/11（64 位）
-- **编译器**：MSVC（推荐 Visual Studio 2019 或更高版本）
+- **编译器**：GCC (wDevKit)
 - **依赖头文件**：
   - `windows.h`
   - `stdio.h`
   - `stdint.h`
-  - `syscalls.h`（自定义系统调用头文件）
+  - `syscalls.h`（Syswhisper3头文件）
   - `nt.h`（NT 内部结构定义）
 
-### 编译步骤
-1. 克隆或下载本项目代码。
-2. 确保 `syscalls.h` 和 `nt.h` 已正确配置（可参考 `SysWhispers3` 项目生成）。
-3. 使用 Visual Studio 或其他支持 MSVC 的 IDE 打开项目。
-4. 设置编译目标为 `x64 Release`。
-5. 编译生成 `StarFlyInjector.exe`。
 
 ### 运行步骤
 1. 以管理员权限运行 `StarFlyInjector.exe`。
@@ -82,8 +76,7 @@
 
 - **权限要求**：必须以管理员权限运行程序，否则无法提升对 `winlogon.exe` 的访问权限。
 - **安全性**：本工具仅用于教育和研究目的，请勿在未经授权的系统上使用。
-- **稳定性**：注入可能会因系统版本差异或安全补丁而失败，请在测试环境验证。
-- **日志输出**：程序运行时会输出关键步骤的地址和状态，便于调试。
+- **待修复**: 本项目暂未实现模拟ImpersonateLogedOnUser的底层实现，调用该函数易被检测。
 
 ---
 
