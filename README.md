@@ -111,6 +111,17 @@
 
 ---
 
+## TO DO LIST
+
+- [x] 降低敏感可打印字符辨识度 
+- [ ] 用 `NtDuplicateToken` + `NtSetInformationThread` 实现 `ImpersonateLoggedOnUser
+- [ ] 用 `WindowsAPI` 实现C标准库部分功能
+- [ ] 为 `NtReadProcessMemory` `NtWriteProcessMemory` `NtProtectVirtualMemory` 更新 `AdvDSS`
+- [ ] 更新 `Shellcode`
+- [ ] 重设注入点 将Hook设置在进程主映像
+
+---
+
 ## 引用与致谢
 
 本项目部分代码和技术灵感来源于以下开源项目，在此表示感谢：
