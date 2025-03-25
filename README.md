@@ -19,9 +19,9 @@
 ## 技术原理
 
 ### 1. 动态堆栈欺骗（Dynamic Stack Spoofing）
-- 使用硬件断点（通过调试寄存器 `Dr0` 和 `Dr7`）在目标系统调用（如 `NtWaitForSingleObject`）处设置断点。
-- 当断点触发时，通过自定义的 VEH（`ExceptionHandler`）接管异常处理，动态修改寄存器和堆栈内容。
-- 将真实的系统调用参数传递给内核，同时伪装调用栈，防止被安全软件检测。
+- 使用硬件断点（通过调试寄存器 `Dr0` 和 `Dr7`）在“傀儡”高层函数间接调用的 `Nt*` 函数 `Syscall` 指令处设置断点。
+- 当断点触发时，通过自定义的 VEH（`ExceptionHandler`）接管异常处理，修改寄存器和堆栈内容。
+- 将真实的系统调用参数传递给内核，同时不破坏原有调用栈，防止被安全软件检测。
 
 ### 2. 无线程注入（Threadless Injection）
 - 在目标进程（`winlogon.exe`）中寻找合适的内存空洞（Memory Hole），分配可执行内存。
@@ -30,13 +30,14 @@
 
 ### 3. 句柄提权
 - 通过 `ConvertProcNameToPid` 定位 `winlogon.exe` 的 PID。
-- 使用 `LocalPrivilege` 函数模拟 `SYSTEM` 权限，结合 `ElevateHandle` 提升句柄权限，获取对 `winlogon.exe` 的完全访问权（`PROCESS_ALL_ACCESS`）。
+- 使用 `LocalPrivilege` 函数模拟 `SYSTEM` 权限，使线程与 `winlogon.exe` 为同一用户所有（句柄提权漏洞触发要求）
+- 调用 `ElevateHandle` 提升句柄权限，获取对 `winlogon.exe` 的完全访问权（`PROCESS_ALL_ACCESS`）。
 
 ### 4. Shellcode 执行
 - Shellcode 包含两部分：
-  - **加载器（shellcode_loader）**：保存原始指令并跳转至实际 payload。
+  - **加载器（shellcode_loader）**：恢复被Hook处的原始指令。
   - **计算器 payload（shellcode）**：从 `kernel32.dll` 中解析 `WinExec`，调用 `calc.exe`。
-- 当 `NtWaitForSingleObject` 被调用时，跳转至 shellcode，最终弹出计算器。
+- 当 `NtWaitForSingleObject` 被调用时，Hook被触发，最终弹出计算器。
 
 ---
 
@@ -52,22 +53,22 @@
 
 ### 环境要求
 - **操作系统**：Windows 10/11（64 位）
-- **编译器**：GCC (wDevKit)
+- **编译器**：GCC 或 MSVC2022 (MSVC C标准库 静态链接易报毒）
 - **依赖头文件**：
   - `windows.h`
   - `stdio.h`
   - `stdint.h`
-  - `syscalls.h`（Syswhisper3头文件）
-  - `nt.h`（NT 内部结构定义）
+  - `syscalls.h`（Syswhisper3生成）
+  - `nt.h`（NT 内部结构定义 源于https://github.com/winsiderss/phnt）
 
 
 ### 运行步骤
-1. 以管理员权限运行 `StarFlyInjector.exe`。
+1. 以管理员权限运行 `StarFly.exe`。
 2. 程序将自动：
    - 定位并提升对 `winlogon.exe` 的权限。
    - 注入 shellcode。
    - 输出注入过程的日志。
-3. 注入完成后，运行任意需要 UAC 提升的程序（例如 `cmd.exe /c dir`）。
+3. 注入完成后，运行任意需要 UAC 提升的程序。
 4. 检查是否弹出计算器窗口，验证注入成功。
 
 ---
@@ -117,5 +118,5 @@
 - **[SysWhispers3](https://github.com/klezVirus/SysWhispers3)**：提供了系统调用生成和地址解析功能。
 - **[ThreadlessInject-C-Implementation](https://github.com/lsecqt/ThreadlessInject-C-Implementation)**：无线程注入技术的参考实现。
 - **[SysmonEnte](https://github.com/codewhitesec/SysmonEnte)**：句柄提权技术的灵感来源。
+- **[Native API Header](https://github.com/winsiderss/phnt)**： 非常感谢 `SystemInformer / ProcessHacker` 项目对底层开发者的帮助和支持。
 
----
