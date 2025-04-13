@@ -4,6 +4,7 @@
 
 本项目旨在展示一种创新的注入技术，适用于安全研究和渗透测试场景。请确保在合法授权的环境下使用本工具
 
+[详情请前往 菜叶片的博客](https://cnmrsunshine.github.io/2025/04/05/fei-xing-hua-po-ye-kong-starfly-zhu-ru-qi-shen-du-jie-xi-yu-edr-tu-fang-shi-zhan/)
 ---
 
 ## 项目特点
