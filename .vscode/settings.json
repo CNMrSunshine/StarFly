@@ -6,6 +6,9 @@
         "string_view": "c",
         "format": "c",
         "initializer_list": "c",
-        "span": "c"
+        "span": "c",
+        "cstddef": "c",
+        "cstdint": "c",
+        "syscalls.h": "c"
     }
 }
