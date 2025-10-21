@@ -1,0 +1,2521 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+  "runs": [
+    {
+      "results": [
+        {
+          "ruleId": "C28252",
+          "message": {
+            "text": "'RtlFirstEntrySList' 的注释不一致: 返回/功能 在上一实例中包含 'SAL_post SAL_mustInspect SAL_post SAL_checkReturn'。查看 c:\\program files (x86)\\windows kits\\10\\include\\10.0.26100.0\\um\\winnt.h(22560)。"
+          },
+          "analysisTarget": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/sfcorepoc.c"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/yepia/source/repos/StarFly/include/ntrtl.h"
+                },
+                "region": {
+                  "startLine": 3838,
+                  "startColumn": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "RtlFirstEntrySList",
+                  "decoratedName": "RtlFirstEntrySList",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C6001",
+          "message": {
+            "text": "使用未初始化的内存“TempEntries”。"
+          },
+          "analysisTarget": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/sfcorepoc.c"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                },
+                "region": {
+                  "startLine": 170,
+                  "startColumn": 8
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "SW3_GetSyscallNumber",
+                  "decoratedName": "SW3_GetSyscallNumber",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 130,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 131,
+                            "startColumn": 6
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 133,
+                            "startColumn": 20
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 134,
+                            "startColumn": 20
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 135,
+                            "startColumn": 24
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 136,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 137,
+                            "startColumn": 21
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 139,
+                            "startColumn": 26
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 140,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 141,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 142,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 143,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 146,
+                            "startColumn": 17
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 149,
+                            "startColumn": 4
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 150,
+                            "startColumn": 15
+                          }
+                        },
+                        "message": {
+                          "text": "未初始化“TempEntries”"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ],
+                      "importance": "essential"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 151,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 153,
+                            "startColumn": 13
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 153,
+                            "startColumn": 22
+                          }
+                        },
+                        "message": {
+                          "text": "跳过此循环(假定“i<NumberOfNames”为 false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 166,
+                            "startColumn": 13
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 166,
+                            "startColumn": 22
+                          }
+                        },
+                        "message": {
+                          "text": "进入此循环(假定“i<Count-1”)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 168,
+                            "startColumn": 14
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 168,
+                            "startColumn": 23
+                          }
+                        },
+                        "message": {
+                          "text": "进入此循环(假定“j<Count-i-1”)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 170,
+                            "startColumn": 31
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 170,
+                            "startColumn": 8
+                          }
+                        },
+                        "message": {
+                          "text": "已使用“TempEntries”，但可能尚未将其初始化"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C6387",
+          "message": {
+            "text": "“buf”可能是“0”: 这不符合函数“GetNumaHighestNodeNumber”的规范。"
+          },
+          "analysisTarget": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/sfcorepoc.c"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                },
+                "region": {
+                  "startLine": 290,
+                  "startColumn": 2,
+                  "endLine": 290,
+                  "endColumn": 27
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "SFNtOpenProcess",
+                  "decoratedName": "SFNtOpenProcess",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 281,
+                            "startColumn": 18
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 282,
+                            "startColumn": 18
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 283,
+                            "startColumn": 18
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 284,
+                            "startColumn": 18
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 285,
+                            "startColumn": 18
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 286,
+                            "startColumn": 18
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 287,
+                            "startColumn": 19
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 288,
+                            "startColumn": 15
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 289,
+                            "startColumn": 8
+                          }
+                        },
+                        "message": {
+                          "text": "“buf”为 NULL"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ],
+                      "importance": "essential"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 290,
+                            "startColumn": 2
+                          }
+                        },
+                        "message": {
+                          "text": "“buf”是“GetNumaHighestNodeNumber”的输入/输出参数(在 c:\\program files (x86)\\windows kits\\10\\include\\10.0.26100.0\\um\\systemtopologyapi.h:31 处声明)"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 290,
+                            "startColumn": 2
+                          }
+                        },
+                        "message": {
+                          "text": "“buf”不应为 NULL，因为这与“GetNumaHighestNodeNumber”上的 SAL 批注不一致"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C6011",
+          "message": {
+            "text": "取消对 NULL 指针“pInfo”的引用。"
+          },
+          "analysisTarget": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/sfcorepoc.c"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                },
+                "region": {
+                  "startLine": 363,
+                  "startColumn": 7,
+                  "endLine": 363,
+                  "endColumn": 66
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "ConvertProcNameToPid",
+                  "decoratedName": "ConvertProcNameToPid",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 357,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 358,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 359,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 360,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 361,
+                            "startColumn": 30
+                          }
+                        },
+                        "message": {
+                          "text": "“pInfo”可能为 NULL"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ],
+                      "importance": "essential"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 362,
+                            "startColumn": 9
+                          }
+                        },
+                        "message": {
+                          "text": "进入此循环(假定“1”)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 363,
+                            "startColumn": 31
+                          }
+                        },
+                        "message": {
+                          "text": "跳过此分支(假定“<分支条件>”为 false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 363,
+                            "startColumn": 31
+                          }
+                        },
+                        "message": {
+                          "text": "已取消对“pInfo”的引用，但可能仍为 NULL"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C6011",
+          "message": {
+            "text": "取消对 NULL 指针“maliciousHandler”的引用。"
+          },
+          "analysisTarget": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/sfcorepoc.c"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                },
+                "region": {
+                  "startLine": 962,
+                  "startColumn": 2,
+                  "endLine": 962,
+                  "endColumn": 38
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "main",
+                  "decoratedName": "main",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 895,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 896,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 898,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 900,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 901,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 902,
+                            "startColumn": 12
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 903,
+                            "startColumn": 20
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 904,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 905,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 906,
+                            "startColumn": 15
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 913,
+                            "startColumn": 17
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 914,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 916,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 917,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 918,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 920,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 921,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 922,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 925,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 927,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 930,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 931,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 933,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 935,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 936,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 937,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 938,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 939,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 940,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 944,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 946,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 947,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 948,
+                            "startColumn": 17
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 949,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 950,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 951,
+                            "startColumn": 14
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 952,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 953,
+                            "startColumn": 18
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 954,
+                            "startColumn": 26
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 955,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 956,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 958,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 961,
+                            "startColumn": 26
+                          }
+                        },
+                        "message": {
+                          "text": "“maliciousHandler”可能为 NULL"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ],
+                      "importance": "essential"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 962,
+                            "startColumn": 36
+                          }
+                        },
+                        "message": {
+                          "text": "已取消对“maliciousHandler”的引用，但可能仍为 NULL"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C6011",
+          "message": {
+            "text": "取消对 NULL 指针“firstEntry”的引用。"
+          },
+          "analysisTarget": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/sfcorepoc.c"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                },
+                "region": {
+                  "startLine": 971,
+                  "startColumn": 3,
+                  "endLine": 971,
+                  "endColumn": 55
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "main",
+                  "decoratedName": "main",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 895,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 896,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 898,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 900,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 901,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 902,
+                            "startColumn": 12
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 903,
+                            "startColumn": 20
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 904,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 905,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 906,
+                            "startColumn": 15
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 913,
+                            "startColumn": 17
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 914,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 916,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 917,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 918,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 920,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 921,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 922,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 925,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 927,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 930,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 931,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 933,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 935,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 936,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 937,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 938,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 939,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 940,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 944,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 946,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 947,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 948,
+                            "startColumn": 17
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 949,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 950,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 951,
+                            "startColumn": 14
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 952,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 953,
+                            "startColumn": 18
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 954,
+                            "startColumn": 26
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 955,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 956,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 958,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 961,
+                            "startColumn": 26
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 962,
+                            "startColumn": 36
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 966,
+                            "startColumn": 14
+                          }
+                        },
+                        "message": {
+                          "text": "“firstEntry”可能为 NULL"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ],
+                      "importance": "essential"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 967,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 968,
+                            "startColumn": 2
+                          }
+                        },
+                        "message": {
+                          "text": "“firstEntry”是“SFNtReadVirtualMemory”的输入/输出参数(在第 265 行中声明)"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/yepia/source/repos/StarFly/SFCorePoC.c"
+                          },
+                          "region": {
+                            "startLine": 971,
+                            "startColumn": 41
+                          }
+                        },
+                        "message": {
+                          "text": "已取消对“firstEntry”的引用，但可能仍为 NULL"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "tool": {
+        "driver": {
+          "name": "PREfast",
+          "fullName": "MSVC Code Analysis",
+          "version": "14.44.35215.0",
+          "informationUri": "https://aka.ms/cpp/ca"
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true
+        }
+      ],
+      "artifacts": [
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/sfcorepoc.c"
+          },
+          "roles": [
+            "analysisTarget",
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "24e08ab8a92a1f4951d44423ebd6c1cede71807d99c13aaa9ca9cbbd4a5589dc"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///C:/Users/yepia/source/repos/StarFly/include/ntrtl.h"
+          },
+          "roles": [
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "3ba0d0a1d06ff058a407c03a262e8447f3a56cfacf5ff16f699b5378d334f29e"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/syscalls.h"
+          },
+          "hashes": {
+            "sha-256": "fbe445d51f28ea59cc554d6d3609cd6e808b5d88e02183b1f92b4bc07141d09d"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/phnt_windows.h"
+          },
+          "hashes": {
+            "sha-256": "d3318d1f81f16974f55af308887408de108e7cd1341383cdcca3b2471bc900e5"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/phnt.h"
+          },
+          "hashes": {
+            "sha-256": "91f64b647812782b3f88f7f2dd852b99983e70fc276b684ae9ffa52c63003916"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/phnt_ntdef.h"
+          },
+          "hashes": {
+            "sha-256": "f1587cc91bfed56e44a8fc9c9c2b937e726193f413651ce2dee07c79b758557b"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntnls.h"
+          },
+          "hashes": {
+            "sha-256": "d70c98b24e79535e9c404914e79684097333da4e28030bdc169f6b27e72ba25d"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntkeapi.h"
+          },
+          "hashes": {
+            "sha-256": "136567aee38e6efdf059d08781c55e6330dcf08d691c81ae668fccda05720441"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntldr.h"
+          },
+          "hashes": {
+            "sha-256": "1888a98a08f489d7be52fb930562453a987e5a2cdde4dfe60d42142890714cc0"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntexapi.h"
+          },
+          "hashes": {
+            "sha-256": "d541664e1b3e7f7f1d27376116f8717d40eed8843cf83672f2d73cb07b85e474"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntbcd.h"
+          },
+          "hashes": {
+            "sha-256": "68f3723b6c0d10e3db017abd7a41c411d118cd58be33a0ec3dcb0eb9e5419b13"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntmmapi.h"
+          },
+          "hashes": {
+            "sha-256": "c6dc6121f92c5bcb2cb9d9eb1949e1b9021d05eb4943da2001587b8939427eb7"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntobapi.h"
+          },
+          "hashes": {
+            "sha-256": "70b97ab4639480acce5cfb59fe8c803407a817eeb6bbe86ffeebee32d82f9c9f"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntpsapi.h"
+          },
+          "hashes": {
+            "sha-256": "876cf2daad53ba497d774d735fa052600e15c87c0c7a08f75575503ba3faefd9"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntpebteb.h"
+          },
+          "hashes": {
+            "sha-256": "a904bf1ff5e35a816113be3e24275b9a2071c0e41424f1ccdb19508b49c3218d"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntsxs.h"
+          },
+          "hashes": {
+            "sha-256": "b3cb60aadce545c131f51c2b820cc2b35c2266162e53a299a074d2126622040a"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntdbg.h"
+          },
+          "hashes": {
+            "sha-256": "bca2cc17c25d311d96ff5cf67466c0c98162b70442a8aa6d40d181666b7f73e3"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntimage.h"
+          },
+          "hashes": {
+            "sha-256": "283093f16d3bf702732a3e9e1ba4873090eacca57aa48c881b98ba85d3e024c3"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntioapi.h"
+          },
+          "hashes": {
+            "sha-256": "ca70317f6a22099b17a714f3edc25f4291c595b13cb62a085ae73b282e0a0e95"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntlpcapi.h"
+          },
+          "hashes": {
+            "sha-256": "70b846458cb37d9e99ec2f4d2e51b523e2377763e8b08bbf2dd9d0f683392234"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntmisc.h"
+          },
+          "hashes": {
+            "sha-256": "7ca957edf7e08be1ca6529b77159a4284df88d03f954ecb411d30c789ec13df1"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntpfapi.h"
+          },
+          "hashes": {
+            "sha-256": "a50079899b70b90e85388365eda30b916386c8507ca878d256ced8ccadae48de"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntpnpapi.h"
+          },
+          "hashes": {
+            "sha-256": "0a44b79b77300b271b34639912c149dd88d86ac63d39006e0ec60a275b9f8aca"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntpoapi.h"
+          },
+          "hashes": {
+            "sha-256": "0c96e6fcc1423717b29ffe66fb03c0084d30d32c333c3cc121e12c17d261760c"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntregapi.h"
+          },
+          "hashes": {
+            "sha-256": "46a69c6b5c8e0539e20bf4e43aaf1a0f306a669910c99bd66bfe9169d0423b85"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntsam.h"
+          },
+          "hashes": {
+            "sha-256": "a17143c3e0ad1fe3371a8835f3820c2eb4eb30a109befee84fa76fd8254b8c9b"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntseapi.h"
+          },
+          "hashes": {
+            "sha-256": "39c739101ab33115b86de685bab97dc4523d5516820f9715954b66b103154a33"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/nttmapi.h"
+          },
+          "hashes": {
+            "sha-256": "6b1bb40f19f46ea67648a1639eb001ed8b73b9965b4ae731d183c278bea98b49"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/nttp.h"
+          },
+          "hashes": {
+            "sha-256": "abc0e623e098eb314ef24e263c893aff5ec05e0fc66eaa282cedd7c676225ffb"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntuser.h"
+          },
+          "hashes": {
+            "sha-256": "5fa1cbb134452db56dca38e13b772bd7c7d9b43c19a954ce4b3f8eeba7c314d4"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntwmi.h"
+          },
+          "hashes": {
+            "sha-256": "762acad2433aa21e08aafa1a4186f52da133645790a434d7f1147e5ffcdf4182"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntwow64.h"
+          },
+          "hashes": {
+            "sha-256": "3cd8644c131e24c0949ea5883cb52b9e4d742d03a2aa806c651c17a9b427c806"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntxcapi.h"
+          },
+          "hashes": {
+            "sha-256": "4687e9ecdfdd4303bfd5d09aee1bb0583eeb91bdaf30432fed0e05f0c888bbfb"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/yepia/source/repos/starfly/include/ntzwapi.h"
+          },
+          "hashes": {
+            "sha-256": "b79b2d1f450074700f7d83bbaeaaba9ef43f704fa65ddee99163eaec9b5a6267"
+          }
+        }
+      ]
+    }
+  ]
+}

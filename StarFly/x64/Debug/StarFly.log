@@ -1,0 +1,338 @@
+﻿  SFCorePoC.c
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(66,9): warning C4005: “STATUS_WAIT_0”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2611,9):
+      参见“STATUS_WAIT_0”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(227,9): warning C4005: “STATUS_ABANDONED_WAIT_0”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2612,9):
+      参见“STATUS_ABANDONED_WAIT_0”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(250,9): warning C4005: “STATUS_USER_APC”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2613,9):
+      参见“STATUS_USER_APC”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(286,9): warning C4005: “STATUS_TIMEOUT”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2614,9):
+      参见“STATUS_TIMEOUT”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(295,9): warning C4005: “STATUS_PENDING”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2615,9):
+      参见“STATUS_PENDING”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(751,9): warning C4005: “DBG_EXCEPTION_HANDLED”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2616,9):
+      参见“DBG_EXCEPTION_HANDLED”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(760,9): warning C4005: “DBG_CONTINUE”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2617,9):
+      参见“DBG_CONTINUE”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(835,9): warning C4005: “STATUS_SEGMENT_NOTIFICATION”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2618,9):
+      参见“STATUS_SEGMENT_NOTIFICATION”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(998,9): warning C4005: “STATUS_FATAL_APP_EXIT”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2619,9):
+      参见“STATUS_FATAL_APP_EXIT”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(1345,9): warning C4005: “DBG_REPLY_LATER”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2620,9):
+      参见“DBG_REPLY_LATER”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(1363,9): warning C4005: “DBG_TERMINATE_THREAD”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2621,9):
+      参见“DBG_TERMINATE_THREAD”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(1372,9): warning C4005: “DBG_TERMINATE_PROCESS”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2622,9):
+      参见“DBG_TERMINATE_PROCESS”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(1381,9): warning C4005: “DBG_CONTROL_C”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2623,9):
+      参见“DBG_CONTROL_C”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(1390,9): warning C4005: “DBG_PRINTEXCEPTION_C”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2624,9):
+      参见“DBG_PRINTEXCEPTION_C”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(1399,9): warning C4005: “DBG_RIPEXCEPTION”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2625,9):
+      参见“DBG_RIPEXCEPTION”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(1408,9): warning C4005: “DBG_CONTROL_BREAK”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2626,9):
+      参见“DBG_CONTROL_BREAK”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(1417,9): warning C4005: “DBG_COMMAND_EXCEPTION”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2627,9):
+      参见“DBG_COMMAND_EXCEPTION”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(1426,9): warning C4005: “DBG_PRINTEXCEPTION_WIDE_C”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2628,9):
+      参见“DBG_PRINTEXCEPTION_WIDE_C”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(1458,9): warning C4005: “STATUS_GUARD_PAGE_VIOLATION”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2629,9):
+      参见“STATUS_GUARD_PAGE_VIOLATION”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(1469,9): warning C4005: “STATUS_DATATYPE_MISALIGNMENT”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2630,9):
+      参见“STATUS_DATATYPE_MISALIGNMENT”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(1480,9): warning C4005: “STATUS_BREAKPOINT”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2631,9):
+      参见“STATUS_BREAKPOINT”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(1491,9): warning C4005: “STATUS_SINGLE_STEP”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2632,9):
+      参见“STATUS_SINGLE_STEP”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(1794,9): warning C4005: “STATUS_LONGJUMP”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2633,9):
+      参见“STATUS_LONGJUMP”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(1821,9): warning C4005: “STATUS_UNWIND_CONSOLIDATE”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2634,9):
+      参见“STATUS_UNWIND_CONSOLIDATE”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(1945,9): warning C4005: “DBG_EXCEPTION_NOT_HANDLED”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2635,9):
+      参见“DBG_EXCEPTION_NOT_HANDLED”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(2112,9): warning C4005: “STATUS_ACCESS_VIOLATION”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2636,9):
+      参见“STATUS_ACCESS_VIOLATION”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(2121,9): warning C4005: “STATUS_IN_PAGE_ERROR”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2637,9):
+      参见“STATUS_IN_PAGE_ERROR”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(2139,9): warning C4005: “STATUS_INVALID_HANDLE”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2638,9):
+      参见“STATUS_INVALID_HANDLE”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(2184,9): warning C4005: “STATUS_INVALID_PARAMETER”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2639,9):
+      参见“STATUS_INVALID_PARAMETER”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(2284,9): warning C4005: “STATUS_NO_MEMORY”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2640,9):
+      参见“STATUS_NO_MEMORY”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(2341,9): warning C4005: “STATUS_ILLEGAL_INSTRUCTION”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2641,9):
+      参见“STATUS_ILLEGAL_INSTRUCTION”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(2422,9): warning C4005: “STATUS_NONCONTINUABLE_EXCEPTION”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2642,9):
+      参见“STATUS_NONCONTINUABLE_EXCEPTION”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(2431,9): warning C4005: “STATUS_INVALID_DISPOSITION”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2643,9):
+      参见“STATUS_INVALID_DISPOSITION”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(3364,9): warning C4005: “STATUS_ARRAY_BOUNDS_EXCEEDED”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2644,9):
+      参见“STATUS_ARRAY_BOUNDS_EXCEEDED”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(3374,9): warning C4005: “STATUS_FLOAT_DENORMAL_OPERAND”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2645,9):
+      参见“STATUS_FLOAT_DENORMAL_OPERAND”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(3384,9): warning C4005: “STATUS_FLOAT_DIVIDE_BY_ZERO”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2646,9):
+      参见“STATUS_FLOAT_DIVIDE_BY_ZERO”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(3394,9): warning C4005: “STATUS_FLOAT_INEXACT_RESULT”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2647,9):
+      参见“STATUS_FLOAT_INEXACT_RESULT”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(3404,9): warning C4005: “STATUS_FLOAT_INVALID_OPERATION”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2648,9):
+      参见“STATUS_FLOAT_INVALID_OPERATION”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(3414,9): warning C4005: “STATUS_FLOAT_OVERFLOW”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2649,9):
+      参见“STATUS_FLOAT_OVERFLOW”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(3424,9): warning C4005: “STATUS_FLOAT_STACK_CHECK”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2650,9):
+      参见“STATUS_FLOAT_STACK_CHECK”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(3434,9): warning C4005: “STATUS_FLOAT_UNDERFLOW”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2651,9):
+      参见“STATUS_FLOAT_UNDERFLOW”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(3444,9): warning C4005: “STATUS_INTEGER_DIVIDE_BY_ZERO”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2652,9):
+      参见“STATUS_INTEGER_DIVIDE_BY_ZERO”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(3454,9): warning C4005: “STATUS_INTEGER_OVERFLOW”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2653,9):
+      参见“STATUS_INTEGER_OVERFLOW”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(3464,9): warning C4005: “STATUS_PRIVILEGED_INSTRUCTION”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2654,9):
+      参见“STATUS_PRIVILEGED_INSTRUCTION”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(4410,9): warning C4005: “STATUS_STACK_OVERFLOW”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2655,9):
+      参见“STATUS_STACK_OVERFLOW”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(4927,9): warning C4005: “STATUS_DLL_NOT_FOUND”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2656,9):
+      参见“STATUS_DLL_NOT_FOUND”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(4956,9): warning C4005: “STATUS_ORDINAL_NOT_FOUND”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2657,9):
+      参见“STATUS_ORDINAL_NOT_FOUND”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(4966,9): warning C4005: “STATUS_ENTRYPOINT_NOT_FOUND”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2658,9):
+      参见“STATUS_ENTRYPOINT_NOT_FOUND”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(4976,9): warning C4005: “STATUS_CONTROL_C_EXIT”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2659,9):
+      参见“STATUS_CONTROL_C_EXIT”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(5054,9): warning C4005: “STATUS_DLL_INIT_FAILED”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2660,9):
+      参见“STATUS_DLL_INIT_FAILED”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(6051,9): warning C4005: “STATUS_CONTROL_STACK_VIOLATION”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2661,9):
+      参见“STATUS_CONTROL_STACK_VIOLATION”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(7645,9): warning C4005: “STATUS_FLOAT_MULTIPLE_FAULTS”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2662,9):
+      参见“STATUS_FLOAT_MULTIPLE_FAULTS”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(7655,9): warning C4005: “STATUS_FLOAT_MULTIPLE_TRAPS”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2663,9):
+      参见“STATUS_FLOAT_MULTIPLE_TRAPS”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(7787,9): warning C4005: “STATUS_REG_NAT_CONSUMPTION”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2664,9):
+      参见“STATUS_REG_NAT_CONSUMPTION”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(8770,9): warning C4005: “STATUS_HEAP_CORRUPTION”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2665,9):
+      参见“STATUS_HEAP_CORRUPTION”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(8998,9): warning C4005: “STATUS_STACK_BUFFER_OVERRUN”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2666,9):
+      参见“STATUS_STACK_BUFFER_OVERRUN”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(9125,9): warning C4005: “STATUS_INVALID_CRUNTIME_PARAMETER”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2667,9):
+      参见“STATUS_INVALID_CRUNTIME_PARAMETER”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(9188,9): warning C4005: “STATUS_ASSERTION_FAILURE”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2668,9):
+      参见“STATUS_ASSERTION_FAILURE”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(10097,9): warning C4005: “STATUS_ENCLAVE_VIOLATION”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2669,9):
+      参见“STATUS_ENCLAVE_VIOLATION”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(10884,9): warning C4005: “STATUS_INTERRUPTED”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2670,9):
+      参见“STATUS_INTERRUPTED”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(10893,9): warning C4005: “STATUS_THREAD_NOT_RUNNING”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2671,9):
+      参见“STATUS_THREAD_NOT_RUNNING”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(11205,9): warning C4005: “STATUS_ALREADY_REGISTERED”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2672,9):
+      参见“STATUS_ALREADY_REGISTERED”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(15323,9): warning C4005: “STATUS_SXS_EARLY_DEACTIVATION”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2674,9):
+      参见“STATUS_SXS_EARLY_DEACTIVATION”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(15332,9): warning C4005: “STATUS_SXS_INVALID_DEACTIVATION”: 宏重定义
+  (编译源文件“SFCorePoC.c”)
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(2675,9):
+      参见“STATUS_SXS_INVALID_DEACTIVATION”的前一个定义
+  
+C:\Users\yepia\Desktop\StarFly\SFCorePoC.c(219,22): warning C4018: “<=”: 有符号/无符号不匹配
+C:\Users\yepia\Desktop\StarFly\SFCorePoC.c(224,35): warning C4047: “=”:“DWORD64”与“PVOID”的间接级别不同
+C:\Users\yepia\Desktop\StarFly\SFCorePoC.c(265,27): warning C4047: “函数”:“PULONG”与“DWORD”的间接级别不同
+C:\Users\yepia\Desktop\StarFly\SFCorePoC.c(265,27): warning C4024: “GetNumaHighestNodeNumber”: 形参和实参 1 的类型不同
+C:\Users\yepia\Desktop\StarFly\SFCorePoC.c(297,27): warning C4047: “函数”:“PULONG”与“DWORD”的间接级别不同
+C:\Users\yepia\Desktop\StarFly\SFCorePoC.c(297,27): warning C4024: “GetNumaHighestNodeNumber”: 形参和实参 1 的类型不同
+C:\Users\yepia\Desktop\StarFly\SFCorePoC.c(333,33): warning C4133: “函数”: 从“DWORD *”到“LPWSTR”的类型不兼容
+C:\Users\yepia\Desktop\StarFly\SFCorePoC.c(333,84): warning C4133: “函数”: 从“DWORD *”到“LPWSTR”的类型不兼容
+C:\Users\yepia\Desktop\StarFly\SFCorePoC.c(380,16): warning C4311: “类型强制转换”: 从“HANDLE”到“DWORD”的指针截断
+C:\Users\yepia\Desktop\StarFly\SFCorePoC.c(420,9): warning C4005: “ALIGN_UP”: 宏重定义
+      C:\Users\yepia\source\repos\StarFly\include\phnt_ntdef.h(462,9):
+      参见“ALIGN_UP”的前一个定义
+  
+C:\Users\yepia\Desktop\StarFly\SFCorePoC.c(492,31): warning C4267: “=”: 从“size_t”转换到“uint32_t”，可能丢失数据
+C:\Users\yepia\Desktop\StarFly\SFCorePoC.c(767,48): warning C4133: “<=”: 从“PVOID *”到“PVOID”的类型不兼容
+C:\Users\yepia\Desktop\StarFly\SFCorePoC.c(916,25): warning C4312: “类型强制转换”: 从“DWORD”转换到更大的“HANDLE”
+  StarFly.vcxproj -> C:\Users\yepia\Desktop\StarFly\x64\Debug\StarFly.exe
