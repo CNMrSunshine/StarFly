@@ -6,6 +6,16 @@
 
 ---
 
+## 使用方法
+### Step.1 用InjectorDesignaturing\designaturing.py 生成新的C文件
+- 你可以在该脚本中 将Shellcode改为你自己的Shellcode
+  - 建议Shellcode具有代码自修改功能 能将自身机器码第一位改为`ret` 以避免Shellcode被重复执行
+- ChaCha20密钥 nonce和state将会重设为随机值
+- 傀儡函数也会被随机设置 程序的函数调用顺序和程序结构将会改变
+
+### Step.2 用VS2022打开项目文件 用Release配置生成解决方案
+- 程序中硬编码了`*NullPointer = 1;`的汇编码长度为6 如需修改编译器优化设置 请修改此值
+
 ## 项目特点
 
 - **利用VEH和硬件断点实现的无痕堆栈欺骗+间接系统调用方案**：[详情见项目 GalaxyGate](https://github.com/cnmrsunshine/galaxygate)
