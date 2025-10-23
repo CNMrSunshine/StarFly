@@ -1,4 +1,4 @@
-#include <windows.h>
+﻿#include <windows.h>
 #include <phnt_windows.h>
 #include <phnt.h>
 //#define DEBUG

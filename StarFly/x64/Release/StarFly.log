@@ -970,10 +970,6 @@ C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(15
 C:\Users\yepia\Desktop\StarFly-master\StackSpoof.c(60,22): warning C4018: “<=”: 有符号/无符号不匹配
 C:\Users\yepia\Desktop\StarFly-master\StackSpoof.c(65,35): warning C4047: “=”:“DWORD64”与“PVOID”的间接级别不同
 C:\Users\yepia\Desktop\StarFly-master\StackSpoof.c(69,3): warning C4013: “RtlZeroMemory”未定义；假设外部返回 int
-C:\Users\yepia\Desktop\StarFly-master\StackSpoof.c(138,33): warning C4133: “函数”: 从“DWORD *”到“LPWSTR”的类型不兼容
-C:\Users\yepia\Desktop\StarFly-master\StackSpoof.c(138,84): warning C4133: “函数”: 从“DWORD *”到“LPWSTR”的类型不兼容
-C:\Users\yepia\Desktop\StarFly-master\StackSpoof.c(206,33): warning C4133: “函数”: 从“DWORD *”到“LPWSTR”的类型不兼容
-C:\Users\yepia\Desktop\StarFly-master\StackSpoof.c(206,84): warning C4133: “函数”: 从“DWORD *”到“LPWSTR”的类型不兼容
   injector.c
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ntstatus.h(66,9): warning C4005: “STATUS_WAIT_0”: 宏重定义
   (编译源文件“injector.c”)
@@ -1955,6 +1951,7 @@ C:\Users\yepia\Desktop\StarFly-master\tools.c(81,31): warning C4024: “HeapFree
 C:\Users\yepia\Desktop\StarFly-master\tools.c(89,29): warning C4047: “函数”:“DWORD”与“void *”的间接级别不同
 C:\Users\yepia\Desktop\StarFly-master\tools.c(89,29): warning C4024: “HeapFree”: 形参和实参 2 的类型不同
 C:\Users\yepia\Desktop\StarFly-master\tools.c(207,48): warning C4133: “<=”: 从“PVOID *”到“PVOID”的类型不兼容
-  正在生成代码...
-  LINK : 已指定 /LTCG，但不需要生成代码；从链接命令行中移除 /LTCG 以提高链接器性能
+  正在生成代码
+  Not all modules are compiled with -Gy (function comdat), build without incremental LTCG.
+  已完成代码的生成
   StarFly.vcxproj -> C:\Users\yepia\Desktop\StarFly-master\x64\Release\StarFly.exe
