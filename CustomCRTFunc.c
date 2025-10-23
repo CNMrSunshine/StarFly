@@ -6,17 +6,6 @@
 #include <wctype.h>
 #include "VEHinj.h"
 #include <stddef.h>
-#include "CustomCRTFunc.h"
-#define memset SFmemset
-
-void SFexit(UINT code) {
-    ExitProcess(code);
-}
-
-PVOID SFmemset(void* dest, int c, size_t n) {
-    RtlFillMemory(dest, n, (BYTE)c);
-    return dest;
-}
 
 size_t SFstrlen(const char* s) {
     const char* p = s;
@@ -24,13 +13,11 @@ size_t SFstrlen(const char* s) {
     return (size_t)(p - s);
 }
 
-#ifndef strlen
 size_t strlen(const char* s) {
     const char* p = s;
     while (*p) ++p;
     return (size_t)(p - s);
 }
-#endif
 
 size_t SFwcslen(const wchar_t* s) {
     const wchar_t* p = s;
@@ -38,13 +25,11 @@ size_t SFwcslen(const wchar_t* s) {
     return (size_t)(p - s);
 }
 
-#ifndef __imp_wcslen
 size_t __imp_wcslen(const wchar_t* s) {
     const wchar_t* p = s;
     while (*p) ++p;
     return (size_t)(p - s);
 }
-#endif
 
 wchar_t* SFwcsstr(const wchar_t* haystack, const wchar_t* needle) {
     if (!*needle) return (wchar_t*)haystack;

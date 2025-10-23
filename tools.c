@@ -16,25 +16,53 @@ NTSTATUS SFNtDuplicateObject(HANDLE SourceProcessHandle, HANDLE SourceHandle, HA
 NTSTATUS SFNtQuerySystemInformation(SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation, ULONG SystemInformationLength, PULONG ReturnLength);
 NTSTATUS SFNtQueryVirtualMemory(HANDLE ProcessHandle, PVOID BaseAddress, MEMORY_INFORMATION_CLASS MemoryInformationClass, PVOID MemoryInformation, SIZE_T MemoryInformationLength, PSIZE_T ReturnLength);
 
+size_t SFstrlen(const char* s);
+size_t SFwcslen(const wchar_t* s);
+wchar_t* SFwcsstr(const wchar_t* haystack, const wchar_t* needle);
+int SFstrcmp(const char* a, const char* b);
+
+FORCEINLINE VOID SFRtlInitUnicodeString( // 使用自定义wcslen的RtlInitUnicodeString宏 其余一致
+	_Out_ PUNICODE_STRING DestinationString,
+	_In_opt_z_ PCWSTR SourceString
+)
+{
+	if (SourceString)
+		DestinationString->MaximumLength = (DestinationString->Length = (USHORT)(SFwcslen(SourceString) * sizeof(WCHAR))) + sizeof(UNICODE_NULL);
+	else
+		DestinationString->MaximumLength = DestinationString->Length = 0;
+	DestinationString->Buffer = (PWCH)SourceString;
+}
+
+FORCEINLINE VOID SFRtlInitAnsiString( // 与上个函数同理
+	_Out_ PANSI_STRING DestinationString,
+	_In_opt_z_ PCSTR SourceString
+)
+{
+	if (SourceString)
+		DestinationString->MaximumLength = (DestinationString->Length = (USHORT)SFstrlen(SourceString)) + sizeof(ANSI_NULL);
+	else
+		DestinationString->MaximumLength = DestinationString->Length = 0;
+
+	DestinationString->Buffer = (PCHAR)SourceString;
+}
+
 // 输出DEBUG字符串
 void PrintDbgA(char* message) {
 #ifdef DEBUG
-	WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), message, (UINT)strlen(message), NULL, NULL);
+	WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), message, (UINT)SFstrlen(message), NULL, NULL);
 #endif
 }
 
 void PrintDbgW(wchar_t* message) {
 #ifdef DEBUG
-	WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE), message, (UINT)wcslen(message), NULL, NULL);
+	WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE), message, (UINT)SFwcslen(message), NULL, NULL);
 #endif
 }
 
 // 错误处理
 void ErrExit() {
 #ifdef DEBUG
-	RemoveVectoredExceptionHandler(ExceptionHandler); // 移除VEH 然后引发调试器中断 以便调试
-	DWORD* NullPointer = 0x0;
-	*NullPointer = 1;
+	DbgBreakPoint();
 #endif
 	ExitProcess(0);
 }
@@ -48,7 +76,7 @@ DWORD ConvertProcNameToPid(wchar_t* ProcName) {
 	SFNtQuerySystemInformation(SystemProcessInformation, buffer, bufferSize, &returnLength);
 	PSYSTEM_PROCESS_INFORMATION pInfo = (PSYSTEM_PROCESS_INFORMATION)buffer;
 	while (TRUE) {
-		if (pInfo->ImageName.Buffer && wcsstr(pInfo->ImageName.Buffer, ProcName)) {
+		if (pInfo->ImageName.Buffer && SFwcsstr(pInfo->ImageName.Buffer, ProcName)) {
 			DWORD pid = (DWORD)pInfo->UniqueProcessId;
 			HeapFree(GetProcessHeap(), NULL, buffer);
 			return pid;
@@ -138,18 +166,17 @@ typedef HRESULT(WINAPI* pRtlEncodeRemotePointer)(_In_ HANDLE ProcessToken, _In_o
 BOOL GetNtdllSectionVa(char* sectionName, PVOID* sectionVa, DWORD* sectionSize) {
 	PVOID hNtdll = NULL;
 	UNICODE_STRING usNtdll;
-	RtlInitUnicodeString(&usNtdll, L"ntdll.dll");
+	SFRtlInitUnicodeString(&usNtdll, L"ntdll.dll");
 	NTSTATUS status = LdrGetDllHandle(NULL, NULL, &usNtdll, &hNtdll);
 	if (hNtdll == NULL) {
-		return FALSE; // Err: 获取ntdll.dll句柄失败
+		return FALSE;
 	}
 
 	PIMAGE_DOS_HEADER ntdllDos = (PIMAGE_DOS_HEADER)hNtdll;
 	PIMAGE_NT_HEADERS ntdllNt = (PIMAGE_NT_HEADERS)((DWORD_PTR)hNtdll + ntdllDos->e_lfanew);
 	for (WORD i = 0; i < ntdllNt->FileHeader.NumberOfSections; i++) {
 		PIMAGE_SECTION_HEADER sectionHeader = (PIMAGE_SECTION_HEADER)((DWORD_PTR)IMAGE_FIRST_SECTION(ntdllNt) + ((DWORD_PTR)IMAGE_SIZEOF_SECTION_HEADER * i));
-
-		if (!strcmp((char*)sectionHeader->Name, sectionName)) {
+		if (!SFstrcmp((char*)sectionHeader->Name, sectionName)) {
 			*sectionVa = (PVOID)((ULONG_PTR)hNtdll + sectionHeader->VirtualAddress);
 			*sectionSize = sectionHeader->Misc.VirtualSize;
 		}

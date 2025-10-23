@@ -1,7 +1,8 @@
 #include <windows.h>
 #include <phnt_windows.h>
 #include <phnt.h>
-#define DEBUG
+//#define DEBUG
+
 typedef struct _PEB2
 {
 	BOOLEAN InheritedAddressSpace;

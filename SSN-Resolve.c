@@ -6,6 +6,8 @@
 #include <wctype.h>
 #include "VEHinj.h"
 
+#undef RtlCompareMemory // 傻逼C标准库给WinAPI定义到C运行时函数 这是什么行为
+
 /*
  * 深度改造版 SysWhisper3
  *   不再在内存中长期存储数据
@@ -40,7 +42,7 @@ PVOID SC_Address(PVOID NtApiAddress)
 	BYTE syscall_code[] = { 0x0f, 0x05, 0xc3 };
 	ULONG distance_to_syscall = 0x12;
 	SyscallAddress = SW3_RVA2VA(PVOID, NtApiAddress, distance_to_syscall);
-	if (!memcmp((PVOID)syscall_code, SyscallAddress, sizeof(syscall_code)))
+	if (RtlCompareMemory((PVOID)syscall_code, SyscallAddress, sizeof(syscall_code)) == sizeof(syscall_code))
 	{
 		return SyscallAddress;
 	}
@@ -50,7 +52,7 @@ PVOID SC_Address(PVOID NtApiAddress)
 			PVOID,
 			NtApiAddress,
 			distance_to_syscall + num_jumps * 0x20);
-		if (!memcmp((PVOID)syscall_code, SyscallAddress, sizeof(syscall_code)))
+		if (RtlCompareMemory((PVOID)syscall_code, SyscallAddress, sizeof(syscall_code)) == sizeof(syscall_code))
 		{
 			return SyscallAddress;
 		}
@@ -58,7 +60,7 @@ PVOID SC_Address(PVOID NtApiAddress)
 			PVOID,
 			NtApiAddress,
 			distance_to_syscall - num_jumps * 0x20);
-		if (!memcmp((PVOID)syscall_code, SyscallAddress, sizeof(syscall_code)))
+		if (RtlCompareMemory((PVOID)syscall_code, SyscallAddress, sizeof(syscall_code)) == sizeof(syscall_code))
 		{
 			return SyscallAddress;
 		}
