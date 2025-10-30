@@ -1,10 +1,4 @@
-﻿#include <stdio.h>
-#include <stdint.h>
-#include "syscalls.h"
-#include <stdbool.h>
-#include <wchar.h>
-#include <wctype.h>
-#include "VEHinj.h"
+﻿#include "VEHinj.h"
 
 // 左旋转宏
 #define ROTL32(x, n) (((x) << (n)) | ((x) >> (32 - (n))))

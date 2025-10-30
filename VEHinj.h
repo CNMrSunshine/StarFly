@@ -1,7 +1,13 @@
-﻿#include <windows.h>
+﻿#pragma once
+#include <stdint.h>
+#include <windows.h>
 #include <phnt_windows.h>
 #include <phnt.h>
-//#define DEBUG
+#include "syscalls.h"
+#include "CustomCRTFunc.h"
+#include "CustomRtlFunc.h"
+
+#define DEBUG
 
 typedef struct _PEB2
 {

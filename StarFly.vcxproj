@@ -88,12 +88,15 @@
   <ItemGroup>
     <ClCompile Include="ChaCha20.c" />
     <ClCompile Include="CustomCRTFunc.c" />
+    <ClCompile Include="CustomRtlFunc.c" />
     <ClCompile Include="StackSpoof.c" />
     <ClCompile Include="injector.c" />
     <ClCompile Include="SSN-Resolve.c" />
     <ClCompile Include="utils.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CustomCRTFunc.h" />
+    <ClInclude Include="CustomRtlFunc.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="shellcode.h" />
     <ClInclude Include="syscalls.h" />

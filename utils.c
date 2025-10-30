@@ -1,10 +1,4 @@
-﻿#include <stdio.h>
-#include <stdint.h>
-#include "syscalls.h"
-#include <stdbool.h>
-#include <wchar.h>
-#include <wctype.h>
-#include "VEHinj.h"
+﻿#include "VEHinj.h"
 
 LONG WINAPI ExceptionHandler(PEXCEPTION_POINTERS pExceptInfo);
 NTSTATUS SFNtProtectVirtualMemory(HANDLE ProcessHandle, PVOID* BaseAddress, PSIZE_T RegionSize, ULONG NewProtect, PULONG OldProtect);
@@ -15,11 +9,6 @@ NTSTATUS SFNtQueryInformationProcess(HANDLE ProcessHandle, PROCESSINFOCLASS Proc
 NTSTATUS SFNtDuplicateObject(HANDLE SourceProcessHandle, HANDLE SourceHandle, HANDLE TargetProcessHandle, PHANDLE TargetHandle, ACCESS_MASK DesiredAccess, ULONG HandleAttributes, ULONG Options);
 NTSTATUS SFNtQuerySystemInformation(SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation, ULONG SystemInformationLength, PULONG ReturnLength);
 NTSTATUS SFNtQueryVirtualMemory(HANDLE ProcessHandle, PVOID BaseAddress, MEMORY_INFORMATION_CLASS MemoryInformationClass, PVOID MemoryInformation, SIZE_T MemoryInformationLength, PSIZE_T ReturnLength);
-
-size_t SFstrlen(const char* s);
-size_t SFwcslen(const wchar_t* s);
-wchar_t* SFwcsstr(const wchar_t* haystack, const wchar_t* needle);
-int SFstrcmp(const char* a, const char* b);
 
 FORCEINLINE VOID SFRtlInitUnicodeString( // 使用自定义wcslen的RtlInitUnicodeString宏 其余一致
 	_Out_ PUNICODE_STRING DestinationString,

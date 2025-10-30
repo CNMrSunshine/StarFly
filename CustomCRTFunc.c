@@ -1,11 +1,4 @@
-#include <stdio.h>
-#include <stdint.h>
-#include "syscalls.h"
-#include <stdbool.h>
-#include <wchar.h>
-#include <wctype.h>
 #include "VEHinj.h"
-#include <stddef.h>
 
 size_t SFstrlen(const char* s) {
     const char* p = s;

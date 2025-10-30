@@ -33,6 +33,9 @@
     <ClCompile Include="CustomCRTFunc.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="CustomRtlFunc.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -41,10 +44,16 @@
     <ClInclude Include="syscalls.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="VEHinj.h">
+    <ClInclude Include="shellcode.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="shellcode.h">
+    <ClInclude Include="CustomCRTFunc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CustomRtlFunc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="VEHinj.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

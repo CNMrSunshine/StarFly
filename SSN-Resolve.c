@@ -1,10 +1,4 @@
-﻿#include <stdio.h>
-#include <stdint.h>
-#include "syscalls.h"
-#include <stdbool.h>
-#include <wchar.h>
-#include <wctype.h>
-#include "VEHinj.h"
+﻿#include "VEHinj.h"
 
 #undef RtlCompareMemory // 傻逼C标准库给WinAPI定义到C运行时函数 这是什么行为
 
