@@ -2,10 +2,6 @@
 
 #undef RtlZeroMemory
 
-// SysWhisper3 SSN-Resolve
-PVOID SW3_GetSyscallAddress(DWORD FunctionHash);
-DWORD SW3_GetSyscallNumber(DWORD FunctionHash);
-
 typedef struct _SFParams {
 	DWORD ParamNum; // 真实调用的函数参数数量
 	DWORD FuncHash; // 真实调用的函数哈希值
@@ -80,7 +76,7 @@ NTSTATUS SFNtProtectVirtualMemory(HANDLE ProcessHandle, PVOID* BaseAddress, PSIZ
 	Params.DummyHash = 0x09E349EA7;
 	*NullPointer = 1;
 	ULONGLONG buf = 0;
-	GetNumaAvailableMemoryNode(0, &buf);
+	GetNumaNodeProcessorMask(0, &buf);
 	// DummyFunc1
 	return 0;
 }
@@ -94,10 +90,10 @@ NTSTATUS SFNtWriteVirtualMemory(HANDLE ProcessHandle, PVOID BaseAddress, PVOID B
 	Params.ParamNum = 5;
 	Params.FuncHash = 0x007901F0F;
 	// DummyFunc2
-	Params.DummyHash = 0x0A6208368;
+	Params.DummyHash = 0x09E349EA7;
 	*NullPointer = 1;
-	DWORD buf[3] = { 0 };
-	GetDiskFreeSpaceW(L"C:\\", &buf[0], &buf[1], &buf[2], &buf[3]);
+	ULONGLONG buf = 0;
+	GetNumaNodeProcessorMask(0, &buf);
 	// DummyFunc2
 	return 0;
 }
@@ -144,10 +140,10 @@ NTSTATUS SFNtQueryInformationProcess(HANDLE ProcessHandle, PROCESSINFOCLASS Proc
 	Params.ParamNum = 5;
 	Params.FuncHash = 0x0DD27CE88;
 	// DummyFunc5
-	Params.DummyHash = 0x09E349EA7;
+	Params.DummyHash = 0x0A6208368;
 	*NullPointer = 1;
-	ULONGLONG buf = 0;
-	GetNumaNodeProcessorMask(0, &buf);
+	DWORD buf[3] = { 0 };
+	GetDiskFreeSpaceW(L"C:\\", &buf[0], &buf[1], &buf[2], &buf[3]);
 	// DummyFunc5
 	return 0;
 }
@@ -163,10 +159,10 @@ NTSTATUS SFNtDuplicateObject(HANDLE SourceProcessHandle, HANDLE SourceHandle, HA
 	Params.ParamNum = 7;
 	Params.FuncHash = 0x0ECBFE423;
 	// DummyFunc6
-	Params.DummyHash = 0x09E349EA7;
+	Params.DummyHash = 0x0A6208368;
 	*NullPointer = 1;
-	ULONGLONG buf = 0;
-	GetNumaAvailableMemoryNode(0, &buf);
+	DWORD buf[3] = { 0 };
+	GetDiskFreeSpaceW(L"C:\\", &buf[0], &buf[1], &buf[2], &buf[3]);
 	// DummyFunc6
 	return 0;
 }
@@ -179,10 +175,10 @@ NTSTATUS SFNtQuerySystemInformation(SYSTEM_INFORMATION_CLASS SystemInformationCl
 	Params.ParamNum = 4;
 	Params.FuncHash = 0x09E349EA7;
 	// DummyFunc7
-	Params.DummyHash = 0x0A6208368;
+	Params.DummyHash = 0x09E349EA7;
 	*NullPointer = 1;
-	DWORD buf[3] = { 0 };
-	GetDiskFreeSpaceW(L"C:\\", &buf[0], &buf[1], &buf[2], &buf[3]);
+	ULONGLONG buf = 0;
+	GetNumaNodeProcessorMask(0, &buf);
 	// DummyFunc7
 	return 0;
 }
@@ -197,10 +193,10 @@ NTSTATUS SFNtQueryVirtualMemory(HANDLE ProcessHandle, PVOID BaseAddress, MEMORY_
 	Params.ParamNum = 6;
 	Params.FuncHash = 0x003910903;
 	// DummyFunc8
-	Params.DummyHash = 0x0A6208368;
+	Params.DummyHash = 0x09E349EA7;
 	*NullPointer = 1;
-	DWORD buf[3] = { 0 };
-	GetDiskFreeSpaceW(L"C:\\", &buf[0], &buf[1], &buf[2], &buf[3]);
+	ULONGLONG buf = 0;
+	GetNumaNodeProcessorMask(0, &buf);
 	// DummyFunc8
 	return 0;
 }

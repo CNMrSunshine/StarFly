@@ -4,10 +4,40 @@
 #include <phnt_windows.h>
 #include <phnt.h>
 #include "syscalls.h"
-#include "CustomCRTFunc.h"
-#include "CustomRtlFunc.h"
 
-#define DEBUG
+//#define DEBUG
+
+// SysWhisper3 SSN-Resolve
+PVOID SW3_GetSyscallAddress(DWORD FunctionHash);
+DWORD SW3_GetSyscallNumber(DWORD FunctionHash);
+PVOID GetDllBase(DWORD p1, DWORD p2);
+DWORD SW3_HashSyscall(PCSTR FunctionName);
+
+// GalaxyGate 自研栈欺骗方案 Stack Spoof Solution
+LONG WINAPI ExceptionHandler(PEXCEPTION_POINTERS pExceptInfo);
+NTSTATUS SFNtProtectVirtualMemory(HANDLE ProcessHandle, PVOID* BaseAddress, PSIZE_T RegionSize, ULONG NewProtect, PULONG OldProtect);
+NTSTATUS SFNtWriteVirtualMemory(HANDLE ProcessHandle, PVOID BaseAddress, PVOID Buffer, SIZE_T NumberOfBytesToWrite, PSIZE_T NumberOfBytesWritten);
+NTSTATUS SFNtReadVirtualMemory(HANDLE ProcessHandle, PVOID BaseAddress, PVOID Buffer, SIZE_T BufferSize, PSIZE_T NumberOfBytesRead);
+NTSTATUS SFNtOpenProcess(PHANDLE ProcessHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes, PCLIENT_ID ClientId);
+NTSTATUS SFNtQueryInformationProcess(HANDLE ProcessHandle, PROCESSINFOCLASS ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength, PULONG ReturnLength);
+NTSTATUS SFNtDuplicateObject(HANDLE SourceProcessHandle, HANDLE SourceHandle, HANDLE TargetProcessHandle, PHANDLE TargetHandle, ACCESS_MASK DesiredAccess, ULONG HandleAttributes, ULONG Options);
+NTSTATUS SFNtQuerySystemInformation(SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation, ULONG SystemInformationLength, PULONG ReturnLength);
+NTSTATUS SFNtQueryVirtualMemory(HANDLE ProcessHandle, PVOID BaseAddress, MEMORY_INFORMATION_CLASS MemoryInformationClass, PVOID MemoryInformation, SIZE_T MemoryInformationLength, PSIZE_T ReturnLength);
+
+// ChaCha20 解密 Decryption
+void chacha20_decrypt(const unsigned char* encrypted, size_t len, const unsigned char* key, const unsigned char* nonce, unsigned char* decrypted);
+
+// 杂项 utils
+DWORD ConvertProcNameToPid(wchar_t* ProcName);
+HANDLE ElevateHandle(IN HANDLE hProcess, IN ACCESS_MASK DesiredAccess, IN DWORD HandleAttributes);
+PVOID GetLocalKernel32EntryPoint();
+BOOL GetNtdllSectionVa(DWORD SectionHash, PVOID* sectionVa, DWORD* sectionSize);
+PVOID findLdrpVectorHandlerList(PVOID VEH);
+BOOL EnableRemoteVEH(HANDLE hProcess);
+PVOID FindZeroHoleInRemote(HANDLE hProcess, PVOID regionBase, SIZE_T regionSize, SIZE_T holeSize, SIZE_T alignment);
+void PrintDbgA(char* message);
+void PrintDbgW(wchar_t* message);
+void ErrExit();
 
 typedef struct _PEB2
 {

@@ -29,40 +29,7 @@ DWORD SW3_HashSyscall(PCSTR FunctionName)
 	return Hash;
 }
 
-PVOID SC_Address(PVOID NtApiAddress)
-{
-	DWORD searchLimit = 512;
-	PVOID SyscallAddress;
-	BYTE syscall_code[] = { 0x0f, 0x05, 0xc3 };
-	ULONG distance_to_syscall = 0x12;
-	SyscallAddress = SW3_RVA2VA(PVOID, NtApiAddress, distance_to_syscall);
-	if (RtlCompareMemory((PVOID)syscall_code, SyscallAddress, sizeof(syscall_code)) == sizeof(syscall_code))
-	{
-		return SyscallAddress;
-	}
-	for (ULONG32 num_jumps = 1; num_jumps < searchLimit; num_jumps++)
-	{
-		SyscallAddress = SW3_RVA2VA(
-			PVOID,
-			NtApiAddress,
-			distance_to_syscall + num_jumps * 0x20);
-		if (RtlCompareMemory((PVOID)syscall_code, SyscallAddress, sizeof(syscall_code)) == sizeof(syscall_code))
-		{
-			return SyscallAddress;
-		}
-		SyscallAddress = SW3_RVA2VA(
-			PVOID,
-			NtApiAddress,
-			distance_to_syscall - num_jumps * 0x20);
-		if (RtlCompareMemory((PVOID)syscall_code, SyscallAddress, sizeof(syscall_code)) == sizeof(syscall_code))
-		{
-			return SyscallAddress;
-		}
-	}
-	return NULL;
-}
-
-PVOID GetNtdllBase()
+PVOID GetDllBase(DWORD p1, DWORD p2)
 {
 	PSW3_PEB Peb = (PSW3_PEB)__readgsqword(0x60);
 	PSW3_PEB_LDR_DATA Ldr = Peb->Ldr;
@@ -77,16 +44,16 @@ PVOID GetNtdllBase()
 		if (VirtualAddress == 0) continue;
 		PIMAGE_EXPORT_DIRECTORY ExportDirectory = (PIMAGE_EXPORT_DIRECTORY)SW3_RVA2VA(ULONG_PTR, DllBase, VirtualAddress);
 		PCHAR DllName = SW3_RVA2VA(PCHAR, DllBase, ExportDirectory->Name);
-		if ((*(ULONG*)DllName | 0x20202020) != 0x6c64746e) continue;
-		if ((*(ULONG*)(DllName + 4) | 0x20202020) == 0x6c642e6c)
+		if ((*(ULONG*)DllName | 0x20202020) != p1) continue;
+		if ((*(ULONG*)(DllName + 4) | 0x20202020) == p2)
 			return DllBase;
 	}
 	return NULL;
 }
 
-PVOID SW3_GetSyscallAddress(DWORD FunctionHash)
+PVOID SW3_GetSyscallAddress(DWORD FuncHash) // 支持NtDLL所有导出表函数查询 :3
 {
-	PVOID DllBase = GetNtdllBase();
+	PVOID DllBase = GetDllBase(0x6c64746e, 0x6c642e6c); // ntdll.dl的反写
 	if (!DllBase) return NULL;
 
 	PIMAGE_DOS_HEADER DosHeader = (PIMAGE_DOS_HEADER)DllBase;
@@ -103,23 +70,18 @@ PVOID SW3_GetSyscallAddress(DWORD FunctionHash)
 
 	for (DWORD i = 0; i < NumberOfNames; i++)
 	{
-		PCHAR FunctionName = SW3_RVA2VA(PCHAR, DllBase, Names[i]);
-		if (*(USHORT*)FunctionName == 0x775a)
-		{
-			DWORD CurrentHash = SW3_HashSyscall(FunctionName);
-			if (CurrentHash == FunctionHash)
-			{
-				PVOID NtApiAddress = SW3_RVA2VA(PVOID, DllBase, Functions[Ordinals[i]]);
-				return SC_Address(NtApiAddress);
-			}
+		DWORD Hash = SW3_HashSyscall(SW3_RVA2VA(PCHAR, DllBase, Names[i]));
+		if (FuncHash == Hash) {
+			return SW3_RVA2VA(PVOID, DllBase, Functions[Ordinals[i]]);
 		}
 	}
 	return NULL;
 }
 
+
 DWORD SW3_GetSyscallNumber(DWORD FunctionHash)
 {
-	PVOID DllBase = GetNtdllBase();
+	PVOID DllBase = GetDllBase(0x6c64746e, 0x6c642e6c); // ntdll.dl的反写
 	if (!DllBase) return -1;
 
 	PIMAGE_DOS_HEADER DosHeader = (PIMAGE_DOS_HEADER)DllBase;

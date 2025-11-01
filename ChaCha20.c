@@ -6,6 +6,7 @@
 #define ALIGN_UP(x, a) (((x) + ((a) - 1)) & ~((a) - 1))
 
 #undef RtlCopyMemory // 傻逼C标准库给WinAPI定义到C运行时函数 这是什么行为
+
 // ChaCha20轮函数
 void chacha20_quarter_round(uint32_t* a, uint32_t* b, uint32_t* c, uint32_t* d) {
 	*a += *b; *d = ROTL32(*d ^ *a, 16);
@@ -46,10 +47,10 @@ void chacha20_decrypt(const unsigned char* encrypted, size_t len,
 	uint32_t state[16];
 
 	// 自定义常量
-	state[0] = 0x1AD95191;
-	state[1] = 0x2817BBB1;
-	state[2] = 0xD800FC06;
-	state[3] = 0x5F3C1BDB;
+	state[0] = 0x0AF73E03;
+	state[1] = 0x2D51C06E;
+	state[2] = 0x0F711C4D;
+	state[3] = 0x60F70AE1;
 
 	// 密钥（32 字节）
 	for (int i = 0; i < 8; i++) {

