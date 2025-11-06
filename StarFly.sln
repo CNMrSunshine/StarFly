@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36414.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StarFly", "StarFly.vcxproj", "{40FBABEF-14FE-490E-97B7-E43D01C6049D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Minimal|x64 = Minimal|x64
+		Minimal|x86 = Minimal|x86
+		X3|x64 = X3|x64
+		X3|x86 = X3|x86
+		XD|x64 = XD|x64
+		XD|x86 = XD|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{40FBABEF-14FE-490E-97B7-E43D01C6049D}.Minimal|x64.ActiveCfg = Minimal|x64
+		{40FBABEF-14FE-490E-97B7-E43D01C6049D}.Minimal|x64.Build.0 = Minimal|x64
+		{40FBABEF-14FE-490E-97B7-E43D01C6049D}.Minimal|x86.ActiveCfg = Minimal|Win32
+		{40FBABEF-14FE-490E-97B7-E43D01C6049D}.Minimal|x86.Build.0 = Minimal|Win32
+		{40FBABEF-14FE-490E-97B7-E43D01C6049D}.X3|x64.ActiveCfg = X3|x64
+		{40FBABEF-14FE-490E-97B7-E43D01C6049D}.X3|x64.Build.0 = X3|x64
+		{40FBABEF-14FE-490E-97B7-E43D01C6049D}.X3|x86.ActiveCfg = X3|Win32
+		{40FBABEF-14FE-490E-97B7-E43D01C6049D}.X3|x86.Build.0 = X3|Win32
+		{40FBABEF-14FE-490E-97B7-E43D01C6049D}.XD|x64.ActiveCfg = XD|x64
+		{40FBABEF-14FE-490E-97B7-E43D01C6049D}.XD|x64.Build.0 = XD|x64
+		{40FBABEF-14FE-490E-97B7-E43D01C6049D}.XD|x86.ActiveCfg = XD|Win32
+		{40FBABEF-14FE-490E-97B7-E43D01C6049D}.XD|x86.Build.0 = XD|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C0E9D6C6-46F4-4626-ABC3-E2E1C8974731}
+	EndGlobalSection
+EndGlobal
