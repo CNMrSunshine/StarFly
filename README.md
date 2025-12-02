@@ -44,11 +44,11 @@
 不再在内存中长期存储数据 移除多平台支持 精简代码 有效对抗针对SW3特征的内存扫描
 
 ### [自研栈欺骗方案](https://github.com/CNMrSunshine/StarFly/blob/master/StackSpoof.c)
-以`Kernel32!GetFileAttribute`作为傀儡函数 调用`ZwWriteVirtualMemory`系统调用为例
+以`Kernel32!GetFileAttributeW`作为傀儡函数 调用`ZwWriteVirtualMemory`系统调用为例
 
-- Step.1 解引用野指针 引发内存访问冲突 通过VEH修改DrX寄存器 在`ZwQueryInformationFile` `syscall`指令处设置硬件断点
-- Step.2 调用`GetFileAttribute` 触发硬件断点 劫持执行流到VEH
-- Step.3 重设系统调用号和调用参数 恢复执行流 同时保留了从`GetFileAttribute`到`ZwQueryInformationFile`的合法调用栈
+- Step.1 解引用野指针 引发内存访问冲突 通过VEH修改DrX寄存器 在`NtQueryAttributeFile` `syscall`指令处设置硬件断点
+- Step.2 调用`GetFileAttributeW` 触发硬件断点 劫持执行流到VEH
+- Step.3 重设系统调用号和调用参数 恢复执行流 同时保留了从`GetFileAttributeW`到`NtQueryAttributeFile`的合法调用栈
 
 ### [ChaCha20变体 解密Shellcode](https://github.com/CNMrSunshine/StarFly/blob/master/ChaCha20.c)
 位运算实现ChaCha20变体解密 自定义常量抹除标准ChaCha20特征
