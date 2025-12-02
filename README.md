@@ -43,9 +43,10 @@ SW3经深度改造 不再在内存中长期存储数据 移除多平台支持 �
 
 #### [自研栈欺骗方案](https://github.com/CNMrSunshine/StarFly/blob/master/StackSpoof.c)
 以Kernel32!GetFileAttribute作为傀儡函数 调用ZwWriteVirtualMemory系统调用为例
-Step.1 解引用野指针 引发内存访问冲突 通过VEH修改DrX寄存器 在ZwQueryInformationFile syscall指令处设置硬件断点
-Step.2 调用GetFileAttribute 触发硬件断点 劫持执行流到VEH
-Step.3 重设系统调用号和调用参数 恢复执行流 同时保留了从GetFileAttribute到ZwQueryInformationFile的合法调用栈
+
+- Step.1 解引用野指针 引发内存访问冲突 通过VEH修改DrX寄存器 在ZwQueryInformationFile syscall指令处设置硬件断点
+- Step.2 调用GetFileAttribute 触发硬件断点 劫持执行流到VEH
+- Step.3 重设系统调用号和调用参数 恢复执行流 同时保留了从GetFileAttribute到ZwQueryInformationFile的合法调用栈
 
 #### [ChaCha20变体 解密Shellcode](https://github.com/CNMrSunshine/StarFly/blob/master/ChaCha20.c)
 位运算实现ChaCha20变体解密 自定义常量抹除标准ChaCha20特征
