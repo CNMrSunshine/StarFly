@@ -50,16 +50,21 @@ SW3经深度改造 不再在内存中长期存储数据 移除多平台支持 �
 
 ### [ChaCha20变体 解密Shellcode](https://github.com/CNMrSunshine/StarFly/blob/master/ChaCha20.c)
 位运算实现ChaCha20变体解密 自定义常量抹除标准ChaCha20特征
+
 **注意: 安全软件仍可能识别到高熵数据 或将ChaCha20变体解密判断为xor解密** 如Zen Sandbox
 
 ### [句柄提权漏洞](https://github.com/CNMrSunshine/StarFly/blob/master/utils.c)
 利用[SysmonEnte](https://github.com/codewhitesec/SysmonEnte)公开的内核逻辑漏洞
+
 打开目标进程低权限句柄 再权限提升至PROCESS_ALL_ACCESS 有效对抗内核对象创建回调
+
 **安全软件可能阻止复制敏感进程PROCESS_ALL_ACCESS句柄 即使源句柄和目标句柄都属于注入器本身**
 
 ### [VEH注入 劫持目标进程执行流](https://github.com/CNMrSunshine/StarFly/blob/master/injector.c)
 VEH注入PoC来源: [VectoredExceptionHandling](https://github.com/passthehashbrowns/VectoredExceptionHandling)
+
 本地解析VEH链表结构体地址 模拟RtlAddVectoredExceptionHandler行为 向目标进程explorer.exe注入VEH
+
 explorer.exe本身会频繁抛出异常（感谢微软屎山代码） 注入VEH后几乎立刻就能捕获执行流 :3
 
 ### Shellcode Loader 的作用
