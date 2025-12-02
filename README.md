@@ -13,6 +13,7 @@
 - 随机化ChaCha20常量和key
 - 随机化目标函数和傀儡函数映射
 - 使用新的常量和key加密Shellcode
+
 **想使用自己的 Shellcode？**  
 直接修改脚本中的`shellcode`数组即可
 **强烈建议保留第一行Loader**（用于防止Shellcode被重复执行）
