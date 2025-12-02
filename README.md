@@ -34,12 +34,14 @@
 
 ## 注意事项
 本项目展示了**用户态**高级免杀技术 但是以下防护**无法绕过**
+
 基于CPU虚拟化和内核态Hook的防护 如360核晶
+
 移除所有句柄VM_Write权限的防护 如iDefender
 
 ## 技术详解
 ### [魔改Syswhisper3 动态解析系统调用号和syscall指令地址](https://github.com/CNMrSunshine/StarFly/blob/master/SSN-Resolve.c)
-SW3经深度改造 不再在内存中长期存储数据 移除多平台支持 精简代码 有效对抗针对SW3特征的内存扫描
+不再在内存中长期存储数据 移除多平台支持 精简代码 有效对抗针对SW3特征的内存扫描
 
 ### [自研栈欺骗方案](https://github.com/CNMrSunshine/StarFly/blob/master/StackSpoof.c)
 以`Kernel32!GetFileAttribute`作为傀儡函数 调用`ZwWriteVirtualMemory`系统调用为例
@@ -63,7 +65,7 @@ SW3经深度改造 不再在内存中长期存储数据 移除多平台支持 �
 ### [VEH注入 劫持目标进程执行流](https://github.com/CNMrSunshine/StarFly/blob/master/injector.c)
 VEH注入PoC来源: [VectoredExceptionHandling](https://github.com/passthehashbrowns/VectoredExceptionHandling)
 
-本地解析VEH链表结构体地址 模拟RtlAddVectoredExceptionHandler行为 向目标进程explorer.exe注入VEH
+本地解析VEH链表结构体地址 模拟`RtlAddVectoredExceptionHandler`行为 向目标进程explorer.exe注入VEH
 
 explorer.exe本身会频繁抛出异常（感谢微软屎山代码） 注入VEH后几乎立刻就能捕获执行流 :3
 
