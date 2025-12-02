@@ -1,4 +1,4 @@
-# 飞星注入器 StarFly Injector v4.0 alpha
+# 飞星注入器 StarFly Injector v4.0 α
 
 > **仍在开发阶段 暂不考虑公开发布 可自行下载源码编译使用**
 
